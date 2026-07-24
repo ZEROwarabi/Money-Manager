@@ -1,0 +1,2466 @@
+{
+  "records": [
+    {
+      "description": "最初の入金",
+      "date": "2025/08/18",
+      "category": "入金",
+      "expense": 0,
+      "income": 600,
+      "balance": 600,
+      "month": "2025-08"
+    },
+    {
+      "description": "カフェテリアコーヒー",
+      "date": "2025/09/02",
+      "category": "食費",
+      "expense": 3,
+      "income": 0,
+      "balance": 597,
+      "month": "2025-09"
+    },
+    {
+      "description": "よはねとらいがから入金",
+      "date": "2025/09/03",
+      "category": "入金",
+      "expense": 0,
+      "income": 106,
+      "balance": 703,
+      "month": "2025-09"
+    },
+    {
+      "description": "教科書",
+      "date": "2025/09/04",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55,
+      "income": 0,
+      "balance": 648,
+      "month": "2025-09"
+    },
+    {
+      "description": "コーヒー",
+      "date": "2025/09/05",
+      "category": "食費",
+      "expense": 6,
+      "income": 0,
+      "balance": 642,
+      "month": "2025-09"
+    },
+    {
+      "description": "バーガー",
+      "date": "2025/09/08",
+      "category": "食費",
+      "expense": 12.35,
+      "income": 0,
+      "balance": 629.65,
+      "month": "2025-09"
+    },
+    {
+      "description": "Tシャツ",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 21.95,
+      "income": 0,
+      "balance": 607.7,
+      "month": "2025-09"
+    },
+    {
+      "description": "服",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 60.35,
+      "income": 0,
+      "balance": 547.35,
+      "month": "2025-09"
+    },
+    {
+      "description": "スニーカー",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 148.16,
+      "income": 0,
+      "balance": 399.19,
+      "month": "2025-09"
+    },
+    {
+      "description": "ズボン",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 60.35,
+      "income": 0,
+      "balance": 338.84,
+      "month": "2025-09"
+    },
+    {
+      "description": "ドライビングテスト",
+      "date": "2025/09/12",
+      "category": "ホームステイ等、必要経費",
+      "expense": 45,
+      "income": 0,
+      "balance": 293.84,
+      "month": "2025-09"
+    },
+    {
+      "description": "スパイク",
+      "date": "2025/09/15",
+      "category": "娯楽費",
+      "expense": 54.61,
+      "income": 0,
+      "balance": 239.23,
+      "month": "2025-09"
+    },
+    {
+      "description": "スポーツ用ズボン",
+      "date": "2025/09/15",
+      "category": "衣服代",
+      "expense": 8.73,
+      "income": 0,
+      "balance": 230.5,
+      "month": "2025-09"
+    },
+    {
+      "description": "親から送ってもらった",
+      "date": "2025/09/16",
+      "category": "入金",
+      "expense": 0,
+      "income": 4500,
+      "balance": 4730.5,
+      "month": "2025-09"
+    },
+    {
+      "description": "散髪代",
+      "date": "2025/09/17",
+      "category": "生活品費",
+      "expense": 40,
+      "income": 0,
+      "balance": 4690.5,
+      "month": "2025-09"
+    },
+    {
+      "description": "クリッパーカード",
+      "date": "2025/09/18",
+      "category": "ホームステイ等、必要経費",
+      "expense": 70,
+      "income": 0,
+      "balance": 4620.5,
+      "month": "2025-09"
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "生活品費",
+      "expense": 1.45,
+      "income": 0,
+      "balance": 4619.05,
+      "month": "2025-09"
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "生活品費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4619.05,
+      "month": "2025-09"
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "生活品費",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 4613.93,
+      "month": "2025-09"
+    },
+    {
+      "description": "BBQパーティー",
+      "date": "2025/09/18",
+      "category": "食費",
+      "expense": 10,
+      "income": 0,
+      "balance": 4603.93,
+      "month": "2025-09"
+    },
+    {
+      "description": "インナンアウト",
+      "date": "2025/09/22",
+      "category": "食費",
+      "expense": 2.46,
+      "income": 0,
+      "balance": 4601.47,
+      "month": "2025-09"
+    },
+    {
+      "description": "インナンアウト",
+      "date": "2025/09/22",
+      "category": "食費",
+      "expense": 9.56,
+      "income": 0,
+      "balance": 4591.91,
+      "month": "2025-09"
+    },
+    {
+      "description": "サンフランシスコの中華料理屋",
+      "date": "2025/09/29",
+      "category": "食費",
+      "expense": 20.53,
+      "income": 0,
+      "balance": 4571.38,
+      "month": "2025-09"
+    },
+    {
+      "description": "ブルーロック",
+      "date": "2025/09/29",
+      "category": "娯楽費",
+      "expense": 14.11,
+      "income": 0,
+      "balance": 4557.27,
+      "month": "2025-09"
+    },
+    {
+      "description": "ズボン",
+      "date": "2025/10/01",
+      "category": "衣服代",
+      "expense": 57,
+      "income": 0,
+      "balance": 4500.27,
+      "month": "2025-10"
+    },
+    {
+      "description": "パーキングぱーみっと",
+      "date": "2025/10/14",
+      "category": "ホームステイ等、必要経費",
+      "expense": 50,
+      "income": 0,
+      "balance": 4450.27,
+      "month": "2025-10"
+    },
+    {
+      "description": "ホームステイ代10月",
+      "date": "2025/10/17",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1340,
+      "income": 0,
+      "balance": 3110.27,
+      "month": "2025-10"
+    },
+    {
+      "description": "ジョーダンのパーカー",
+      "date": "2025/10/22",
+      "category": "衣服代",
+      "expense": 87.8,
+      "income": 0,
+      "balance": 3022.47,
+      "month": "2025-10"
+    },
+    {
+      "description": "ニックサグリーク",
+      "date": "2025/10/27",
+      "category": "食費",
+      "expense": 13.66,
+      "income": 0,
+      "balance": 3008.81,
+      "month": "2025-10"
+    },
+    {
+      "description": "アイス",
+      "date": "2025/10/27",
+      "category": "食費",
+      "expense": 8.8,
+      "income": 0,
+      "balance": 3000.01,
+      "month": "2025-10"
+    },
+    {
+      "description": "くつの消臭剤",
+      "date": "2025/10/28",
+      "category": "生活品費",
+      "expense": 8.96,
+      "income": 0,
+      "balance": 2991.05,
+      "month": "2025-10"
+    },
+    {
+      "description": "飲み物代",
+      "date": "2025/11/03",
+      "category": "食費",
+      "expense": 13.22,
+      "income": 0,
+      "balance": 2977.83,
+      "month": "2025-11"
+    },
+    {
+      "description": "免許試験代",
+      "date": "2025/11/05",
+      "category": "ホームステイ等、必要経費",
+      "expense": 9,
+      "income": 0,
+      "balance": 2968.83,
+      "month": "2025-11"
+    },
+    {
+      "description": "ホームステイ代11月",
+      "date": "2025/11/10",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1440,
+      "income": 0,
+      "balance": 1528.83,
+      "month": "2025-11"
+    },
+    {
+      "description": "クレンジング",
+      "date": "2025/11/12",
+      "category": "生活品費",
+      "expense": 13.49,
+      "income": 0,
+      "balance": 1515.34,
+      "month": "2025-11"
+    },
+    {
+      "description": "アイス",
+      "date": "2025/11/12",
+      "category": "食費",
+      "expense": 20.65,
+      "income": 0,
+      "balance": 1494.69,
+      "month": "2025-11"
+    },
+    {
+      "description": "ぼばてぃー",
+      "date": "2025/11/12",
+      "category": "食費",
+      "expense": 8.41,
+      "income": 0,
+      "balance": 1486.28,
+      "month": "2025-11"
+    },
+    {
+      "description": "タオル",
+      "date": "2025/11/13",
+      "category": "生活品費",
+      "expense": 16.35,
+      "income": 0,
+      "balance": 1469.93,
+      "month": "2025-11"
+    },
+    {
+      "description": "こんにゃくパフ",
+      "date": "2025/11/13",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 1467.46,
+      "month": "2025-11"
+    },
+    {
+      "description": "ベルト、アウター",
+      "date": "2025/11/17",
+      "category": "衣服代",
+      "expense": 65.48,
+      "income": 0,
+      "balance": 1401.98,
+      "month": "2025-11"
+    },
+    {
+      "description": "りゅうとくんへのチキン代",
+      "date": "2025/11/17",
+      "category": "食費",
+      "expense": 6.11,
+      "income": 0,
+      "balance": 1395.87,
+      "month": "2025-11"
+    },
+    {
+      "description": "たくせいさんへの飲み物代",
+      "date": "2025/11/21",
+      "category": "娯楽費",
+      "expense": 11.1,
+      "income": 0,
+      "balance": 1384.77,
+      "month": "2025-11"
+    },
+    {
+      "description": "入金",
+      "date": "2025/11/24",
+      "category": "入金",
+      "expense": 0,
+      "income": 1000,
+      "balance": 2384.77,
+      "month": "2025-11"
+    },
+    {
+      "description": "授業料",
+      "date": "2025/11/24",
+      "category": "ホームステイ等、必要経費",
+      "expense": 438,
+      "income": 0,
+      "balance": 1946.77,
+      "month": "2025-11"
+    },
+    {
+      "description": "Gas",
+      "date": "2025/11/24",
+      "category": "ガソリン交通費",
+      "expense": 30.97,
+      "income": 0,
+      "balance": 1915.8,
+      "month": "2025-11"
+    },
+    {
+      "description": "シャンプー",
+      "date": "2025/11/25",
+      "category": "生活品費",
+      "expense": 9.28,
+      "income": 0,
+      "balance": 1906.52,
+      "month": "2025-11"
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/04",
+      "category": "生活品費",
+      "expense": 4.94,
+      "income": 0,
+      "balance": 1901.58,
+      "month": "2025-12"
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2025/12/05",
+      "category": "食費",
+      "expense": 17.43,
+      "income": 0,
+      "balance": 1884.15,
+      "month": "2025-12"
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2025/12/08",
+      "category": "食費",
+      "expense": 8.19,
+      "income": 0,
+      "balance": 1875.96,
+      "month": "2025-12"
+    },
+    {
+      "description": "チポレ",
+      "date": "2025/12/11",
+      "category": "食費",
+      "expense": 28.5,
+      "income": 0,
+      "balance": 1847.46,
+      "month": "2025-12"
+    },
+    {
+      "description": "Bowling",
+      "date": "2025/12/15",
+      "category": "娯楽費",
+      "expense": 14.05,
+      "income": 0,
+      "balance": 1833.41,
+      "month": "2025-12"
+    },
+    {
+      "description": "おみやげ",
+      "date": "2025/12/16",
+      "category": "娯楽費",
+      "expense": 12,
+      "income": 0,
+      "balance": 1821.41,
+      "month": "2025-12"
+    },
+    {
+      "description": "ぼばてぃ",
+      "date": "2025/12/16",
+      "category": "食費",
+      "expense": 8.55,
+      "income": 0,
+      "balance": 1812.86,
+      "month": "2025-12"
+    },
+    {
+      "description": "タイヤパンク",
+      "date": "2025/12/16",
+      "category": "ホームステイ等、必要経費",
+      "expense": 54.99,
+      "income": 0,
+      "balance": 1757.87,
+      "month": "2025-12"
+    },
+    {
+      "description": "くつ",
+      "date": "2025/12/17",
+      "category": "衣服代",
+      "expense": 126.21,
+      "income": 0,
+      "balance": 1631.66,
+      "month": "2025-12"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/17",
+      "category": "ガソリン交通費",
+      "expense": 17.88,
+      "income": 0,
+      "balance": 1613.78,
+      "month": "2025-12"
+    },
+    {
+      "description": "ギラデリ",
+      "date": "2025/12/17",
+      "category": "娯楽費",
+      "expense": 21.82,
+      "income": 0,
+      "balance": 1591.96,
+      "month": "2025-12"
+    },
+    {
+      "description": "ギラデリ",
+      "date": "2025/12/17",
+      "category": "娯楽費",
+      "expense": 80.25,
+      "income": 0,
+      "balance": 1511.71,
+      "month": "2025-12"
+    },
+    {
+      "description": "パーキング",
+      "date": "2025/12/18",
+      "category": "ガソリン交通費",
+      "expense": 5,
+      "income": 0,
+      "balance": 1506.71,
+      "month": "2025-12"
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/18",
+      "category": "生活品費",
+      "expense": 4.88,
+      "income": 0,
+      "balance": 1501.83,
+      "month": "2025-12"
+    },
+    {
+      "description": "ホームステイ代12月",
+      "date": "2025/12/19",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1000,
+      "income": 0,
+      "balance": 501.83,
+      "month": "2025-12"
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/22",
+      "category": "生活品費",
+      "expense": 2.25,
+      "income": 0,
+      "balance": 499.58,
+      "month": "2025-12"
+    },
+    {
+      "description": "トレジョ",
+      "date": "2025/12/22",
+      "category": "生活品費",
+      "expense": 3.29,
+      "income": 0,
+      "balance": 496.29,
+      "month": "2025-12"
+    },
+    {
+      "description": "セーフウェイ",
+      "date": "2025/12/22",
+      "category": "生活品費",
+      "expense": 18,
+      "income": 0,
+      "balance": 478.29,
+      "month": "2025-12"
+    },
+    {
+      "description": "映画の返金",
+      "date": "2025/12/23",
+      "category": "娯楽費",
+      "expense": 0,
+      "income": 13.05,
+      "balance": 491.34,
+      "month": "2025-12"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/24",
+      "category": "ガソリン交通費",
+      "expense": 27.34,
+      "income": 0,
+      "balance": 464,
+      "month": "2025-12"
+    },
+    {
+      "description": "映画",
+      "date": "2025/12/24",
+      "category": "娯楽費",
+      "expense": 27.98,
+      "income": 0,
+      "balance": 436.02,
+      "month": "2025-12"
+    },
+    {
+      "description": "ロンティー",
+      "date": "2025/12/24",
+      "category": "娯楽費",
+      "expense": 29.61,
+      "income": 0,
+      "balance": 406.41,
+      "month": "2025-12"
+    },
+    {
+      "description": "googleのマグカップ",
+      "date": "2025/12/26",
+      "category": "娯楽費",
+      "expense": 16.37,
+      "income": 0,
+      "balance": 390.04,
+      "month": "2025-12"
+    },
+    {
+      "description": "コーヒー",
+      "date": "2025/12/26",
+      "category": "食費",
+      "expense": 1.36,
+      "income": 0,
+      "balance": 388.68,
+      "month": "2025-12"
+    },
+    {
+      "description": "タコベル",
+      "date": "2025/12/26",
+      "category": "食費",
+      "expense": 2.61,
+      "income": 0,
+      "balance": 386.07,
+      "month": "2025-12"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/29",
+      "category": "ガソリン交通費",
+      "expense": 21.22,
+      "income": 0,
+      "balance": 364.85,
+      "month": "2025-12"
+    },
+    {
+      "description": "Panda",
+      "date": "2025/12/30",
+      "category": "食費",
+      "expense": 65.99,
+      "income": 0,
+      "balance": 298.86,
+      "month": "2025-12"
+    },
+    {
+      "description": "Waymo",
+      "date": "2025/12/30",
+      "category": "ガソリン交通費",
+      "expense": 23.61,
+      "income": 0,
+      "balance": 275.25,
+      "month": "2025-12"
+    },
+    {
+      "description": "Waymo",
+      "date": "2025/12/30",
+      "category": "ガソリン交通費",
+      "expense": 15.3,
+      "income": 0,
+      "balance": 259.95,
+      "month": "2025-12"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/31",
+      "category": "ガソリン交通費",
+      "expense": 16.94,
+      "income": 0,
+      "balance": 243.01,
+      "month": "2025-12"
+    },
+    {
+      "description": "サンフラベーカリーカフェ",
+      "date": "2025/12/31",
+      "category": "食費",
+      "expense": 63.22,
+      "income": 0,
+      "balance": 179.79,
+      "month": "2025-12"
+    },
+    {
+      "description": "アルカトラズ",
+      "date": "2025/12/31",
+      "category": "娯楽費",
+      "expense": 63.82,
+      "income": 0,
+      "balance": 115.97,
+      "month": "2025-12"
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/01/02",
+      "category": "ガソリン交通費",
+      "expense": 1,
+      "income": 0,
+      "balance": 114.97,
+      "month": "2026-01"
+    },
+    {
+      "description": "ヨセミテのTシャツ",
+      "date": "2026/01/02",
+      "category": "衣服代",
+      "expense": 44.38,
+      "income": 0,
+      "balance": 70.59,
+      "month": "2026-01"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/01/05",
+      "category": "ガソリン交通費",
+      "expense": 12.78,
+      "income": 0,
+      "balance": 57.81,
+      "month": "2026-01"
+    },
+    {
+      "description": "マグカップ",
+      "date": "2026/01/05",
+      "category": "娯楽費",
+      "expense": 16.45,
+      "income": 0,
+      "balance": 41.36,
+      "month": "2026-01"
+    },
+    {
+      "description": "入金",
+      "date": "2026/01/26",
+      "category": "入金",
+      "expense": 0,
+      "income": 6350,
+      "balance": 6391.36,
+      "month": "2026-01"
+    },
+    {
+      "description": "パーキングぱーみっと",
+      "date": "2026/01/28",
+      "category": "ホームステイ等、必要経費",
+      "expense": 50,
+      "income": 0,
+      "balance": 6341.36,
+      "month": "2026-01"
+    },
+    {
+      "description": "ホームステイ代1月",
+      "date": "2026/01/28",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 4891.36,
+      "month": "2026-01"
+    },
+    {
+      "description": "教科書",
+      "date": "2026/02/04",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55.22,
+      "income": 0,
+      "balance": 4836.14,
+      "month": "2026-02"
+    },
+    {
+      "description": "ダイソー",
+      "date": "2026/02/06",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4833.67,
+      "month": "2026-02"
+    },
+    {
+      "description": "ジム",
+      "date": "2026/02/09",
+      "category": "娯楽費",
+      "expense": 199,
+      "income": 0,
+      "balance": 3095.41,
+      "month": "2026-02"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/10",
+      "category": "娯楽費",
+      "expense": 41.39,
+      "income": 0,
+      "balance": 4792.28,
+      "month": "2026-02"
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/02/13",
+      "category": "娯楽費",
+      "expense": 34.71,
+      "income": 0,
+      "balance": 4757.57,
+      "month": "2026-02"
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/02/17",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 3307.57,
+      "month": "2026-02"
+    },
+    {
+      "description": "アンクルバーガー",
+      "date": "2026/02/17",
+      "category": "食費",
+      "expense": 13.16,
+      "income": 0,
+      "balance": 3294.41,
+      "month": "2026-02"
+    },
+    {
+      "description": "ごはんかい",
+      "date": "2026/02/23",
+      "category": "食費",
+      "expense": 15,
+      "income": 0,
+      "balance": 3080.41,
+      "month": "2026-02"
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/02/24",
+      "category": "娯楽費",
+      "expense": 20.16,
+      "income": 0,
+      "balance": 3060.25,
+      "month": "2026-02"
+    },
+    {
+      "description": "飲み物",
+      "date": "2026/02/25",
+      "category": "食費",
+      "expense": 3.5,
+      "income": 0,
+      "balance": 3056.75,
+      "month": "2026-02"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/26",
+      "category": "ガソリン交通費",
+      "expense": 26.7,
+      "income": 0,
+      "balance": 3030.05,
+      "month": "2026-02"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/26",
+      "category": "ガソリン交通費",
+      "expense": 20.69,
+      "income": 0,
+      "balance": 3009.36,
+      "month": "2026-02"
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2026/03/02",
+      "category": "食費",
+      "expense": 18.52,
+      "income": 0,
+      "balance": 2990.84,
+      "month": "2026-03"
+    },
+    {
+      "description": "カフェてでなんかかった",
+      "date": "2026/03/03",
+      "category": "食費",
+      "expense": 3,
+      "income": 0,
+      "balance": 2987.84,
+      "month": "2026-03"
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/03/05",
+      "category": "食費",
+      "expense": 5.37,
+      "income": 0,
+      "balance": 2982.47,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/03/09",
+      "category": "ガソリン交通費",
+      "expense": 47.68,
+      "income": 0,
+      "balance": 2934.79,
+      "month": "2026-03"
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/03/09",
+      "category": "娯楽費",
+      "expense": 4.7,
+      "income": 0,
+      "balance": 2930.09,
+      "month": "2026-03"
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/03/13",
+      "category": "娯楽費",
+      "expense": 18.56,
+      "income": 0,
+      "balance": 2911.53,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/03/16",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 1461.53,
+      "month": "2026-03"
+    },
+    {
+      "description": "三脚かなたぶん",
+      "date": "2026/03/16",
+      "category": "娯楽費",
+      "expense": 162.78,
+      "income": 0,
+      "balance": 1298.75,
+      "month": "2026-03"
+    },
+    {
+      "description": "帽子",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 38.86,
+      "income": 0,
+      "balance": 1259.89,
+      "month": "2026-03"
+    },
+    {
+      "description": "Tシャツ",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 27.61,
+      "income": 0,
+      "balance": 1232.28,
+      "month": "2026-03"
+    },
+    {
+      "description": "エマール",
+      "date": "2026/03/16",
+      "category": "生活品費",
+      "expense": 8.81,
+      "income": 0,
+      "balance": 1223.47,
+      "month": "2026-03"
+    },
+    {
+      "description": "スニーカー",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 126.78,
+      "income": 0,
+      "balance": 1096.69,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "スプリングブレイク",
+      "expense": 79.18,
+      "income": 0,
+      "balance": 1017.51,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "スプリングブレイク",
+      "expense": 84.95,
+      "income": 0,
+      "balance": 932.56,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "スプリングブレイク",
+      "expense": 202.69,
+      "income": 0,
+      "balance": 729.87,
+      "month": "2026-03"
+    },
+    {
+      "description": "ぼばてぃ",
+      "date": "2026/03/23",
+      "category": "スプリングブレイク",
+      "expense": 8.76,
+      "income": 0,
+      "balance": 721.11,
+      "month": "2026-03"
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/03/23",
+      "category": "スプリングブレイク",
+      "expense": 3,
+      "income": 0,
+      "balance": 718.11,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/23",
+      "category": "スプリングブレイク",
+      "expense": 85.32,
+      "income": 0,
+      "balance": 632.79,
+      "month": "2026-03"
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/03/23",
+      "category": "スプリングブレイク",
+      "expense": 4,
+      "income": 0,
+      "balance": 628.79,
+      "month": "2026-03"
+    },
+    {
+      "description": "野球",
+      "date": "2026/03/23",
+      "category": "スプリングブレイク",
+      "expense": 105.15,
+      "income": 0,
+      "balance": 523.64,
+      "month": "2026-03"
+    },
+    {
+      "description": "よはねに送ってもらった",
+      "date": "2026/03/24",
+      "category": "スプリングブレイク",
+      "expense": 0,
+      "income": 500,
+      "balance": 1023.64,
+      "month": "2026-03"
+    },
+    {
+      "description": "innout",
+      "date": "2026/03/24",
+      "category": "スプリングブレイク",
+      "expense": 8.53,
+      "income": 0,
+      "balance": 1015.11,
+      "month": "2026-03"
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/24",
+      "category": "スプリングブレイク",
+      "expense": 129.31,
+      "income": 0,
+      "balance": 885.8,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/24",
+      "category": "スプリングブレイク",
+      "expense": 29.42,
+      "income": 0,
+      "balance": 856.38,
+      "month": "2026-03"
+    },
+    {
+      "description": "入金",
+      "date": "2026/03/25",
+      "category": "スプリングブレイク",
+      "expense": 0,
+      "income": 6250,
+      "balance": 7106.38,
+      "month": "2026-03"
+    },
+    {
+      "description": "きんぐまんめし",
+      "date": "2026/03/25",
+      "category": "スプリングブレイク",
+      "expense": 22.38,
+      "income": 0,
+      "balance": 7084,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/26",
+      "category": "スプリングブレイク",
+      "expense": 27.4,
+      "income": 0,
+      "balance": 7056.6,
+      "month": "2026-03"
+    },
+    {
+      "description": "めし",
+      "date": "2026/03/26",
+      "category": "スプリングブレイク",
+      "expense": 8.32,
+      "income": 0,
+      "balance": 7048.28,
+      "month": "2026-03"
+    },
+    {
+      "description": "ミュージアム",
+      "date": "2026/03/26",
+      "category": "スプリングブレイク",
+      "expense": 10,
+      "income": 0,
+      "balance": 7038.28,
+      "month": "2026-03"
+    },
+    {
+      "description": "キングマン飯",
+      "date": "2026/03/26",
+      "category": "スプリングブレイク",
+      "expense": 22.16,
+      "income": 0,
+      "balance": 7016.12,
+      "month": "2026-03"
+    },
+    {
+      "description": "キングマンめし",
+      "date": "2026/03/27",
+      "category": "スプリングブレイク",
+      "expense": 20.15,
+      "income": 0,
+      "balance": 6995.97,
+      "month": "2026-03"
+    },
+    {
+      "description": "グランドキャニオン飯",
+      "date": "2026/03/27",
+      "category": "スプリングブレイク",
+      "expense": 27.52,
+      "income": 0,
+      "balance": 6968.45,
+      "month": "2026-03"
+    },
+    {
+      "description": "キングマン飯",
+      "date": "2026/03/27",
+      "category": "スプリングブレイク",
+      "expense": 16.13,
+      "income": 0,
+      "balance": 6952.32,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 27.23,
+      "income": 0,
+      "balance": 6925.09,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 39.47,
+      "income": 0,
+      "balance": 6885.62,
+      "month": "2026-03"
+    },
+    {
+      "description": "リッジクレスト",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 10.15,
+      "income": 0,
+      "balance": 6875.47,
+      "month": "2026-03"
+    },
+    {
+      "description": "飯",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 31.97,
+      "income": 0,
+      "balance": 6843.5,
+      "month": "2026-03"
+    },
+    {
+      "description": "ナショナルパーク年パス",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 80,
+      "income": 0,
+      "balance": 6763.5,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 14.71,
+      "income": 0,
+      "balance": 6748.79,
+      "month": "2026-03"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 6.28,
+      "income": 0,
+      "balance": 6742.51,
+      "month": "2026-03"
+    },
+    {
+      "description": "セリグマン",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 16,
+      "income": 0,
+      "balance": 6726.51,
+      "month": "2026-03"
+    },
+    {
+      "description": "グランドキャニオン",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 35,
+      "income": 0,
+      "balance": 6691.51,
+      "month": "2026-03"
+    },
+    {
+      "description": "ステーキ",
+      "date": "2026/03/30",
+      "category": "スプリングブレイク",
+      "expense": 62.11,
+      "income": 0,
+      "balance": 6629.4,
+      "month": "2026-03"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/04/02",
+      "category": "スプリングブレイク",
+      "expense": 52.24,
+      "income": 0,
+      "balance": 6577.16,
+      "month": "2026-04"
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/04/03",
+      "category": "食費",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 6572.04,
+      "month": "2026-04"
+    },
+    {
+      "description": "ホットドッグ",
+      "date": "2026/04/06",
+      "category": "食費",
+      "expense": 1.65,
+      "income": 0,
+      "balance": 6570.39,
+      "month": "2026-04"
+    },
+    {
+      "description": "ホットドッグ",
+      "date": "2026/04/06",
+      "category": "食費",
+      "expense": 4.38,
+      "income": 0,
+      "balance": 6566.01,
+      "month": "2026-04"
+    },
+    {
+      "description": "ジム",
+      "date": "2026/04/08",
+      "category": "娯楽費",
+      "expense": 59,
+      "income": 0,
+      "balance": 6507.01,
+      "month": "2026-04"
+    },
+    {
+      "description": "いんおうつ",
+      "date": "2026/04/13",
+      "category": "食費",
+      "expense": 3.55,
+      "income": 0,
+      "balance": 6503.46,
+      "month": "2026-04"
+    },
+    {
+      "description": "ガス",
+      "date": "2026/04/13",
+      "category": "ガソリン交通費",
+      "expense": 32.99,
+      "income": 0,
+      "balance": 6470.47,
+      "month": "2026-04"
+    },
+    {
+      "description": "BBQ",
+      "date": "2026/04/14",
+      "category": "娯楽費",
+      "expense": 10,
+      "income": 0,
+      "balance": 6460.47,
+      "month": "2026-04"
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/04/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 5010.47,
+      "month": "2026-04"
+    },
+    {
+      "description": "野球観戦",
+      "date": "2026/04/20",
+      "category": "娯楽費",
+      "expense": 195,
+      "income": 0,
+      "balance": 4815.47,
+      "month": "2026-04"
+    },
+    {
+      "description": "ごはん",
+      "date": "2026/04/22",
+      "category": "食費",
+      "expense": 8.74,
+      "income": 0,
+      "balance": 4806.73,
+      "month": "2026-04"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/04/23",
+      "category": "ガソリン交通費",
+      "expense": 26.51,
+      "income": 0,
+      "balance": 4780.22,
+      "month": "2026-04"
+    },
+    {
+      "description": "柔軟剤",
+      "date": "2026/04/23",
+      "category": "生活品費",
+      "expense": 12.72,
+      "income": 0,
+      "balance": 4767.5,
+      "month": "2026-04"
+    },
+    {
+      "description": "野球観戦のごはん",
+      "date": "2026/04/23",
+      "category": "食費",
+      "expense": 14.37,
+      "income": 0,
+      "balance": 4753.13,
+      "month": "2026-04"
+    },
+    {
+      "description": "旅行代の清算",
+      "date": "2026/05/04",
+      "category": "スプリングブレイク",
+      "expense": 356.68,
+      "income": 0,
+      "balance": 4396.45,
+      "month": "2026-05"
+    },
+    {
+      "description": "BUCHIご飯会",
+      "date": "2026/05/04",
+      "category": "食費",
+      "expense": 27.5,
+      "income": 0,
+      "balance": 4368.95,
+      "month": "2026-05"
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/05/04",
+      "category": "食費",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 4363.83,
+      "month": "2026-05"
+    },
+    {
+      "description": "モニターアーム",
+      "date": "2026/05/04",
+      "category": "生活品費",
+      "expense": 32.76,
+      "income": 0,
+      "balance": 4331.07,
+      "month": "2026-05"
+    },
+    {
+      "description": "旅行ご飯代清算",
+      "date": "2026/05/05",
+      "category": "スプリングブレイク",
+      "expense": 0,
+      "income": 40,
+      "balance": 4371.07,
+      "month": "2026-05"
+    },
+    {
+      "description": "プロジェクター半額分",
+      "date": "2026/05/05",
+      "category": "娯楽費",
+      "expense": 0,
+      "income": 54.62,
+      "balance": 4425.69,
+      "month": "2026-05"
+    },
+    {
+      "description": "スイッチボット",
+      "date": "2026/05/06",
+      "category": "生活品費",
+      "expense": 33.93,
+      "income": 0,
+      "balance": 4391.76,
+      "month": "2026-05"
+    },
+    {
+      "description": "プロジェクター",
+      "date": "2026/05/06",
+      "category": "娯楽費",
+      "expense": 109.24,
+      "income": 0,
+      "balance": 4282.52,
+      "month": "2026-05"
+    },
+    {
+      "description": "くつ置き",
+      "date": "2026/05/06",
+      "category": "生活品費",
+      "expense": 19.67,
+      "income": 0,
+      "balance": 4262.85,
+      "month": "2026-05"
+    },
+    {
+      "description": "壁掛けフック",
+      "date": "2026/05/06",
+      "category": "生活品費",
+      "expense": 7.41,
+      "income": 0,
+      "balance": 4255.44,
+      "month": "2026-05"
+    },
+    {
+      "description": "プロジェクター用スクリーン",
+      "date": "2026/05/07",
+      "category": "娯楽費",
+      "expense": 14.52,
+      "income": 0,
+      "balance": 4240.92,
+      "month": "2026-05"
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/05/11",
+      "category": "ガソリン交通費",
+      "expense": 2,
+      "income": 0,
+      "balance": 4238.92,
+      "month": "2026-05"
+    },
+    {
+      "description": "ディフューザースティック",
+      "date": "2026/05/11",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4236.45,
+      "month": "2026-05"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/11",
+      "category": "ガソリン交通費",
+      "expense": 53.88,
+      "income": 0,
+      "balance": 4182.57,
+      "month": "2026-05"
+    },
+    {
+      "description": "両面テープ",
+      "date": "2026/05/11",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4180.1,
+      "month": "2026-05"
+    },
+    {
+      "description": "ドアノブケース",
+      "date": "2026/05/11",
+      "category": "生活品費",
+      "expense": 6.54,
+      "income": 0,
+      "balance": 4173.56,
+      "month": "2026-05"
+    },
+    {
+      "description": "壁掛け用フック",
+      "date": "2026/05/14",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4171.09,
+      "month": "2026-05"
+    },
+    {
+      "description": "モバイルバッテリー",
+      "date": "2026/05/18",
+      "category": "生活品費",
+      "expense": 24.35,
+      "income": 0,
+      "balance": 4146.74,
+      "month": "2026-05"
+    },
+    {
+      "description": "ホームステイFee",
+      "date": "2026/05/18",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 2696.74,
+      "month": "2026-05"
+    },
+    {
+      "description": "ご飯会",
+      "date": "2026/05/21",
+      "category": "食費",
+      "expense": 11,
+      "income": 0,
+      "balance": 2685.74,
+      "month": "2026-05"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/26",
+      "category": "ガソリン交通費",
+      "expense": 31.8,
+      "income": 0,
+      "balance": 2653.94,
+      "month": "2026-05"
+    },
+    {
+      "description": "ごはん",
+      "date": "2026/05/26",
+      "category": "食費",
+      "expense": 8.26,
+      "income": 0,
+      "balance": 2645.68,
+      "month": "2026-05"
+    },
+    {
+      "description": "クレンジング",
+      "date": "2026/05/26",
+      "category": "生活品費",
+      "expense": 25.35,
+      "income": 0,
+      "balance": 2620.33,
+      "month": "2026-05"
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/05/27",
+      "category": "ガソリン交通費",
+      "expense": 16,
+      "income": 0,
+      "balance": 2604.33,
+      "month": "2026-05"
+    },
+    {
+      "description": "ドライヤー",
+      "date": "2026/05/27",
+      "category": "生活品費",
+      "expense": 65.54,
+      "income": 0,
+      "balance": 2538.79,
+      "month": "2026-05"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/29",
+      "category": "ガソリン交通費",
+      "expense": 18.29,
+      "income": 0,
+      "balance": 2520.5,
+      "month": "2026-05"
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/06/01",
+      "category": "ガソリン交通費",
+      "expense": 8,
+      "income": 0,
+      "balance": 2512.5,
+      "month": "2026-06"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/03",
+      "category": "ガソリン交通費",
+      "expense": 31.58,
+      "income": 0,
+      "balance": 2480.92,
+      "month": "2026-06"
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/06/03",
+      "category": "ガソリン交通費",
+      "expense": 10,
+      "income": 0,
+      "balance": 2470.92,
+      "month": "2026-06"
+    },
+    {
+      "description": "ボルダリング",
+      "date": "2026/06/03",
+      "category": "娯楽費",
+      "expense": 25,
+      "income": 0,
+      "balance": 2445.92,
+      "month": "2026-06"
+    },
+    {
+      "description": "タンクトップ",
+      "date": "2026/06/04",
+      "category": "衣服代",
+      "expense": 14.96,
+      "income": 0,
+      "balance": 2430.96,
+      "month": "2026-06"
+    },
+    {
+      "description": "タンクトップ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 20.47,
+      "income": 0,
+      "balance": 2410.49,
+      "month": "2026-06"
+    },
+    {
+      "description": "パンツ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 27.37,
+      "income": 0,
+      "balance": 2383.12,
+      "month": "2026-06"
+    },
+    {
+      "description": "パンツ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 11.22,
+      "income": 0,
+      "balance": 2371.9,
+      "month": "2026-06"
+    },
+    {
+      "description": "ネックレス",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 7.53,
+      "income": 0,
+      "balance": 2364.37,
+      "month": "2026-06"
+    },
+    {
+      "description": "野球",
+      "date": "2026/06/09",
+      "category": "娯楽費",
+      "expense": 12,
+      "income": 0,
+      "balance": 2352.37,
+      "month": "2026-06"
+    },
+    {
+      "description": "やきにく",
+      "date": "2026/06/12",
+      "category": "食費",
+      "expense": 31.25,
+      "income": 0,
+      "balance": 2321.12,
+      "month": "2026-06"
+    },
+    {
+      "description": "ナッツベリーファーム",
+      "date": "2026/06/12",
+      "category": "娯楽費",
+      "expense": 69,
+      "income": 0,
+      "balance": 2252.12,
+      "month": "2026-06"
+    },
+    {
+      "description": "ナッツベリーファーム立替",
+      "date": "2026/06/15",
+      "category": "娯楽費",
+      "expense": 75,
+      "income": 0,
+      "balance": 2177.12,
+      "month": "2026-06"
+    },
+    {
+      "description": "やきにく立替",
+      "date": "2026/06/15",
+      "category": "食費",
+      "expense": 31.25,
+      "income": 0,
+      "balance": 2145.87,
+      "month": "2026-06"
+    },
+    {
+      "description": "寿司",
+      "date": "2026/06/15",
+      "category": "食費",
+      "expense": 30,
+      "income": 0,
+      "balance": 2115.87,
+      "month": "2026-06"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/15",
+      "category": "ガソリン交通費",
+      "expense": 12.35,
+      "income": 0,
+      "balance": 2103.52,
+      "month": "2026-06"
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/06/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 653.52,
+      "month": "2026-06"
+    },
+    {
+      "description": "事故修理代",
+      "date": "2026/06/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 300,
+      "income": 0,
+      "balance": 353.52,
+      "month": "2026-06"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/18",
+      "category": "ガソリン交通費",
+      "expense": 61.32,
+      "income": 0,
+      "balance": 292.2,
+      "month": "2026-06"
+    },
+    {
+      "description": "ターゲットで何か買った",
+      "date": "2026/06/22",
+      "category": "生活品費",
+      "expense": 19.3,
+      "income": 0,
+      "balance": 272.9,
+      "month": "2026-06"
+    },
+    {
+      "description": "教科書",
+      "date": "2026/06/22",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55,
+      "income": 0,
+      "balance": 217.9,
+      "month": "2026-06"
+    },
+    {
+      "description": "教科書",
+      "date": "2026/06/22",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55.01,
+      "income": 0,
+      "balance": 162.89,
+      "month": "2026-06"
+    },
+    {
+      "description": "Uber",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 5.59,
+      "income": 0,
+      "balance": 157.3,
+      "month": "2026-06"
+    },
+    {
+      "description": "水",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 1.89,
+      "income": 0,
+      "balance": 155.41,
+      "month": "2026-06"
+    },
+    {
+      "description": "充電コード",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 8.66,
+      "income": 0,
+      "balance": 146.75,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 55.91,
+      "income": 0,
+      "balance": 90.84,
+      "month": "2026-06"
+    },
+    {
+      "description": "透明バッグ",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 88.37,
+      "month": "2026-06"
+    },
+    {
+      "description": "入金",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 0,
+      "income": 6135.95,
+      "balance": 6224.32,
+      "month": "2026-06"
+    },
+    {
+      "description": "現金入金",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 0,
+      "income": 392,
+      "balance": 6616.32,
+      "month": "2026-06"
+    },
+    {
+      "description": "ヨハネからの清算",
+      "date": "2026/06/29",
+      "category": "World Cup/Houston",
+      "expense": 0,
+      "income": 16.42,
+      "balance": 6632.74,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 73.74,
+      "income": 0,
+      "balance": 6559,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 46.95,
+      "income": 0,
+      "balance": 6512.05,
+      "month": "2026-06"
+    },
+    {
+      "description": "充電器、朝飯",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 46.61,
+      "income": 0,
+      "balance": 6465.44,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 7.94,
+      "income": 0,
+      "balance": 6457.5,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 9.95,
+      "income": 0,
+      "balance": 6447.55,
+      "month": "2026-06"
+    },
+    {
+      "description": "朝食",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 8.78,
+      "income": 0,
+      "balance": 6438.77,
+      "month": "2026-06"
+    },
+    {
+      "description": "ロッカー",
+      "date": "2026/06/30",
+      "category": "World Cup/Houston",
+      "expense": 6.95,
+      "income": 0,
+      "balance": 6431.82,
+      "month": "2026-06"
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/07/01",
+      "category": "World Cup/Houston",
+      "expense": 8.95,
+      "income": 0,
+      "balance": 6422.87,
+      "month": "2026-07"
+    },
+    {
+      "description": "お土産",
+      "date": "2026/07/01",
+      "category": "World Cup/Houston",
+      "expense": 19.47,
+      "income": 0,
+      "balance": 6403.4,
+      "month": "2026-07"
+    },
+    {
+      "description": "インターナショナル手数料",
+      "date": "2026/07/01",
+      "category": "World Cup/Houston",
+      "expense": 0.77,
+      "income": 0,
+      "balance": 6402.63,
+      "month": "2026-07"
+    },
+    {
+      "description": "宇宙センター",
+      "date": "2026/07/01",
+      "category": "World Cup/Houston",
+      "expense": 25.71,
+      "income": 0,
+      "balance": 6376.92,
+      "month": "2026-07"
+    },
+    {
+      "description": "ワールドカップTシャツ",
+      "date": "2026/07/01",
+      "category": "World Cup/Houston",
+      "expense": 126.62,
+      "income": 0,
+      "balance": 6250.3,
+      "month": "2026-07"
+    },
+    {
+      "description": "かご",
+      "date": "2026/07/13",
+      "category": "生活品費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 6247.83,
+      "month": "2026-07"
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/07/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1490,
+      "income": 0,
+      "balance": 4757.83,
+      "month": "2026-07"
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/07/15",
+      "category": "ガソリン交通費",
+      "expense": 37.73,
+      "income": 0,
+      "balance": 4720.1,
+      "month": "2026-07"
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.1,
+      "month": ""
+    }
+  ],
+  "monthlySettings": {
+    "2026-07": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1490"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "130"
+        },
+        {
+          "id": "3",
+          "name": "生活品費",
+          "amount": "160"
+        },
+        {
+          "id": "cat_1_1784359947893",
+          "name": "スプリングブレイク",
+          "amount": 0
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "40"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "20"
+        },
+        {
+          "id": "cat_6_1784359947893",
+          "name": "World Cup/Houston",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 100
+    },
+    "2026-08": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1490"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "200"
+        },
+        {
+          "id": "3",
+          "name": "生活品費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_1_1784359947893",
+          "name": "スプリングブレイク",
+          "amount": 0
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "60"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "30"
+        },
+        {
+          "id": "cat_6_1784359947893",
+          "name": "World Cup/Houston",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 100
+    },
+    "2026-09": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1490"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "200"
+        },
+        {
+          "id": "3",
+          "name": "生活品費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_1_1784359947893",
+          "name": "スプリングブレイク",
+          "amount": 0
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "60"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "30"
+        },
+        {
+          "id": "cat_6_1784359947893",
+          "name": "World Cup/Houston",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 100
+    }
+  },
+  "accounts": [
+    {
+      "id": "main",
+      "name": "メイン口座"
+    },
+    {
+      "id": "savings",
+      "name": "貯金口座"
+    }
+  ],
+  "wishlist": [
+    {
+      "id": "1784359725450",
+      "name": "トラックボールマウス",
+      "amount": 120,
+      "category": "生活品費",
+      "isApplied": true
+    },
+    {
+      "id": "1784392955504",
+      "name": "マイク",
+      "amount": 30,
+      "category": "生活品費",
+      "isApplied": true
+    }
+  ],
+  "ignoredBudgetCategories": [
+    "スプリングブレイク",
+    "World Cup/Houston"
+  ]
+}

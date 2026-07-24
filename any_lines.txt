@@ -1,0 +1,2294 @@
+1: "use client";
+
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine
+} from 'recharts';
+import './globals.css';
+
+const COLORS = ['#7dd3fc', '#38bdf8', '#86efac', '#34d399', '#f9a8d4', '#f472b6', '#a78bfa', '#c084fc'];
+
+const DEFAULT_FIXED_EXPENSES = [
+  { id: "1", name: "ホームステイ等、必要経費", amount: 0 },
+  { id: "2", name: "娯楽費", amount: 0 },
+  { id: "3", name: "生活品費", amount: 0 }
+];
+
+
+// 1. 金額を整数（最小通貨単位）に変換するユーティリティ
+const toCents = (amount: number): number => Math.round(amount * 100);
+
+// 2. スコアリング関数
+const calculateConfidence = (targetAmount: number, targetTime: number, candidates: any[]): number => {
+  let score = 100;
+  // 日付の乖離による減点 (1日離れるごとに -5点)
+  const avgTime = candidates.reduce((sum, c) => sum + new Date(c.date).getTime(), 0) / candidates.length;
+  const daysDiff = Math.abs(targetTime - avgTime) / (1000 * 60 * 60 * 24);
+  score -= daysDiff * 5;
+
+  // 要素数による減点 (組み合わせが多いほど偶然の可能性が上がるため)
+  score -= (candidates.length - 1) * 10;
+  
+  return score;
+};
+
+// 3. 枝刈り付きバックトラッキング（1対N の探索）
+const findSubsetSum = (
+  targetAmount: number,
+  candidates: any[],
+  maxDepth: number = 5
+): any[][] => {
+  const targetCents = toCents(targetAmount);
+  // 枝刈りを効率化するため、金額の降順にソート（大きいものから試す）
+  const sortedCandidates = [...candidates]
+    .map(c => ({...c, cents: toCents((c.expense || 0) - (c.income || 0))}))
+    .filter(c => Math.abs(c.cents) <= Math.abs(targetCents)) // 同じ極性のみ、かつターゲット金額以下
+    .sort((a, b) => Math.abs(b.cents) - Math.abs(a.cents));
+
+  const results: any[][] = [];
+
+  const backtrack = (
+    startIndex: number,
+    currentSum: number,
+    currentCombination: any[]
+  ) => {
+    // 成功条件
+    if (currentSum === targetCents) {
+      results.push([...currentCombination]);
+      return;
+    }
+    // 失敗・枝刈り条件
+    if (Math.abs(currentSum) > Math.abs(targetCents) || currentCombination.length >= maxDepth) {
+      return;
+    }
+
+    for (let i = startIndex; i < sortedCandidates.length; i++) {
+      const candidate = sortedCandidates[i];
+      // Check sign (prevent mixing income and expenses in the same combination)
+      if (Math.sign(candidate.cents) !== Math.sign(targetCents)) continue;
+
+      const nextSum = currentSum + candidate.cents;
+
+      // Look-ahead 枝刈り：次の要素を足してオーバーするならスキップ
+      if (Math.abs(nextSum) > Math.abs(targetCents)) continue;
+
+      currentCombination.push(candidate);
+      backtrack(i + 1, nextSum, currentCombination);
+      currentCombination.pop(); // バックトラック
+    }
+  };
+
+  backtrack(0, 0, []);
+  return results;
+};
+
+// 1対Nマッチングのエントリポイント
+const matchOneToMany = (
+  targetAmt: number,
+  targetTime: number,
+  unmatchedCandidates: any[],
+  thresholdScore: number = 60
+): { matchedIndices: number[], confidenceScore: number } | null => {
+  const validCombinations = findSubsetSum(targetAmt, unmatchedCandidates, 5);
+
+  if (validCombinations.length === 0) return null;
+
+  let bestMatch = null;
+  let highestScore = -Infinity;
+
+  for (const combo of validCombinations) {
+    const score = calculateConfidence(targetAmt, targetTime, combo);
+    if (score > highestScore && score >= thresholdScore) {
+      highestScore = score;
+      bestMatch = combo;
+    }
+  }
+
+  return bestMatch ? {
+    matchedIndices: bestMatch.map(tx => tx.originalIndex !== undefined ? tx.originalIndex : tx.index),
+    confidenceScore: highestScore
+  } : null;
+};
+
+function deduplicateBankRecords(bankRecords: any[], reconciledRecords: any[]) {
+  const usedDbIndices = new Set<number>();
+  const parseDate = (dstr: string) => new Date(dstr).getTime();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  return bankRecords.filter(b => {
+    const bAmt = (b.expense || 0) - (b.income || 0);
+    const bTime = parseDate(b.date);
+    
+    // First pass: 1-to-1 strict exact match
+    let bestMatch = -1;
+    let minDiff = Infinity;
+    for (let j = 0; j < reconciledRecords.length; j++) {
+       if (usedDbIndices.has(j)) continue;
+       const a = reconciledRecords[j];
+       const aAmt = (a.expense || 0) - (a.income || 0);
+       const aTime = parseDate(a.date);
+       if (Math.abs(bAmt - aAmt) < 0.01) {
+          const daysDiff = Math.abs(bTime - aTime) / DAY_MS;
+          if (daysDiff <= 3 && daysDiff < minDiff) { // strict date limit for 1-to-1
+             minDiff = daysDiff;
+             bestMatch = j;
+          }
+       }
+    }
+    
+    if (bestMatch !== -1) {
+       usedDbIndices.add(bestMatch);
+       return false;
+    }
+
+    // Second pass: 1-to-N DP Branch and Bound
+    const candidates: any[] = [];
+    for (let j = 0; j < reconciledRecords.length; j++) {
+       if (usedDbIndices.has(j)) continue;
+       const aTime = parseDate(reconciledRecords[j].date);
+       if (Math.abs(bTime - aTime) / DAY_MS <= 14) {
+          candidates.push({ ...reconciledRecords[j], originalIndex: j });
+       }
+    }
+    
+    const match = matchOneToMany(bAmt, bTime, candidates, 60);
+    if (match) {
+       match.matchedIndices.forEach((idx: number) => usedDbIndices.add(idx));
+       return false;
+    }
+    
+    return true; // Keep
+  });
+}
+
+function autoReconcile(bankRecords: any[], appRecords: any[]) {
+  const matchedAppIndices = new Set<number>();
+  const matchedBankIndices = new Set<number>();
+  const parseDate = (dstr: string) => new Date(dstr).getTime();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  
+  // Pass 1: 1-to-1 exact matches
+  for (let i = 0; i < bankRecords.length; i++) {
+    if (matchedBankIndices.has(i)) continue;
+    const b = bankRecords[i];
+    const bAmt = (b.expense || 0) - (b.income || 0);
+    const bTime = parseDate(b.date);
+    
+    let bestMatch = -1;
+    let minDiff = Infinity;
+    
+    for (let j = 0; j < appRecords.length; j++) {
+      if (matchedAppIndices.has(appRecords[j].originalIndex)) continue;
+      const a = appRecords[j];
+      const aAmt = (a.expense || 0) - (a.income || 0);
+      const aTime = parseDate(a.date);
+      
+      if (Math.abs(bAmt - aAmt) < 0.01) {
+        const daysDiff = Math.abs(bTime - aTime) / DAY_MS;
+        if (daysDiff <= 3 && daysDiff < minDiff) { // strict 3 days
+          minDiff = daysDiff;
+          bestMatch = j;
+        }
+      }
+    }
+    if (bestMatch !== -1) {
+      matchedBankIndices.add(i);
+      matchedAppIndices.add(appRecords[bestMatch].originalIndex);
+    }
+  }
+
+  // Pass 2: 1-to-N matching (1 Bank to N App)
+  for (let i = 0; i < bankRecords.length; i++) {
+    if (matchedBankIndices.has(i)) continue;
+    const b = bankRecords[i];
+    const bAmt = (b.expense || 0) - (b.income || 0);
+    const bTime = parseDate(b.date);
+    
+    const candidates: any[] = [];
+    for (let j = 0; j < appRecords.length; j++) {
+       if (matchedAppIndices.has(appRecords[j].originalIndex)) continue;
+       const aTime = parseDate(appRecords[j].date);
+       if (Math.abs(bTime - aTime) / DAY_MS <= 14) {
+         candidates.push(appRecords[j]);
+       }
+    }
+    
+    const match = matchOneToMany(bAmt, bTime, candidates, 60);
+    if (match) {
+       matchedBankIndices.add(i);
+       match.matchedIndices.forEach((idx: number) => matchedAppIndices.add(idx));
+    }
+  }
+  
+  // Pass 3: N-to-1 matching (N Bank to 1 App)
+  for (let j = 0; j < appRecords.length; j++) {
+    const a = appRecords[j];
+    if (matchedAppIndices.has(a.originalIndex)) continue;
+    const aAmt = (a.expense || 0) - (a.income || 0);
+    const aTime = parseDate(a.date);
+    
+    const candidates: any[] = [];
+    for (let i = 0; i < bankRecords.length; i++) {
+       if (matchedBankIndices.has(i)) continue;
+       const bTime = parseDate(bankRecords[i].date);
+       if (Math.abs(bTime - aTime) / DAY_MS <= 14) {
+         candidates.push({ ...bankRecords[i], index: i });
+       }
+    }
+    
+    const match = matchOneToMany(aAmt, aTime, candidates, 60);
+    if (match) {
+       matchedAppIndices.add(a.originalIndex);
+       match.matchedIndices.forEach((idx: number) => matchedBankIndices.add(idx));
+    }
+  }
+
+  return { matchedBankIndices, matchedAppIndices };
+}
+
+export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [data, setData] = useState<any>(null);
+  
+  // Toggles
+  const [hiddenCategories, setHiddenCategories] = useState<Record<string, boolean>>({ 'ホームステイ等、必要経費': true });
+  const [hiddenBars, setHiddenBars] = useState<Record<string, boolean>>({ '収入': true, 'ホームステイ等、必要経費': true });
+
+  // Modals
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showFixedModal, setShowFixedModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferForm, setTransferForm] = useState({ fromCategory: '', toCategory: '', amount: '' });
+  
+  // AI State
+  const [aiAdvice, setAiAdvice] = useState<string>('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  
+  // Forms
+  const [expenseForm, setExpenseForm] = useState({ date: '', category: '', description: '', amount: '', recordType: 'expense_normal' });
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  
+  // Monthly Settings State
+  const [currentRealMonth, setCurrentRealMonth] = useState(''); // e.g. "2026-07"
+  const [monthlySettings, setMonthlySettings] = useState<any>({});
+  
+  // Temp state for the fixed expenses modal (editing all months)
+  const [tempSettings, setTempSettings] = useState<Record<string, any>>({});
+  
+  // Pie Chart Filter State
+  const [pieChartMonth, setPieChartMonth] = useState('current'); // 'current' or 'all'
+
+  // Wishlist State
+  const [localWishlist, setLocalWishlist] = useState<any[]>([]);
+  const [wishlistForm, setWishlistForm] = useState({ name: '', amount: '', category: '' });
+  const [editingWishlistId, setEditingWishlistId] = useState<string | null>(null);
+  const [editingWishlistForm, setEditingWishlistForm] = useState({ name: '', amount: '', category: '' });
+  const [wishlistIdToDeleteOnAdd, setWishlistIdToDeleteOnAdd] = useState<string | null>(null);
+
+  // Ignored Budget Categories
+  const [ignoredBudgetCategories, setIgnoredBudgetCategories] = useState<string[]>([]);
+  const [showCategorySettings, setShowCategorySettings] = useState(false);
+
+  // Raw JSON Editor
+  const [showRawEditor, setShowRawEditor] = useState(false);
+  const [rawJsonText, setRawJsonText] = useState("");
+
+  // Recent Activity Edit State
+  const [editingRecordIndex, setEditingRecordIndex] = useState<number | null>(null);
+  const [editingRecordForm, setEditingRecordForm] = useState({ date: '', category: '', description: '', expense: '', income: '', month: '', recordType: 'expense_normal' });
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
+  const [confirmRecoveryIndex, setConfirmRecoveryIndex] = useState<number | null>(null);
+
+  // New Engine State
+  const [showOffsetModal, setShowOffsetModal] = useState(false);
+  const [offsetForm, setOffsetForm] = useState({ amount: '', category: '' });
+  
+  const [showReconcileModal, setShowReconcileModal] = useState(false);
+  const [reconcileForm, setReconcileForm] = useState({ myShare: '', recovered: '' });
+  const [csvRecords, setCsvRecords] = useState<any[]>([]);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [selectedCsvIndices, setSelectedCsvIndices] = useState<Set<number>>(new Set());
+  const [selectedAppIndices, setSelectedAppIndices] = useState<Set<number>>(new Set());
+  const [bankBalanceInput, setBankBalanceInput] = useState<string>('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchData = () => {
+    setLoading(true);
+    fetch('/api/finance')
+      .then(res => {
+        if (!res.ok) throw new Error('API Request Failed');
+        return res.json();
+      })
+      .then(json => {
+        if (json.error) throw new Error(json.error);
+        const resData = json.data || json;
+        setData(resData);
+        setMonthlySettings(resData.monthlySettings || {});
+        setLocalWishlist(resData.wishlist || []);
+        setIgnoredBudgetCategories(resData.ignoredBudgetCategories || []);
+        
+        // Auto-select first category if available
+        if (resData.expenseData && resData.expenseData.length > 0 && !expenseForm.category) {
+          setExpenseForm(prev => ({ ...prev, category: resData.expenseData[0].name }));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        setError('データの読み込みに失敗しました。');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0].replace(/-/g, '/'); // YYYY/MM/DD
+    const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+    
+    setExpenseForm(prev => ({ ...prev, date: todayStr }));
+    setCurrentRealMonth(monthStr);
+    
+    fetchData();
+  }, []);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const csv = event.target?.result;
+      try {
+        const res = await fetch('/api/finance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'import_csv', csv })
+        });
+        if (res.ok) {
+          const resData = await res.json();
+          let bankRecords = resData.records || [];
+          
+          // Filter CSV records to only include the current month, or the previous month (to allow for month-end boundary matches)
+          const [currY, currM] = currentRealMonth.split('-');
+          const currDate = new Date(parseInt(currY), parseInt(currM) - 1, 15); // middle of current month
+          bankRecords = bankRecords.filter((r: any) => {
+            if (!r.date) return false;
+            const rDate = new Date(r.date.replace(/\//g, '-'));
+            const diffDays = Math.abs(rDate.getTime() - currDate.getTime()) / (1000 * 3600 * 24);
+            return diffDays <= 45; // roughly within current or adjacent month
+          });
+
+          // Prepare App records
+          const appRecords = (data?.records || []).map((r: any, originalIndex: number) => ({ ...r, originalIndex }))
+                                                .filter((r: any) => !r.reconciled && (r.expense > 0 || r.income > 0));
+                                                
+                    // Deduplicate against already reconciled DB records to prevent double-importing
+          const reconciledRecords = (data?.records || []).filter((r: any) => r.reconciled);
+          bankRecords = deduplicateBankRecords(bankRecords, reconciledRecords);
+          
+          if (bankRecords.length === 0) {
+             alert('このCSVのデータはすべて取り込み済み・照合済みです。');
+             return;
+          }
+
+          const { matchedBankIndices, matchedAppIndices } = autoReconcile(bankRecords, appRecords);
+          
+          if (matchedAppIndices.size > 0) {
+             const batchRes = await fetch('/api/finance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'batch_reconcile',
+                  payload: {
+                    reconciledIds: Array.from(matchedAppIndices),
+                    newRecords: []
+                  }
+                })
+             });
+             if (batchRes.ok) {
+                // Update local data to reflect reconciled status
+                fetchData();
+             }
+          }
+          
+          const unmatchedBankRecords = bankRecords.filter((_: any, idx: number) => !matchedBankIndices.has(idx));
+          setCsvRecords(unmatchedBankRecords);
+          setShowCsvModal(true);
+          setSelectedCsvIndices(new Set());
+          setSelectedAppIndices(new Set());
+          
+          if (matchedBankIndices.size > 0) {
+             alert(`🤖 🚀 ${matchedBankIndices.size}件のデータを自動照合しました。\n2: 残りの${unmatchedBankRecords.length}件の不一致データを手動で確認してください。`);
+          } else {
+             alert('自動照合できるデータはありませんでした。手動で確認してください。');
+          }
+        }
+      } catch (err) {
+        alert('読み込みに失敗しました');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalCategory = isNewCategory ? newCategoryName : expenseForm.category;
+    if (!finalCategory) {
+      alert("カテゴリを入力してください。");
+      return;
+    }
+    
+    const payload = { ...expenseForm, category: finalCategory };
+    
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_expense', payload })
+      });
+      // If this expense was added from a wishlist item, delete the wishlist item
+      if (wishlistIdToDeleteOnAdd) {
+        await fetch('/api/finance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete_wishlist', payload: { id: wishlistIdToDeleteOnAdd } })
+        });
+        setWishlistIdToDeleteOnAdd(null);
+      }
+
+      alert('支出を追加しました！');
+      setShowExpenseModal(false);
+      setExpenseForm({ date: expenseForm.date, category: expenseForm.category, description: '', amount: '', recordType: 'expense_normal' });
+      fetchData();
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  const handleOffsetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offsetForm.amount || !offsetForm.category) return;
+    try {
+      const today = new Date();
+      const payload = {
+        date: today.toISOString().split('T')[0].replace(/-/g, '/'),
+        category: offsetForm.category,
+        description: `一括相殺（${offsetForm.category}）`,
+        amount: offsetForm.amount,
+        recordType: 'refund'
+      };
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_expense', payload })
+      });
+      alert(`+$${offsetForm.amount} が ${offsetForm.category} の予算に復活しました！`);
+      setShowOffsetModal(false);
+      setOffsetForm({ amount: '', category: '' });
+      fetchData();
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  const handleReconcileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reconcileForm.myShare || !reconcileForm.recovered) return;
+    try {
+      const today = new Date();
+      const payload = {
+        date: today.toISOString().split('T')[0].replace(/-/g, '/'),
+        myShare: reconcileForm.myShare,
+        recovered: reconcileForm.recovered
+      };
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'trip_reconcile', payload })
+      });
+      alert('旅行プールの一括精算が完了しました！');
+      setShowReconcileModal(false);
+      setReconcileForm({ myShare: '', recovered: '' });
+      fetchData();
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  const handleAddWishlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!wishlistForm.name || !wishlistForm.amount || !wishlistForm.category) return;
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_wishlist', payload: { id: Date.now().toString(), ...wishlistForm } })
+      });
+      setWishlistForm({ name: '', amount: '', category: '' });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleWishlist = async (id: string, isApplied: boolean) => {
+    // Optimistic update
+    setLocalWishlist(prev => prev.map(w => w.id === id ? { ...w, isApplied } : w));
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_wishlist', payload: { id, isApplied } })
+      });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteWishlist = async (id: string) => {
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_wishlist', payload: { id } })
+      });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateWishlist = async (id: string) => {
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_wishlist', payload: { id, ...editingWishlistForm } })
+      });
+      setEditingWishlistId(null);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleBuyWishlist = (w: any) => {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0].replace(/-/g, '/');
+    setExpenseForm({ date: todayStr, category: w.category, description: w.name, amount: w.amount.toString(), recordType: 'expense_normal' });
+    setWishlistIdToDeleteOnAdd(w.id);
+    setShowExpenseModal(true);
+  };
+
+  const handleToggleIgnoredBudgetCategory = async (category: string, isIgnored: boolean) => {
+    // Optimistic UI update
+    setIgnoredBudgetCategories(prev => 
+      isIgnored ? [...prev, category] : prev.filter(c => c !== category)
+    );
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_ignored_budget_category', payload: { category, isIgnored } })
+      });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditRecordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingRecordIndex === null) return;
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'edit_record', 
+          payload: { index: editingRecordIndex, ...editingRecordForm }
+        })
+      });
+      if (res.ok) {
+        setEditingRecordIndex(null);
+        fetchData();
+      } else {
+        alert('編集に失敗しました');
+      }
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  const handleDeleteRecord = async (index: number) => {
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_record', payload: { index } })
+      });
+      if (res.ok) {
+        fetchData();
+      } else {
+        alert('削除に失敗しました');
+      }
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  const handleTransferBudget = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferForm.fromCategory || !transferForm.toCategory || !transferForm.amount) return;
+    if (transferForm.fromCategory === transferForm.toCategory) {
+      alert("同じカテゴリ間では移動できません。");
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'transfer_budget', 
+          payload: { 
+            month: currentRealMonth,
+            fromCategory: transferForm.fromCategory,
+            toCategory: transferForm.toCategory,
+            amount: transferForm.amount
+          }
+        })
+      });
+      if (res.ok) {
+        setShowTransferModal(false);
+        setTransferForm({ fromCategory: '', toCategory: '', amount: '' });
+        fetchData();
+      } else {
+        const errorData = await res.json();
+        alert(`エラー: ${errorData.error}`);
+      }
+    } catch (err) {
+      alert("エラーが発生しました");
+    }
+  };
+
+  const handleAutoCoverTransportation = async (neededAmount: number) => {
+    const foodCat = data?.categoryBudgets?.find((c: any) => c.name === '食費');
+    const entertainmentCat = data?.categoryBudgets?.find((c: any) => c.name === '娯楽・リフレッシュ費');
+    
+    let remainingNeeded = neededAmount;
+    const transfersToMake = [];
+    
+    if (foodCat && foodCat.remaining > 0) {
+      const amount = Math.min(remainingNeeded, foodCat.remaining);
+      transfersToMake.push({ from: '食費', to: 'ガソリン交通費', amount });
+      remainingNeeded -= amount;
+    }
+    
+    if (remainingNeeded > 0 && entertainmentCat && entertainmentCat.remaining > 0) {
+      const amount = Math.min(remainingNeeded, entertainmentCat.remaining);
+      transfersToMake.push({ from: '娯楽・リフレッシュ費', to: 'ガソリン交通費', amount });
+      remainingNeeded -= amount;
+    }
+    
+    if (transfersToMake.length === 0) {
+      alert('補填できる「食費」または「娯楽・リフレッシュ費」の予算がありません。');
+      return;
+    }
+    
+    if (!confirm(`自動補填を実行しますか？\n5: ')}`)) {
+      return;
+    }
+
+    try {
+      for (const t of transfersToMake) {
+        await fetch('/api/finance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            action: 'transfer_budget', 
+            payload: { month: currentRealMonth, fromCategory: t.from, toCategory: t.to, amount: t.amount.toString() }
+          })
+        });
+      }
+      alert('交通費の自動補填が完了しました！');
+      fetchData();
+    } catch (e) {
+      alert('エラーが発生しました。');
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export_db' })
+      });
+      const data = await res.json();
+      if (data.success && data.db) {
+        const jsonStr = JSON.stringify(data.db, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.download = `smart-money-backup-${dateStr}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      alert('バックアップの作成に失敗しました。');
+      console.error(err);
+    }
+  };
+
+  const handleImportData = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const content = event.target?.result as string;
+        const dbData = JSON.parse(content);
+        
+        if (!confirm('現在のデータはすべて上書きされます。よろしいですか？')) {
+          return;
+        }
+
+        const res = await fetch('/api/finance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'import_db', payload: dbData })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('データを復元しました。');
+          fetchData();
+        } else {
+          alert(result.error || '復元に失敗しました。');
+        }
+      } catch (err) {
+        alert('無効なバックアップファイルです。');
+        console.error(err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const openRawEditor = async () => {
+    try {
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export_db' })
+      });
+      const data = await res.json();
+      if (data.success && data.db) {
+        setRawJsonText(JSON.stringify(data.db, null, 2));
+        setShowRawEditor(true);
+      }
+    } catch (err) {
+      alert('データの取得に失敗しました。');
+      console.error(err);
+    }
+  };
+
+  const saveRawEditor = async () => {
+    try {
+      const dbData = JSON.parse(rawJsonText);
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'import_db', payload: dbData })
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert('データを保存しました。');
+        setShowRawEditor(false);
+        fetchData();
+      } else {
+        alert(result.error || '保存に失敗しました。');
+      }
+    } catch (err) {
+      alert('JSONの形式が正しくありません。');
+      console.error(err);
+    }
+  };
+
+  const openFixedModal = () => {
+    if (!data?.monthlySettings) return;
+    const monthlySettings = data.monthlySettings;
+    const allCategories = data.expenseData ? data.expenseData.map((d: any) => d.name).filter((n: string) => n !== '入金') : [];
+    
+    const clone: Record<string, any> = {};
+    Object.keys(monthlySettings).forEach(month => {
+      clone[month] = JSON.parse(JSON.stringify(monthlySettings[month]));
+      allCategories.forEach((catName: string, idx: number) => {
+         const existing = clone[month].fixedExpenses.find((f: any) => f.name === catName);
+         if (!existing) {
+           clone[month].fixedExpenses.push({ id: `cat_${idx}_${Date.now()}`, name: catName, amount: 0 });
+         }
+      });
+    });
+    
+    if (!clone[currentRealMonth]) {
+      const pastMonths = Object.keys(monthlySettings)
+        .filter(m => m < currentRealMonth)
+        .sort((a, b) => b.localeCompare(a));
+        
+      if (pastMonths.length > 0) {
+        const lastMonth = pastMonths[0];
+        clone[currentRealMonth] = JSON.parse(JSON.stringify(monthlySettings[lastMonth]));
+      } else {
+        const defaultFixed = allCategories.map((name: string, i: number) => ({ id: `cat_${i}`, name, amount: 0 }));
+        clone[currentRealMonth] = { fixedExpenses: defaultFixed, savingsGoal: 0 };
+      }
+      
+      allCategories.forEach((catName: string, idx: number) => {
+         const existing = clone[currentRealMonth].fixedExpenses.find((f: any) => f.name === catName);
+         if (!existing) {
+           clone[currentRealMonth].fixedExpenses.push({ id: `cat_${idx}_${Date.now()}`, name: catName, amount: 0 });
+         }
+      });
+    }
+    setTempSettings(clone);
+    setShowFixedModal(true);
+  };
+  
+  const handleDeleteMonth = async (monthToDelete: string) => {
+    // UI上(tempSettings)から削除
+    const newTemp = { ...tempSettings };
+    delete newTemp[monthToDelete];
+    setTempSettings(newTemp);
+    
+    // サーバー上からも削除するAPI呼び出し
+    try {
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_monthly_settings', payload: { month: monthToDelete } })
+      });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
+  const addNextMonthToTemp = () => {
+    // Find the latest month in tempSettings
+    const months = Object.keys(tempSettings).sort();
+    const latestMonth = months[months.length - 1] || currentRealMonth;
+    const parts = latestMonth.split('-');
+    let year = parseInt(parts[0]);
+    let month = parseInt(parts[1]);
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+    const nextMonthStr = `${year}-${String(month).padStart(2, '0')}`;
+    
+    // Copy settings from latest month to next month
+    const clone = { ...tempSettings };
+    clone[nextMonthStr] = JSON.parse(JSON.stringify(tempSettings[latestMonth]));
+    setTempSettings(clone);
+  };
+
+  const handleSaveAllMonthlySettings = async () => {
+    try {
+      for (const month of Object.keys(tempSettings)) {
+        await fetch('/api/finance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            action: 'update_monthly_settings', 
+            payload: { 
+              month: month, 
+              fixedExpenses: tempSettings[month].fixedExpenses, 
+              savingsGoal: tempSettings[month].savingsGoal 
+            } 
+          })
+        });
+      }
+      setShowFixedModal(false);
+      fetchData();
+    } catch (err) {
+      alert('保存に失敗しました');
+    }
+  };
+
+  const openGemini = () => {
+    const { summary, accountBalances, expenseData, monthlySettings } = data;
+    const mainAcc = accountBalances?.find((a: any) => a.id === 'main')?.balance || 0;
+    const saveAcc = accountBalances?.find((a: any) => a.id === 'savings')?.total || 0;
+    const futureExp = accountBalances?.find((a: any) => a.id === 'future_expenses')?.balance || 0;
+    
+    const detailedExpenses = expenseData.map((item: any) => `- ${item.name}: $${parseFloat(item.value).toFixed(2)}`).join('\n6: ');
+    const futureSettings = Object.keys(monthlySettings)
+      .filter(m => m >= currentRealMonth)
+      .map(m => {
+        const s = monthlySettings[m];
+        const fixed = s.fixedExpenses.map((f: any) => `${f.name}($${parseFloat(f.amount || 0).toFixed(2)})`).join(', ');
+        return `[${m}] 固定費: ${fixed} / 貯金目標: $${parseFloat(s.savingsGoal || 0).toFixed(2)}`;
+      }).join('\n9: 開いた画面（Gemini）の入力欄に貼り付け（Ctrl+V）して送信してください。");
+      window.open('https://gemini.google.com/app', 'GeminiPopup', 'width=800,height=800,scrollbars=yes,resizable=yes');
+    }).catch(err => {
+      alert("クリップボードへのコピーに失敗しました。");
+    });
+  };
+
+  if (!mounted) return null;
+
+  if (loading && !data) {
+    return (
+      <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="stat-title" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>データを読み込み中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="dashboard-container">
+        <div className="glass-card" style={{ borderColor: 'var(--warning-color)' }}>
+          <h2 className="chart-title" style={{ color: 'var(--warning-color)' }}>エラーが発生しました</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { summary, expenseData: originalExpenseData, monthlyData, accountBalances } = data;
+  const formatCurrency = (val: number) => `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  // --- Dynamic Pie Chart Data Calculation ---
+  const targetMonth = pieChartMonth === 'current' ? currentRealMonth : null;
+  const pieExpensesByCategory: Record<string, number> = {};
+  
+  if (data?.records) {
+    data.records.forEach((row: any) => {
+      const expense = parseFloat(row.expense) || 0;
+      const category = row.category || 'その他';
+      const month = row.month;
+      const recordType = row.recordType || 'expense_normal';
+      const isExcludedExpense = recordType === 'advance_payment';
+      
+      if (expense !== 0 && category !== '入金' && !isExcludedExpense) {
+        if (!targetMonth || month === targetMonth) {
+           if (!ignoredBudgetCategories.includes(category)) {
+             pieExpensesByCategory[category] = (pieExpensesByCategory[category] || 0) + expense;
+           }
+        }
+      }
+    });
+  }
+
+  const generatedPieData = Object.keys(pieExpensesByCategory).map(key => ({
+    name: key,
+    value: pieExpensesByCategory[key]
+  })).sort((a, b) => b.value - a.value);
+
+  const visibleExpenseData = generatedPieData.filter((item: any) => !hiddenCategories[item.name]);
+  const uniqueCategories = Array.from(new Set(['特別体験・イベント費', ...(generatedPieData.map((item: any) => item.name))]));
+  
+  const categoryBudgets = data.categoryBudgets || [];
+  const eventWishlistDeductions = localWishlist.filter(w => w.isApplied && w.category === 'イベント準備金').reduce((sum, w) => sum + parseFloat(w.amount || 0), 0);
+  const variableWishlistDeductions = localWishlist.filter(w => w.isApplied && w.category !== 'イベント準備金').reduce((sum, w) => sum + parseFloat(w.amount || 0), 0);
+  
+  const savingsAccount = accountBalances?.find((a: any) => a.id === 'savings');
+  const mainAccount = accountBalances?.find((a: any) => a.id === 'main');
+
+  const variableCategories = categoryBudgets.filter((c: any) => !c.name.includes('必要経費') && !c.name.includes('固定費'));
+  const variableFreeMoney = variableCategories.reduce((sum: number, c: any) => sum + (c.remaining || 0), 0);
+
+  // Calculate Last Month's Data
+  const todayForLastMonth = new Date();
+  let lastM = todayForLastMonth.getMonth(); // 0-11
+  let lastY = todayForLastMonth.getFullYear();
+  if (lastM === 0) {
+    lastM = 12;
+    lastY -= 1;
+  }
+  const lastMonthStr = `${lastY}-${String(lastM).padStart(2, '0')}`;
+  const lastMonthData = monthlyData?.find((d: any) => d.name === lastMonthStr);
+  const lastMonthSpent = lastMonthData ? lastMonthData['支出'] : 0;
+  const lastMonthSettings = data?.monthlySettings?.[lastMonthStr] || { fixedExpenses: [] };
+  const lastMonthBudget = lastMonthSettings.fixedExpenses?.reduce((sum: number, f: any) => sum + (parseFloat(f.amount) || 0), 0) || 0;
+
+  const fetchAiAdvice = async () => {
+    setIsAiLoading(true);
+    setAiAdvice('');
+    try {
+      const payload = {
+        totalBalance: summary?.currentBalance || 0,
+        variableFreeMoney,
+        savingsTotal: savingsAccount?.total || 0,
+        savingsPast: savingsAccount?.past || 0,
+        savingsPlanned: savingsAccount?.planned || 0,
+        monthlyExpenses: variableCategories.map((c: any) => ({ category: c.name, budget: c.budget, spent: c.spent, remaining: c.remaining })),
+        lastMonth: {
+          spent: lastMonthSpent,
+          budget: lastMonthBudget
+        },
+        wishlist: data?.wishlist || [],
+        monthlySettings: data?.monthlySettings || {}
+      };
+      const res = await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_ai_advice', payload })
+      });
+      const json = await res.json();
+      if (json.error) {
+        setAiAdvice(`エラー: ${json.error}`);
+      } else {
+        setAiAdvice(json.advice);
+      }
+    } catch (err) {
+      setAiAdvice("エラーが発生しました。");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const copyDataForAi = () => {
+    const payload = {
+      totalBalance: summary?.currentBalance || 0,
+      variableFreeMoney,
+      savingsTotal: savingsAccount?.total || 0,
+      savingsPast: savingsAccount?.past || 0,
+      savingsPlanned: savingsAccount?.planned || 0,
+      monthlyExpenses: variableCategories.map((c: any) => ({ category: c.name, budget: c.budget, spent: c.spent, remaining: c.remaining })),
+      lastMonth: {
+        spent: lastMonthSpent,
+        budget: lastMonthBudget
+      },
+      wishlist: data?.wishlist || [],
+      monthlySettings: data?.monthlySettings || {}
+    };
+    
+    const prompt = `あなたは優秀なファイナンシャルプランナーです。以下の家計簿データを分析し、アドバイスをください。\n12: ${JSON.stringify(payload, null, 2)}`;
+    navigator.clipboard.writeText(prompt).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="dashboard-container">
+      <header style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
+          <h1 className="header-title" style={{ margin: 0, flex: '1 1 auto', wordBreak: 'break-word', lineHeight: 1.1, minWidth: 0 }}>Smart Money Manager</h1>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
+            <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
+              ＋ 支出を追加
+            </button>
+            <button className="action-button secondary" onClick={() => fileInputRef.current?.click()} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }} title="銀行のCSVデータを読み込み、手入力したデータと自動で突き合わせます。一致したものは自動処理され、ズレがあるものだけ画面で確認・調整できます。">
+              CSV照合
+            </button>
+            <button className="action-button secondary" onClick={openFixedModal} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+              予算・固定費
+            </button>
+          </div>
+        </div>
+        <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>あなたのお金の動きを、もっと直感的に。</p>
+      </header>
+
+      <section className="stats-grid">
+        <div className="glass-card highlight" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.7), rgba(99, 102, 241, 0.15))', borderColor: '#6366f1' }}>
+          <div className="stat-title">全体の総残高</div>
+          <div className="stat-value" style={{ color: '#6366f1' }}>{formatCurrency(summary?.currentBalance || 0)}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
+            ※現在の純粋な手持ち資産合計
+          </div>
+        </div>
+        
+        <div className="glass-card highlight" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.7), rgba(125, 211, 252, 0.2))', borderColor: 'var(--accent-color)' }}>
+          <div className="stat-title">今月自由に使えるお金</div>
+          <div className="stat-value" style={{ color: 'var(--accent-color)' }}>{formatCurrency(variableFreeMoney)}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
+            ※固定費を除く、各カテゴリの残り予算の合計
+          </div>
+          {variableWishlistDeductions > 0 && (
+            <div style={{ fontSize: '0.9rem', color: '#d97706', marginTop: '10px', fontWeight: 'bold' }}>
+              使用検討中の合計: {formatCurrency(variableWishlistDeductions)}
+              <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
+                （検討額を引いた実質残り: {formatCurrency(variableFreeMoney - variableWishlistDeductions)}）
+              </div>
+            </div>
+          )}
+          
+          <div style={{ marginTop: '1.2rem', textAlign: 'center' }}>
+            <button 
+              className="action-button secondary" 
+              onClick={() => setShowTransferModal(true)}
+              style={{ fontSize: '0.85rem', padding: '0.4rem 1rem', background: 'rgba(255,255,255,0.7)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)' }}
+            >
+              🚚 今月の予算を移動する
+            </button>
+          </div>
+        </div>
+
+        <div className="glass-card highlight" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.7), rgba(245, 158, 11, 0.15))', borderColor: '#f59e0b' }}>
+          {(() => {
+            const eventBonus = categoryBudgets.find((c: any) => c.name === '特別体験・イベント費')?.transferredIn || 0;
+            const totalBucket = (savingsAccount?.total || 0) + (mainAccount?.balance || 0) + eventBonus;
+            return (
+              <>
+                <div className="stat-title">🚀 特別体験・イベント準備金 (体験投資バケツ)</div>
+                <div className="stat-value" style={{ color: '#d97706' }}>{formatCurrency(totalBucket)}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
+                  ※目標積立 ＋ 節約トレードオフ報酬 ＋ 仕送り余白（余剰金）の全合流プール
+                </div>
+                
+                {eventBonus > 0 && (
+                  <div style={{ fontSize: '0.9rem', color: '#b45309', marginTop: '12px', fontWeight: 'bold', padding: '0.5rem', background: '#fef3c7', borderRadius: '8px', border: '1px solid #fcd34d' }}>
+                    💡 今月の賢いトレードオフ（節約・自制）によって生み出された追加移管ボーナス: +{formatCurrency(eventBonus)}
+                  </div>
+                )}
+
+                {eventWishlistDeductions > 0 && (
+                  <div style={{ fontSize: '0.9rem', color: '#d97706', marginTop: '10px', fontWeight: 'bold' }}>
+                    イベント準備検討額: {formatCurrency(eventWishlistDeductions)}
+                    <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
+                      （検討額を引いた実質残り: {formatCurrency(totalBucket - eventWishlistDeductions)}）
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+
+        {summary?.unrecoveredAdvance > 0 && (
+          <div className="glass-card highlight" style={{ background: '#fef2f2', borderColor: '#ef4444' }}>
+            <div className="stat-title" style={{ color: '#ef4444' }}>🤝 未回収の立替金</div>
+            <div className="stat-value" style={{ color: '#ef4444' }}>{formatCurrency(summary.unrecoveredAdvance)}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
+              ※友人の代わりに支払った金額。総資産からは減っていますが、月々の予算グラフには影響しません。回収したら下のRecent Activityから「✓ 回収」を押してください。
+            </div>
+          </div>
+        )}
+
+        {summary?.unsettledSandbox > 0 && (
+          <div className="glass-card highlight" style={{ background: 'linear-gradient(135deg, rgba(255, 251, 235, 0.9), rgba(254, 243, 199, 0.8))', borderColor: '#f59e0b' }}>
+            <div className="stat-title" style={{ color: '#d97706' }}>🎒 旅行プール一時保留中 (未清算)</div>
+            <div className="stat-value" style={{ color: '#d97706' }}>{formatCurrency(summary.unsettledSandbox)}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
+              ※旅行やイベントの支払いとして一時隔離中です。精算額が確定したら一括精算してください。
+            </div>
+            <div style={{ marginTop: '1.2rem', textAlign: 'center' }}>
+              <button 
+                className="action-button primary" 
+                onClick={() => setShowReconcileModal(true)}
+                style={{ fontSize: '0.9rem', padding: '0.5rem 1.5rem', background: '#f59e0b' }}
+              >
+                🎒 ワンクリック一括精算 (Trip Reconcile)
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="glass-card" style={{ marginTop: '2rem' }}>
+        <h2 className="chart-title">カテゴリ別 予算と支出 (今月)</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {categoryBudgets.map((cat: any) => {
+            const wishlistForCat = localWishlist.filter(w => w.isApplied && w.category === cat.name).reduce((sum, w) => sum + parseFloat(w.amount || 0), 0);
+            const realRemaining = cat.remaining || 0;
+            const isBudgetActive = cat.originalBudget > 0 || cat.carriedOver > 0 || cat.transferredIn > 0;
+            
+            const usedProgress = isBudgetActive && cat.budget > 0 ? (cat.spent / cat.budget) * 100 : (cat.spent > 0 ? 100 : 0);
+            const wishProgress = isBudgetActive && cat.budget > 0 ? (wishlistForCat / cat.budget) * 100 : 0;
+            
+            const barColor = isBudgetActive ? (usedProgress > 100 ? '#ef4444' : usedProgress > 80 ? '#f59e0b' : 'var(--success-color)') : '#cbd5e1';
+            const totalSimulatedProgress = usedProgress + wishProgress;
+            
+            return (
+              <div key={cat.name} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cat.name}</div>
+                  <div className="budget-details">
+                    {isBudgetActive ? (
+                      <>
+                        <span style={{ color: 'var(--text-primary)' }}>
+                          実質プール: <span style={{ fontWeight: 'bold' }}>{formatCurrency(cat.budget)}</span>
+                          <span style={{ fontSize: '0.85rem', marginLeft: '4px', color: cat.carriedOver > 0 ? 'var(--success-color)' : cat.carriedOver < 0 ? '#ef4444' : 'var(--text-secondary)' }}>
+                            (当月: {formatCurrency(cat.originalBudget)} + 繰越: {formatCurrency(cat.carriedOver)} 
+                            {cat.rule?.maxPoolCap ? ` / 上限: ${formatCurrency(cat.rule.maxPoolCap)}` : ''})
+                          </span>
+                        </span>
+                        {cat.isCapped && (
+                          <span style={{ display: 'inline-block', marginLeft: '8px', padding: '2px 6px', background: '#e0f2fe', color: '#0369a1', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>MAX到達</span>
+                        )}
+                        <span className="separator" style={{ color: '#cbd5e1', margin: '0 6px' }}>|</span>
+                        <span style={{ color: '#0284c7' }}>使用: <span style={{ fontWeight: 'bold' }}>{formatCurrency(cat.spent)}</span></span>
+                        <span className="separator" style={{ color: '#cbd5e1', margin: '0 6px' }}>|</span>
+                        <span style={{ color: realRemaining < 0 ? '#ef4444' : 'var(--success-color)', fontWeight: 'bold' }}>
+                          残り: {formatCurrency(realRemaining)}
+                        </span>
+                        {wishlistForCat > 0 && (
+                          <>
+                            <span className="separator" style={{ color: '#cbd5e1', margin: '0 6px' }}>|</span>
+                            <span style={{ color: wishlistForCat > realRemaining ? '#ef4444' : '#d97706', fontWeight: 'bold' }}>
+                              使用検討: {formatCurrency(wishlistForCat)}
+                            </span>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ color: 'var(--text-primary)' }}>予算: 設定なし</span>
+                        <span className="separator" style={{ color: '#cbd5e1', margin: '0 6px' }}>|</span>
+                        <span style={{ color: '#0284c7' }}>使用: <span style={{ fontWeight: 'bold' }}>{formatCurrency(cat.spent)}</span></span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    background: barColor, 
+                    width: `${Math.min(usedProgress, 100)}%`,
+                    transition: 'width 0.3s ease'
+                  }}></div>
+                  {wishlistForCat > 0 && (
+                    <div style={{
+                      height: '100%',
+                      background: wishlistForCat > realRemaining ? '#ef4444' : '#fcd34d',
+                      opacity: 0.8,
+                      width: `${Math.min(wishProgress, 100 - Math.min(usedProgress, 100))}%`,
+                      transition: 'width 0.3s ease'
+                    }}></div>
+                  )}
+                </div>
+                {cat.futureReserved > 0 && (
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'right' }}>
+                    ※来月以降のためのキープ額: {formatCurrency(cat.futureReserved)}
+                  </div>
+                )}
+                {cat.isCapped && cat.name === '環境・自己投資' && (
+                  <div style={{ fontSize: '0.85rem', color: '#0284c7', marginTop: '0.5rem' }}>
+                    💡 サジェスト: 予算が上限に達しています。期待値の高い自己投資を実行してください！
+                  </div>
+                )}
+                {cat.name === 'ガソリン交通費' && realRemaining < 0 && (
+                  <div style={{ marginTop: '0.8rem', background: '#fff1f2', padding: '0.8rem', borderRadius: '8px', border: '1px solid #fecdd3' }}>
+                    <p style={{ color: '#be123c', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                      ⚠️ 交通費がオーバーしています！実需の移動をカバーするため、予算を自動補填しますか？
+                    </p>
+                    <button 
+                      onClick={() => handleAutoCoverTransportation(Math.abs(realRemaining))}
+                      className="action-button primary"
+                      style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem', width: 'auto' }}
+                    >
+                      🚗 スマートに自動補填する (食費・娯楽費から)
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="glass-card" style={{ marginTop: '2rem' }}>
+        <h2 className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span>🛒 買いたいものシミュレーション</span>
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          今月買いたいものをリストアップ！チェックを入れると、上の「メイン口座」と「カテゴリの残り予算」から一時的に引かれて、買っても大丈夫かシミュレーションできます。
+        </p>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+          <input type="text" placeholder="買いたいもの (例: 新しい靴)" value={wishlistForm.name} onChange={e => setWishlistForm({...wishlistForm, name: e.target.value})} style={{ flex: '1 1 200px', padding: '0.75rem', borderRadius: '12px', border: '1px solid #cbd5e1' }} />
+          <input type="number" step="0.01" placeholder="金額 $" value={wishlistForm.amount} onChange={e => setWishlistForm({...wishlistForm, amount: e.target.value})} style={{ flex: '1 1 100px', padding: '0.75rem', borderRadius: '12px', border: '1px solid #cbd5e1' }} />
+          <select value={wishlistForm.category} onChange={e => setWishlistForm({...wishlistForm, category: e.target.value})} style={{ flex: '1 1 130px', padding: '0.75rem', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+            <option value="">カテゴリ選択</option>
+            {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <button onClick={handleAddWishlist} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '0.75rem', display: 'flex', alignItems: 'center' }} title="追加">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {localWishlist.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>リストは空です</div>
+          ) : (
+            localWishlist.map(w => (
+              <div key={w.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderRadius: '8px', background: w.isApplied ? 'rgba(56, 189, 248, 0.1)' : '#fff', border: '1px solid var(--glass-border)', opacity: w.isApplied ? 1 : 0.6, transition: 'all 0.2s' }}>
+                {editingWishlistId === w.id ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', width: '100%', gap: '10px', alignItems: 'center' }}>
+                    <input type="text" value={editingWishlistForm.name} onChange={e => setEditingWishlistForm({...editingWishlistForm, name: e.target.value})} style={{ flex: '1 1 150px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                    <input type="number" step="0.01" value={editingWishlistForm.amount} onChange={e => setEditingWishlistForm({...editingWishlistForm, amount: e.target.value})} style={{ flex: '1 1 80px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                    <select value={editingWishlistForm.category} onChange={e => setEditingWishlistForm({...editingWishlistForm, category: e.target.value})} style={{ flex: '1 1 100px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      <option value="">カテゴリ選択</option>
+                      {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <button onClick={() => handleUpdateWishlist(w.id)} className="action-button primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>保存</button>
+                    <button onClick={() => setEditingWishlistId(null)} className="action-button secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>取消</button>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      <input type="checkbox" checked={w.isApplied} onChange={(e) => handleToggleWishlist(w.id, e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                      <div>
+                        <div style={{ fontWeight: 600, color: w.isApplied ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{w.name}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{w.category}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      <div style={{ fontWeight: 'bold', color: w.isApplied ? 'var(--accent-color)' : 'var(--text-secondary)' }}>{formatCurrency(w.amount)}</div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => handleBuyWishlist(w)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px', fontSize: '1.2rem' }} title="買う!">🛒</button>
+                        <button onClick={() => { setEditingWishlistId(w.id); setEditingWishlistForm({ name: w.name, amount: w.amount, category: w.category }); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px' }}>✏️</button>
+                        <button onClick={() => handleDeleteWishlist(w.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }}>✕</button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+
+      {/* Recent Activity Panel */}
+      {data?.records && data.records.length > 0 && (
+        <section className="glass-card" style={{ marginTop: '2rem' }}>
+          <h2 className="chart-title">🕒 Recent Activity (直近10件)</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: 'var(--text-secondary)' }}>
+                  <th style={{ padding: '0.8rem', minWidth: '100px' }}>日付</th>
+                  <th style={{ padding: '0.8rem', minWidth: '150px' }}>メモ・説明</th>
+                  <th style={{ padding: '0.8rem', minWidth: '120px' }}>カテゴリ</th>
+                  <th style={{ padding: '0.8rem', minWidth: '90px', textAlign: 'right' }}>金額</th>
+                  <th style={{ padding: '0.8rem', minWidth: '100px', textAlign: 'center' }}>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.records.map((r: any, i: number) => ({ ...r, originalIndex: i })).filter((r: any) => r.date && r.date.trim() !== '').sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10).map((record: any, idx: number) => {
+                  const originalIndex = record.originalIndex;
+                  const isIncome = record.recordType === 'income_allowance' || record.recordType === 'income_special' || record.recordType === 'advance_recovery';
+                  const amount = isIncome ? record.income : record.expense;
+                  return (
+                    <tr key={originalIndex} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '0.8rem' }}>{record.date}</td>
+                      <td style={{ padding: '0.8rem', fontWeight: 500 }}>{record.description}</td>
+                      <td style={{ padding: '0.8rem' }}>
+                        <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                          {record.category}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.8rem', textAlign: 'right', fontWeight: 'bold', color: isIncome ? '#059669' : '#e11d48' }}>
+                        {isIncome ? '+' : '-'}{formatCurrency(amount)}
+                      </td>
+                      <td style={{ padding: '0.8rem', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                          {record.recordType === 'advance_payment' && !record.isRecovered && (
+                            confirmRecoveryIndex === originalIndex ? (
+                              <button 
+                                onClick={async () => {
+                                  setConfirmRecoveryIndex(null);
+                                  const payload = {
+                                    date: new Date().toISOString().split('T')[0].replace(/-/g, '/'),
+                                    category: '入金',
+                                    description: `${record.description} (立替回収)`,
+                                    amount: amount,
+                                    recordType: 'advance_recovery'
+                                  };
+                                  await fetch('/api/finance', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'add_expense', payload })
+                                  });
+                                  await fetch('/api/finance', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, isRecovered: true } })
+                                  });
+                                  fetchData();
+                                }}
+                                className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#16a34a', color: 'white', borderColor: '#16a34a', whiteSpace: 'nowrap' }}
+                              >
+                                回収する
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => setConfirmRecoveryIndex(originalIndex)}
+                                className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#dcfce3', color: '#166534', borderColor: '#bbf7d0', whiteSpace: 'nowrap' }}
+                              >
+                                ✓ 回収
+                              </button>
+                            )
+                          )}
+                          <button 
+                            onClick={() => {
+                              setEditingRecordIndex(originalIndex);
+                              setEditingRecordForm({
+                                date: record.date || '',
+                                category: record.category || '',
+                                description: record.description || '',
+                                expense: record.expense || '',
+                                income: record.income || '',
+                                month: record.month || '',
+                                recordType: record.recordType || 'expense_normal'
+                              });
+                            }}
+                            className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem' }}
+                          >
+                            ✏️
+                          </button>
+                          {confirmDeleteIndex === originalIndex ? (
+                            <button 
+                              onClick={() => {
+                                handleDeleteRecord(originalIndex);
+                                setConfirmDeleteIndex(null);
+                              }}
+                              className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#e11d48', color: 'white', borderColor: '#e11d48' }}
+                            >
+                              削除する
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => setConfirmDeleteIndex(originalIndex)}
+                              className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#ffe4e6', color: '#e11d48', borderColor: '#fecdd3' }}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }).reverse()}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* Edit Record Modal */}
+      {editingRecordIndex !== null && (
+        <div className="modal-overlay" onClick={() => setEditingRecordIndex(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">✏️ 記録の編集</h2>
+            <form onSubmit={handleEditRecordSubmit} className="form-container">
+              <label>日付 <input type="text" value={editingRecordForm.date} onChange={e => setEditingRecordForm({...editingRecordForm, date: e.target.value})} required /></label>
+              <label>対象月 (YYYY-MM) <input type="text" value={editingRecordForm.month} onChange={e => setEditingRecordForm({...editingRecordForm, month: e.target.value})} required /></label>
+              <label>
+                処理タイプ
+                <select value={editingRecordForm.recordType} onChange={e => setEditingRecordForm({...editingRecordForm, recordType: e.target.value})} required>
+                  <option value="expense_normal">通常支出</option>
+                  <option value="trip_sandbox">🎒 旅行・イベント一時プール（隔離保留）</option>
+                  <option value="advance_payment">🤝 友人の立替（予算から除外）</option>
+                  <option value="refund">↩️ 返金・キャンセル（予算復活）</option>
+                  <option value="income_allowance">💰 入金（仕送り）</option>
+                  <option value="income_special">💰 入金（特別資産・大型送金）</option>
+                  <option value="advance_recovery">🤝 入金（立替の回収・清算）</option>
+                </select>
+              </label>
+              <label>
+                カテゴリ
+                <select value={editingRecordForm.category} onChange={e => setEditingRecordForm({...editingRecordForm, category: e.target.value})} required>
+                  {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </label>
+              <label>メモ / 品名 <input type="text" value={editingRecordForm.description} onChange={e => setEditingRecordForm({...editingRecordForm, description: e.target.value})} required /></label>
+              <label>支出 ($) <input type="number" step="0.01" value={editingRecordForm.expense} onChange={e => setEditingRecordForm({...editingRecordForm, expense: e.target.value})} /></label>
+              <label>収入 ($) <input type="number" step="0.01" value={editingRecordForm.income} onChange={e => setEditingRecordForm({...editingRecordForm, income: e.target.value})} /></label>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                <button type="submit" className="action-button primary" style={{ flex: 1, background: '#F59E0B' }}>更新する</button>
+                <button type="button" className="action-button secondary" onClick={() => setEditingRecordIndex(null)}>キャンセル</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <section className="charts-grid" style={{ marginTop: '2rem' }}>
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 className="chart-title" style={{ margin: 0 }}>支出の割合（カテゴリ別）</h2>
+            <select 
+              value={pieChartMonth} 
+              onChange={(e) => setPieChartMonth(e.target.value)}
+              style={{ padding: '0.3rem 0.5rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'white' }}
+            >
+              <option value="current">今月 ({currentRealMonth})</option>
+              <option value="all">全期間</option>
+            </select>
+          </div>
+          <div style={{ width: '100%', height: 350 }}>
+            {generatedPieData.length > 0 ? (
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={visibleExpenseData}
+                    cx="50%" cy="45%" innerRadius={70} outerRadius={110} paddingAngle={3} dataKey="value"
+                  >
+                    {visibleExpenseData.map((entry: any, index: number) => {
+                      const originalIndex = uniqueCategories.findIndex((name: string) => name === entry.name);
+                      return <Cell key={`cell-${index}`} fill={COLORS[Math.max(0, originalIndex) % COLORS.length]} />;
+                    })}
+                  </Pie>
+                  <Tooltip formatter={(value: any) => formatCurrency(value || 0)} />
+                  <Legend 
+                     content={() => (
+                       <ul style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', padding: 0, listStyle: 'none' }}>
+                         {generatedPieData.map((entry: any, index: number) => {
+                           const originalIndex = uniqueCategories.findIndex((name: string) => name === entry.name);
+                           return (
+                             <li key={`item-${index}`} onClick={() => setHiddenCategories(p => ({...p, [entry.name]: !p[entry.name]}))}
+                                 style={{ cursor: 'pointer', opacity: hiddenCategories[entry.name] ? 0.4 : 1, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                               <div style={{ width: 12, height: 12, backgroundColor: COLORS[Math.max(0, originalIndex) % COLORS.length], borderRadius: '50%' }}></div>
+                               <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{entry.name}</span>
+                             </li>
+                           );
+                         })}
+                       </ul>
+                     )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : <p style={{textAlign: 'center', marginTop: '100px'}}>データがありません</p>}
+          </div>
+        </div>
+
+        <div className="glass-card">
+          <h2 className="chart-title">月別の収入と支出</h2>
+          <div style={{ width: '100%', height: 350 }}>
+            <ResponsiveContainer>
+              <BarChart data={monthlyData || []} margin={{ top: 20, right: 10, left: 10, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  interval={0}
+                  tickLine={false} 
+                  axisLine={false} 
+                  tick={(props: any) => {
+                    const { x, y, payload } = props;
+                    if (payload.value === '不明') {
+                      return <text x={x} y={y} dy={16} textAnchor="middle" fill="var(--text-secondary)" fontSize={12}>{payload.value}</text>;
+                    }
+                    const parts = payload.value.split('-');
+                    if (parts.length !== 2) return <text x={x} y={y} dy={16} textAnchor="middle" fill="var(--text-secondary)" fontSize={12}>{payload.value}</text>;
+                    
+                    const year = parts[0];
+                    const month = parseInt(parts[1], 10);
+                    
+                    const dataIndex = (monthlyData || []).findIndex((d: any) => d.name === payload.value);
+                    const isFirstOfYear = dataIndex === 0 || (dataIndex > 0 && (monthlyData || [])[dataIndex - 1].name.split('-')[0] !== year);
+
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        <text x={0} y={0} dy={16} textAnchor="middle" fill="var(--text-primary)" fontSize={13}>
+                          {month}月
+                        </text>
+                        {isFirstOfYear && (
+                          <text x={0} y={0} dy={34} textAnchor="middle" fill="var(--text-secondary)" fontSize={11} fontWeight="bold">
+                            {year}年
+                          </text>
+                        )}
+                      </g>
+                    );
+                  }}
+                />
+                <YAxis tick={{ fill: 'var(--text-secondary)' }} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                <Tooltip formatter={(value: any) => formatCurrency(value || 0)} />
+                <Legend onClick={(e: any) => setHiddenBars(p => ({...p, [e.dataKey]: !p[e.dataKey]}))} wrapperStyle={{ cursor: 'pointer' }} verticalAlign="top" />
+                <ReferenceLine y={2000} stroke="#f97316" strokeDasharray="3 3" opacity={0.5} label={{ position: 'insideTopLeft', value: '全体予算 ($2000)', fill: '#f97316', fontSize: 12, opacity: 0.8 }} />
+                <Bar dataKey="収入" hide={hiddenBars['収入']} fill="var(--success-color)" radius={[6, 6, 0, 0]} maxBarSize={50} />
+                {(data?.expenseData || []).map((cat: any, i: number) => (
+                  <Bar 
+                    key={cat.name} 
+                    dataKey={cat.name} 
+                    stackId="expense" 
+                    fill={COLORS[i % COLORS.length]} 
+                    hide={hiddenBars[cat.name]} 
+                    maxBarSize={50}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="glass-card">
+          <h2 className="chart-title">先月の振り返り ({lastMonthStr})</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>設定した全体予算</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{formatCurrency(lastMonthBudget)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>実際の支出</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
+                {formatCurrency(lastMonthSpent)}
+              </span>
+            </div>
+            
+            <hr style={{ border: 'none', borderTop: '1px dashed var(--glass-border)', margin: '5px 0' }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 'bold' }}>予算達成状況</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
+                {lastMonthSpent > lastMonthBudget 
+                  ? `-$${(lastMonthSpent - lastMonthBudget).toFixed(2)} (オーバー)` 
+                  : `+$${(lastMonthBudget - lastMonthSpent).toFixed(2)} (黒字)`}
+              </span>
+            </div>
+            
+            <div style={{ marginTop: '10px', fontSize: '0.95rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.4)', padding: '15px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+              {lastMonthSpent === 0 
+                ? "先月のデータがまだありません。支出を記録しましょう！"
+                : lastMonthSpent > lastMonthBudget 
+                  ? "予算をオーバーしてしまいました。今月は少し節約を意識して、予算内に収まるよう頑張りましょう！" 
+                  : "素晴らしい！予算内にしっかり収まりました。この調子で今月も計画的に管理していきましょう！✨"}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style={{ textAlign: 'center', marginTop: '3rem', marginBottom: '1rem', display: 'flex', justifyContent: 'center', gap: '15px' }}>
+        <button className="action-button primary" onClick={fetchAiAdvice} disabled={isAiLoading} style={{ fontSize: '1.1rem', padding: '0.8rem 1.8rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', opacity: isAiLoading ? 0.7 : 1 }}>
+          {isAiLoading ? '📊 レポートを作成中...' : '📊 今月の家計を分析する'}
+        </button>
+        <button className="action-button secondary" onClick={copyDataForAi} style={{ fontSize: '1.1rem', padding: '0.8rem 1.8rem' }}>
+          {isCopied ? '📋 コピーしました！' : '📋 データをコピー (AI用)'}
+        </button>
+      </div>
+
+      {aiAdvice && (
+        <div className="glass-card highlight" style={{ marginTop: '1rem', textAlign: 'left', background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240, 249, 255, 0.8))', borderColor: 'var(--accent-color)' }}>
+          <h2 className="chart-title" style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>📊</span> 家計分析レポート
+          </h2>
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+            {aiAdvice.split('\n13: ').map((line, i) => {
+              const parts = line.split(/(\*\*.*?\*\*)/g);
+              return (
+                <div key={i} style={{ minHeight: '1em' }}>
+                  {parts.map((part, j) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                      return <strong key={j} style={{ color: '#0369a1' }}>{part.slice(2, -2)}</strong>;
+                    }
+                    return part;
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+        <button type="button" className="action-button primary" onClick={() => setShowOffsetModal(true)} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', background: '#ecfdf5', color: '#059669', border: '1px solid #34d399', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.1)', fontWeight: 'bold' }}>
+          🤝 割り勘カンタン一括回収
+        </button>
+        <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+        <button type="button" className="action-button secondary" onClick={handleExportData} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}>
+          バックアップを保存 (JSON)
+        </button>
+        <label className="action-button secondary" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}>
+          データを復元
+          <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportData} />
+        </label>
+        <button type="button" className="action-button secondary" onClick={openRawEditor} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}>
+          直接データを編集 (JSON)
+        </button>
+      </section>
+
+      {/* Expense Modal */}
+      {showExpenseModal && (
+        <div className="modal-overlay" onClick={() => setShowExpenseModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">支出を入力</h2>
+            <form onSubmit={handleAddExpense} className="form-container">
+              <label>
+                日付
+                <input 
+                  type="date" 
+                  value={expenseForm.date.replace(/\//g, '-')} 
+                  onChange={e => setExpenseForm({...expenseForm, date: e.target.value.replace(/-/g, '/')})} 
+                  required 
+                />
+              </label>
+              <label>
+                カテゴリ
+                {!isNewCategory ? (
+                  <select 
+                    value={expenseForm.category} 
+                    onChange={e => {
+                      if (e.target.value === 'new') {
+                        setIsNewCategory(true);
+                      } else {
+                        setExpenseForm({...expenseForm, category: e.target.value});
+                      }
+                    }} 
+                    required
+                  >
+                    {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+                    <option value="new">+ 新しいカテゴリを入力</option>
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <input type="text" placeholder="新しいカテゴリ名" value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} required style={{ flex: 1 }} />
+                    <button type="button" onClick={() => setIsNewCategory(false)} className="action-button secondary" style={{ padding: '0.5rem', marginTop: '0.5rem' }}>戻す</button>
+                  </div>
+                )}
+              </label>
+              <label>
+                処理タイプ (スマートエッジケース)
+                <select value={expenseForm.recordType} onChange={e => setExpenseForm({...expenseForm, recordType: e.target.value})} required>
+                  <option value="expense_normal">通常支出</option>
+                  <option value="trip_sandbox">🎒 旅行・イベント一時プール（隔離保留）</option>
+                  <option value="advance_payment">🤝 友人の立替（予算から除外）</option>
+                  <option value="refund">↩️ 返金・キャンセル（予算復活）</option>
+                  <option value="income_allowance">💰 入金（仕送り）</option>
+                  <option value="income_special">💰 入金（特別資産・大型送金）</option>
+                  <option value="advance_recovery">🤝 入金（立替の回収・清算）</option>
+                </select>
+              </label>
+              <label>
+                メモ / 品名
+                <input type="text" value={expenseForm.description} onChange={e => setExpenseForm({...expenseForm, description: e.target.value})} required />
+              </label>
+              <label>
+                金額 ($)
+                <input type="number" step="10" value={expenseForm.amount} onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})} required />
+              </label>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                <button type="submit" className="action-button primary" style={{ flex: 1 }}>追加する</button>
+                <button type="button" className="action-button secondary" onClick={() => setShowExpenseModal(false)}>キャンセル</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Budget Modal */}
+      {showTransferModal && (
+        <div className="modal-overlay" onClick={() => setShowTransferModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">🚚 予算のお引越し (今月分のみ)</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              「食費を減らして、娯楽費に回す」など、今月だけの柔軟なやりくりができます。全体の予算合計額は変わりません。
+            </p>
+            <form onSubmit={handleTransferBudget} className="form-container">
+              <label>
+                どこから？ (減らすカテゴリ)
+                <select value={transferForm.fromCategory} onChange={e => setTransferForm({...transferForm, fromCategory: e.target.value})} required>
+                  <option value="">選択してください</option>
+                  {variableCategories.filter((c: any) => (c.remaining || 0) > 0).map((c: any) => (
+                     <option key={c.name} value={c.name}>{c.name} (残り: {formatCurrency(c.remaining)})</option>
+                  ))}
+                </select>
+              </label>
+              
+              <label>
+                どこへ？ (増やすカテゴリ)
+                <select value={transferForm.toCategory} onChange={e => setTransferForm({...transferForm, toCategory: e.target.value})} required>
+                  <option value="">選択してください</option>
+                  {uniqueCategories.map((cat: string) => (
+                     <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </label>
+
+              {transferForm.fromCategory === '環境・自己投資' || transferForm.fromCategory === '衣服代' ? (
+                <div style={{ background: '#fef2f2', border: '1px solid #ef4444', color: '#b91c1c', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  <strong>🛑 【絶対禁止】聖域カテゴリーからの移行</strong><br/>
+                  「{transferForm.fromCategory}」からの予算移動は戦略上禁止されています。自己投資や良質なウェアのための資金を守ってください！
+                </div>
+              ) : null}
+
+              {transferForm.toCategory === 'ガソリン交通費' && transferForm.fromCategory !== '食費' && transferForm.fromCategory !== '娯楽・リフレッシュ費' ? (
+                <div style={{ background: '#f0fdf4', border: '1px solid #22c55e', color: '#15803d', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  <strong>💡 交通費オーバー時の推奨アクション</strong><br/>
+                  交通費の補填元は<strong>「食費」を第1優先、「娯楽・リフレッシュ費」を第2優先</strong>にしてください。チープドーパミン消費を削り出した余白でカバーするのが最も期待値が高いです！
+                </div>
+              ) : null}
+
+              <label>
+                いくら移動する？ ($)
+                <input 
+                  type="number" 
+                  step="1" 
+                  min="1"
+                  value={transferForm.amount} 
+                  onChange={e => setTransferForm({...transferForm, amount: e.target.value})} 
+                  required 
+                />
+              </label>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                <button 
+                  type="submit" 
+                  className="action-button primary" 
+                  style={{ flex: 1, opacity: (transferForm.fromCategory === '環境・自己投資' || transferForm.fromCategory === '衣服代') ? 0.5 : 1 }}
+                  disabled={transferForm.fromCategory === '環境・自己投資' || transferForm.fromCategory === '衣服代'}
+                >
+                  移動する！
+                </button>
+                <button type="button" className="action-button secondary" onClick={() => setShowTransferModal(false)}>キャンセル</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Fixed Expenses / Budget Modal (Table Format) */}
+      {showFixedModal && (
+        <div className="modal-overlay" onClick={() => setShowFixedModal(false)}>
+          <div className="modal-content large" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">今後の予算・固定費設定/予定</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>月ごとの予算（固定費・変動費とイベント準備金の目標積立）を表形式で一括設定できます。</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+              <button 
+                type="button" 
+                className="action-button secondary" 
+                onClick={() => setShowCategorySettings(!showCategorySettings)}
+                style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+              >
+                ⚙️ 表示カテゴリ設定
+              </button>
+            </div>
+            
+            {showCategorySettings && (
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid var(--glass-border)' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>グラフ・予算から除外するカテゴリ（一時的な大型出費）</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'white', padding: '0.3rem 0.6rem', borderRadius: '20px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={ignoredBudgetCategories.includes('特別体験・イベント費')} 
+                      onChange={(e) => handleToggleIgnoredBudgetCategory('特別体験・イベント費', e.target.checked)} 
+                    />
+                    <span style={{ fontSize: '0.9rem' }}>特別体験・イベント費を予算およびグラフ計算から除外する</span>
+                  </label>
+                </div>
+              </div>
+            )}
+            
+            <div className="fixed-table-container">
+              <table className="fixed-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ minWidth: '100px' }}>対象月</th>
+                    {data.expenseData && data.expenseData.map((d: any) => d.name).filter((n: string) => n !== '入金' && !ignoredBudgetCategories.includes(n)).map((catName: string) => (
+                      <th key={catName} style={{ minWidth: '100px' }}>{catName} ($)</th>
+                    ))}
+                    <th style={{ color: 'var(--success-color)', minWidth: '100px' }}>特別体験・イベント準備金（目標積立） ($)</th>
+                    <th style={{ color: '#f97316', minWidth: '100px' }}>合計予算 ($)</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(tempSettings).sort().map((monthStr, rowIndex) => {
+                    const s = tempSettings[monthStr];
+                    const isPast = monthStr < currentRealMonth;
+                    const allCategories = data.expenseData ? data.expenseData.map((d: any) => d.name).filter((n: string) => n !== '入金' && !ignoredBudgetCategories.includes(n)) : [];
+                    
+                    return (
+                      <tr key={monthStr} style={{ borderBottom: '1px solid var(--glass-border)', background: isPast ? '#f8fafc' : 'white', opacity: isPast ? 0.7 : 1 }}>
+                        <td style={{ padding: '0.5rem 1rem', fontWeight: 700, color: 'var(--accent-color)' }}>{monthStr}</td>
+                        {allCategories.map((catName: string) => {
+                          const index = s.fixedExpenses.findIndex((f: any) => f.name === catName);
+                          const item = index !== -1 ? s.fixedExpenses[index] : { name: catName, amount: 0 };
+                          
+                          return (
+                            <td key={catName} style={{ padding: '0.5rem' }}>
+                              <input 
+                                type="number" step="10" value={item.amount} 
+                                onChange={e => {
+                                  const clone = { ...tempSettings };
+                                  if (index !== -1) {
+                                    clone[monthStr].fixedExpenses[index].amount = e.target.value;
+                                  } else {
+                                    clone[monthStr].fixedExpenses.push({ id: `cat_${Date.now()}`, name: catName, amount: e.target.value });
+                                  }
+                                  setTempSettings(clone);
+                                }} 
+                                style={{ minWidth: '80px', width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} 
+                              />
+                            </td>
+                          );
+                        })}
+                        <td style={{ padding: '0.5rem' }}>
+                          <input 
+                            type="number" step="10" value={s.savingsGoal} 
+                            onChange={e => {
+                              const clone = { ...tempSettings };
+                              clone[monthStr].savingsGoal = e.target.value;
+                              setTempSettings(clone);
+                            }} 
+                            style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--success-color)' }} 
+                          />
+                        </td>
+                        <td style={{ padding: '0.5rem', fontWeight: 'bold', color: '#f97316', textAlign: 'center', fontSize: '1.1rem' }}>
+                          ${allCategories.reduce((sum: number, catName: string) => {
+                            const item = s.fixedExpenses.find((f: any) => f.name === catName);
+                            return sum + (item ? parseFloat(item.amount) || 0 : 0);
+                          }, 0) + (parseFloat(s.savingsGoal) || 0)}
+                        </td>
+                        <td style={{ padding: '0.5rem', textAlign: 'center' }}>
+                          <button 
+                            type="button"
+                            style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '1.2rem', cursor: 'pointer', padding: '5px' }}
+                            onClick={() => handleDeleteMonth(monthStr)}
+                            title="削除"
+                          >
+                            ✖
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            
+            <button type="button" className="action-button secondary" onClick={addNextMonthToTemp} style={{ width: '100%', marginTop: '0.5rem', border: '1px dashed var(--accent-color)', background: 'transparent' }}>
+              + 次の月を一番下に追加する
+            </button>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
+              <button type="button" className="action-button primary" onClick={handleSaveAllMonthlySettings} style={{ flex: 1 }}>すべて保存</button>
+              <button type="button" className="action-button secondary" onClick={() => setShowFixedModal(false)}>キャンセル</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRawEditor && (
+        <div className="modal-overlay" onClick={() => setShowRawEditor(false)}>
+          <div className="modal-content large" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">データを直接編集 (JSON)</h2>
+            <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem' }}>※JSONの構造を壊さないよう十分ご注意ください。</p>
+            <textarea 
+              value={rawJsonText} 
+              onChange={e => setRawJsonText(e.target.value)}
+              style={{ width: '100%', height: '500px', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '1px solid #cbd5e1', borderRadius: '8px', marginBottom: '1rem' }}
+            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="button" className="action-button primary" onClick={saveRawEditor} style={{ flex: 1 }}>保存して反映する</button>
+              <button type="button" className="action-button secondary" onClick={() => setShowRawEditor(false)}>キャンセル</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Offset Modal */}
+      {showOffsetModal && (
+        <div className="modal-overlay" onClick={() => setShowOffsetModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title">🤝 割り勘カンタン一括回収 (相殺)</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              友人から受け取った割り勘分を、指定したカテゴリの当月支出からマイナスして相殺（復活）させます。
+            </p>
+            <form onSubmit={handleOffsetSubmit} className="form-container">
+              <label>
+                相殺するカテゴリ
+                <select value={offsetForm.category} onChange={e => setOffsetForm({...offsetForm, category: e.target.value})} required>
+                  <option value="">選択してください</option>
+                  {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </label>
+              <label>
+                回収した金額 ($)
+                <input type="number" step="0.01" value={offsetForm.amount} onChange={e => setOffsetForm({...offsetForm, amount: e.target.value})} required placeholder="例: 31.25" />
+              </label>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                <button type="submit" className="action-button primary" style={{ flex: 1, background: '#10b981', border: 'none' }}>相殺して予算を復活させる</button>
+                <button type="button" className="action-button secondary" onClick={() => setShowOffsetModal(false)}>キャンセル</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Reconcile Modal */}
+      {showReconcileModal && (
+        <div className="modal-overlay" onClick={() => setShowReconcileModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="chart-title" style={{ color: '#d97706' }}>🎒 ワンクリック一括精算</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              隔離保留中だった総額（{formatCurrency(summary?.unsettledSandbox || 0)}）を一括精算します。<br/>
+              自分の実費分は「特別体験・イベント費」として記録され、残りは回収分として総残高を復元します。
+            </p>
+            <form onSubmit={handleReconcileSubmit} className="form-container">
+              <label>
+                最終的な自分の実費総額 ($)
+                <input type="number" step="0.01" value={reconcileForm.myShare} onChange={e => setReconcileForm({...reconcileForm, myShare: e.target.value})} required placeholder="例: 150.00" />
+              </label>
+              <label>
+                友人からの回収・立替精算額 ($)
+                <input type="number" step="0.01" value={reconcileForm.recovered} onChange={e => setReconcileForm({...reconcileForm, recovered: e.target.value})} required placeholder="例: 350.00" />
+              </label>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                <button type="submit" className="action-button primary" style={{ flex: 1, background: '#f59e0b', border: 'none' }}>精算を完了する</button>
+                <button type="button" className="action-button secondary" onClick={() => setShowReconcileModal(false)}>キャンセル</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* CSV Reconcile Modal */}
+      {showCsvModal && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{ width: '95%', maxWidth: '1200px', height: '90vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>CSV 比較照合エンジン</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.1)', padding: '5px 15px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>🏦 銀行残高確認:</span>
+                  <input 
+                    type="number" 
+                    value={bankBalanceInput} 
+                    onChange={e => setBankBalanceInput(e.target.value)} 
+                    placeholder="現在の銀行残高を入力"
+                    style={{ width: '150px', padding: '5px 10px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                  />
+                  {(() => {
+                    const parsedBank = parseFloat(bankBalanceInput);
+                    if (isNaN(parsedBank)) return null;
+                    const totalAppBalance = summary?.currentBalance || 0;
+                    const diff = parsedBank - totalAppBalance;
+                    if (Math.abs(diff) < 0.01) {
+                      return <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>✅ 残高が一致しました！</span>;
+                    }
+                    return <span style={{ color: 'var(--warning-color)' }}>差額: {formatCurrency(diff)}</span>;
+                  })()}
+                </div>
+              </div>
+              <button className="icon-button" onClick={() => setShowCsvModal(false)}>✕</button>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '20px', flex: 1, minHeight: 0 }}>
+              {/* Left Panel: CSV Records */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--surface-color)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>未照合のCSVデータ (銀行)</h3>
+                <div style={{ overflowY: 'auto', flex: 1 }}>
+                  <table className="data-table" style={{ tableLayout: "fixed", width: "100%", wordBreak: "break-all" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: "40px" }}>✓</th>
+                        <th style={{ width: "20%" }}>日付</th>
+                        <th style={{ width: "45%" }}>内容</th>
+                        <th style={{ width: "15%" }}>出金</th>
+                        <th style={{ width: "15%" }}>入金</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {csvRecords.map((r, i) => {
+                        const isSelected = selectedCsvIndices.has(i);
+                        return (
+                          <tr key={i} onClick={() => {
+                            const newSet = new Set(selectedCsvIndices);
+                            if (isSelected) newSet.delete(i);
+                            else newSet.add(i);
+                            setSelectedCsvIndices(newSet);
+                          }} style={{ cursor: 'pointer', background: isSelected ? 'rgba(99, 102, 241, 0.1)' : '' }}>
+                            <td><input type="checkbox" checked={isSelected} readOnly /></td>
+                            <td>{r.date}</td>
+                            <td>{r.description}</td>
+                            <td style={{ color: r.expense > 0 ? 'var(--expense-color)' : '' }}>{r.expense > 0 ? formatCurrency(r.expense) : ''}</td>
+                            <td style={{ color: r.income > 0 ? 'var(--income-color)' : '' }}>{r.income > 0 ? formatCurrency(r.income) : ''}</td>
+                          </tr>
+                        );
+                      })}
+                      {csvRecords.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center' }}>データがありません</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Panel: App Records */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--surface-color)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>未照合のアプリデータ</h3>
+                <div style={{ overflowY: 'auto', flex: 1 }}>
+                  <table className="data-table" style={{ tableLayout: "fixed", width: "100%", wordBreak: "break-all" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: "40px" }}>✓</th>
+                        <th style={{ width: "20%" }}>日付</th>
+                        <th style={{ width: "25%" }}>カテゴリ</th>
+                        <th style={{ width: "45%" }}>内容</th>
+                        <th style={{ width: "20%" }}>金額</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data?.records && data.records.map((r: any, originalIndex: number) => ({...r, originalIndex}))
+                        .filter((r: any) => !r.reconciled && (r.expense > 0 || r.income > 0))
+                        .map((r: any) => {
+                        const isSelected = selectedAppIndices.has(r.originalIndex);
+                        const isIncome = r.income > 0;
+                        const amount = isIncome ? r.income : r.expense;
+                        return (
+                          <tr key={r.originalIndex} onClick={() => {
+                            const newSet = new Set(selectedAppIndices);
+                            if (isSelected) newSet.delete(r.originalIndex);
+                            else newSet.add(r.originalIndex);
+                            setSelectedAppIndices(newSet);
+                          }} style={{ cursor: 'pointer', background: isSelected ? 'rgba(99, 102, 241, 0.1)' : '' }}>
+                            <td><input type="checkbox" checked={isSelected} readOnly /></td>
+                            <td>{r.date}</td>
+                            <td>{r.category}</td>
+                            <td>{r.description}</td>
+                            <td style={{ color: isIncome ? 'var(--income-color)' : 'var(--expense-color)' }}>{formatCurrency(amount)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Panel: Actions */}
+            <div style={{ marginTop: '20px', padding: '1rem', background: 'var(--surface-color)', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {(() => {
+                let csvTotal = 0;
+                let appTotal = 0;
+                
+                selectedCsvIndices.forEach(i => {
+                  const r = csvRecords[i];
+                  csvTotal += (r.expense || 0) - (r.income || 0);
+                });
+                
+                selectedAppIndices.forEach(i => {
+                  if(!data || !data.records) return;
+                  const r = data.records[i];
+                  if(r) { appTotal += (r.expense || 0) - (r.income || 0); }
+                });
+                
+                const diff = csvTotal - appTotal;
+                
+                const handleReconcile = async (isAdjustment = false) => {
+                  if (selectedCsvIndices.size === 0 && selectedAppIndices.size === 0) return;
+                  
+                  let newRecords: any[] = [];
+                  if (isAdjustment && diff !== 0) {
+                     const cat = window.prompt("差額分のカテゴリ名を入力してください (例: その他, 手数料, 照合調整金)", "その他");
+                     if (!cat) return;
+                     const today = new Date();
+                     const todayStr = today.toISOString().split('T')[0].replace(/-/g, '/');
+                     const isExp = diff > 0;
+                     newRecords.push({
+                       date: todayStr,
+                       category: cat,
+                       description: 'CSV照合調整',
+                       expense: isExp ? diff : 0,
+                       income: isExp ? 0 : -diff,
+                       balance: 0,
+                       month: todayStr.substring(0, 7).replace('/', '-'),
+                       recordType: 'expense_normal'
+                     });
+                  } else if (appTotal === 0 && selectedCsvIndices.size > 0) {
+                     let cat = '相殺/キャンセル';
+                     if (csvTotal !== 0) {
+                       const inputCat = window.prompt("CSVから新規登録するカテゴリ名を入力してください", "未分類");
+                       if (!inputCat) return;
+                       cat = inputCat;
+                     }
+                     selectedCsvIndices.forEach(i => {
+                       const r = csvRecords[i];
+                       newRecords.push({
+                         date: r.date,
+                         category: cat,
+                         description: r.description,
+                         expense: r.expense,
+                         income: r.income,
+                         balance: 0,
+                         month: r.date ? r.date.substring(0, 7).replace('/', '-') : '',
+                         recordType: r.expense > 0 ? 'expense_normal' : 'income_normal'
+                       });
+                     });
+                  }
+
+                  try {
+                    const res = await fetch('/api/finance', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'batch_reconcile',
+                        payload: {
+                          reconciledIds: Array.from(selectedAppIndices),
+                          newRecords: newRecords
+                        }
+                      })
+                    });
+                    if (res.ok) {
+                       alert('照合が完了しました');
+                       const remainingCsv = csvRecords.filter((_, idx) => !selectedCsvIndices.has(idx));
+                       setCsvRecords(remainingCsv);
+                       setSelectedCsvIndices(new Set());
+                       setSelectedAppIndices(new Set());
+                       fetchData();
+                    }
+                  } catch (e) { alert('エラーが発生しました'); }
+                };
+                
+                return (
+                  <>
+                    <div style={{ display: 'flex', gap: '20px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>CSV選択計: <span style={{ color: csvTotal >= 0 ? 'var(--expense-color)' : 'var(--income-color)' }}>{formatCurrency(Math.abs(csvTotal))}</span> ({csvTotal >= 0 ? '出金' : '入金'})</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>アプリ選択計: <span style={{ color: appTotal >= 0 ? 'var(--expense-color)' : 'var(--income-color)' }}>{formatCurrency(Math.abs(appTotal))}</span></span>
+                      <span style={{ color: diff === 0 ? 'var(--success-color)' : 'var(--expense-color)' }}>
+                        差額: {formatCurrency(Math.abs(diff))}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {diff === 0 && (selectedCsvIndices.size > 0 || selectedAppIndices.size > 0) && (
+                        <button className="action-button primary" onClick={() => handleReconcile(false)}>✅ 照合確定</button>
+                      )}
+                      {diff !== 0 && appTotal === 0 && selectedCsvIndices.size > 0 && (
+                        <button className="action-button" style={{ background: '#3b82f6', border: 'none', color: '#fff' }} onClick={() => handleReconcile(false)}>📥 CSVから新規登録</button>
+                      )}
+                      {diff !== 0 && (appTotal !== 0 || (appTotal === 0 && selectedCsvIndices.size === 0)) && (selectedCsvIndices.size > 0 || selectedAppIndices.size > 0) && (
+                        <button className="action-button secondary" onClick={() => handleReconcile(true)}>⚖️ 差額を自動作成して照合</button>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

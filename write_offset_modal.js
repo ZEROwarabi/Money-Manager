@@ -1,0 +1,130 @@
+const fs = require('fs');
+
+const modalCode = `import React, { useState } from 'react';
+
+interface OffsetModalProps {
+  onClose: () => void;
+  fetchData: () => void;
+  uniqueCategories: string[];
+}
+
+export const OffsetModal: React.FC<OffsetModalProps> = ({
+  onClose,
+  fetchData,
+  uniqueCategories
+}) => {
+  const [offsetForm, setOffsetForm] = useState({ amount: '', category: '' });
+
+  const handleOffsetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offsetForm.amount || !offsetForm.category) return;
+    try {
+      const today = new Date();
+      const payload = {
+        date: today.toISOString().split('T')[0].replace(/-/g, '/'),
+        category: offsetForm.category,
+        description: \`一括相殺（\${offsetForm.category}）\`,
+        amount: offsetForm.amount,
+        recordType: 'refund'
+      };
+      await fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_expense', payload })
+      });
+      alert(\`+$$\{offsetForm.amount} が \${offsetForm.category} の予算に復活しました！\`);
+      onClose();
+      fetchData();
+    } catch (err) {
+      alert('エラーが発生しました');
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <h2 className="chart-title">🤝 割り勘カンタン一括回収 (相殺)</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          友人から受け取った割り勘分を、指定したカテゴリの当月支出からマイナスして相殺（復活）させます。
+        </p>
+        <form onSubmit={handleOffsetSubmit} className="form-container">
+          <label>
+            相殺するカテゴリ
+            <select value={offsetForm.category} onChange={e => setOffsetForm({...offsetForm, category: e.target.value})} required>
+              <option value="">選択してください</option>
+              {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          <label>
+            回収した金額 ($)
+            <input type="number" step="0.01" value={offsetForm.amount} onChange={e => setOffsetForm({...offsetForm, amount: e.target.value})} required placeholder="例: 31.25" />
+          </label>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+            <button type="submit" className="action-button primary" style={{ flex: 1, background: '#10b981', border: 'none' }}>相殺して予算を復活させる</button>
+            <button type="button" className="action-button secondary" onClick={onClose}>キャンセル</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+`;
+
+fs.writeFileSync('app/components/modals/OffsetModal.tsx', modalCode);
+
+let pageCode = fs.readFileSync('app/page.tsx', 'utf8');
+const lines = pageCode.split('\n');
+
+// Remove state
+const stateIdx = lines.findIndex(l => l.includes('const [offsetForm, setOffsetForm] = useState'));
+if (stateIdx !== -1) lines.splice(stateIdx, 1);
+
+// Remove handleOffsetSubmit
+const handleStart = lines.findIndex(l => l.includes('const handleOffsetSubmit = async'));
+if (handleStart !== -1) {
+  let openBrackets = 0;
+  let handleEnd = -1;
+  for (let i = handleStart; i < lines.length; i++) {
+    if (lines[i].includes('{')) openBrackets += (lines[i].match(/\{/g) || []).length;
+    if (lines[i].includes('}')) openBrackets -= (lines[i].match(/\}/g) || []).length;
+    if (openBrackets === 0) {
+      handleEnd = i;
+      break;
+    }
+  }
+  if (handleEnd !== -1) {
+    lines.splice(handleStart, handleEnd - handleStart + 1);
+  }
+}
+
+// Replace JSX
+const jsxStart = lines.findIndex(l => l.includes('{showOffsetModal && ('));
+if (jsxStart !== -1) {
+  let jsxEnd = -1;
+  let openBrackets = 0;
+  for (let i = jsxStart; i < lines.length; i++) {
+    if (lines[i].includes('(')) openBrackets += (lines[i].match(/\(/g) || []).length;
+    if (lines[i].includes(')')) openBrackets -= (lines[i].match(/\)/g) || []).length;
+    if (openBrackets === 0) {
+      jsxEnd = i;
+      break;
+    }
+  }
+  if (jsxEnd !== -1) {
+    const newComponent = `      {showOffsetModal && (
+        <OffsetModal
+          onClose={() => setShowOffsetModal(false)}
+          fetchData={fetchData}
+          uniqueCategories={uniqueCategories}
+        />
+      )}`;
+    lines.splice(jsxStart, jsxEnd - jsxStart + 1, newComponent);
+  }
+}
+
+let modifiedCode = lines.join('\n');
+const importStmt = "import { OffsetModal } from './components/modals/OffsetModal';\n";
+modifiedCode = modifiedCode.replace(/import \{ RawJsonEditorModal /, importStmt + "import { RawJsonEditorModal ");
+
+fs.writeFileSync('app/page.tsx', modifiedCode);
+console.log('Successfully updated page.tsx with OffsetModal');

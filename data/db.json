@@ -1,0 +1,2732 @@
+{
+  "records": [
+    {
+      "description": "最初の入金",
+      "date": "2025/08/18",
+      "category": "入金",
+      "expense": 0,
+      "income": 600,
+      "balance": 600,
+      "month": "2025-08",
+      "reconciled": true
+    },
+    {
+      "description": "カフェテリアコーヒー",
+      "date": "2025/09/02",
+      "category": "食費",
+      "expense": 3,
+      "income": 0,
+      "balance": 597,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "よはねとらいがから入金",
+      "date": "2025/09/03",
+      "category": "入金",
+      "expense": 0,
+      "income": 106,
+      "balance": 703,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "教科書",
+      "date": "2025/09/04",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55,
+      "income": 0,
+      "balance": 648,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "コーヒー",
+      "date": "2025/09/05",
+      "category": "食費",
+      "expense": 6,
+      "income": 0,
+      "balance": 642,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "バーガー",
+      "date": "2025/09/08",
+      "category": "食費",
+      "expense": 12.35,
+      "income": 0,
+      "balance": 629.65,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "Tシャツ",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 21.95,
+      "income": 0,
+      "balance": 607.6999999999999,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "服",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 60.35,
+      "income": 0,
+      "balance": 547.3499999999999,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "スニーカー",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 148.16,
+      "income": 0,
+      "balance": 399.18999999999994,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "ズボン",
+      "date": "2025/09/08",
+      "category": "衣服代",
+      "expense": 60.35,
+      "income": 0,
+      "balance": 338.8399999999999,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "ドライビングテスト",
+      "date": "2025/09/12",
+      "category": "ホームステイ等、必要経費",
+      "expense": 45,
+      "income": 0,
+      "balance": 293.8399999999999,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "スパイク",
+      "date": "2025/09/15",
+      "category": "娯楽費",
+      "expense": 54.61,
+      "income": 0,
+      "balance": 239.2299999999999,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "スポーツ用ズボン",
+      "date": "2025/09/15",
+      "category": "衣服代",
+      "expense": 8.73,
+      "income": 0,
+      "balance": 230.49999999999991,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "親から送ってもらった",
+      "date": "2025/09/16",
+      "category": "入金",
+      "expense": 0,
+      "income": 4500,
+      "balance": 4730.5,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "散髪代",
+      "date": "2025/09/17",
+      "category": "環境・自己投資",
+      "expense": 40,
+      "income": 0,
+      "balance": 4690.5,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "クリッパーカード",
+      "date": "2025/09/18",
+      "category": "ホームステイ等、必要経費",
+      "expense": 70,
+      "income": 0,
+      "balance": 4620.5,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "環境・自己投資",
+      "expense": 1.45,
+      "income": 0,
+      "balance": 4619.05,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "環境・自己投資",
+      "expense": 0,
+      "income": 0,
+      "balance": 4619.05,
+      "month": "2025-09"
+    },
+    {
+      "description": "safeway",
+      "date": "2025/09/18",
+      "category": "環境・自己投資",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 4613.93,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "BBQパーティー",
+      "date": "2025/09/18",
+      "category": "食費",
+      "expense": 10,
+      "income": 0,
+      "balance": 4603.93,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "インナンアウト",
+      "date": "2025/09/22",
+      "category": "食費",
+      "expense": 2.46,
+      "income": 0,
+      "balance": 4601.47,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "インナンアウト",
+      "date": "2025/09/22",
+      "category": "食費",
+      "expense": 9.56,
+      "income": 0,
+      "balance": 4591.91,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "サンフランシスコの中華料理屋",
+      "date": "2025/09/29",
+      "category": "食費",
+      "expense": 20.53,
+      "income": 0,
+      "balance": 4571.38,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "ブルーロック",
+      "date": "2025/09/29",
+      "category": "娯楽費",
+      "expense": 14.11,
+      "income": 0,
+      "balance": 4557.27,
+      "month": "2025-09",
+      "reconciled": true
+    },
+    {
+      "description": "ズボン",
+      "date": "2025/10/01",
+      "category": "衣服代",
+      "expense": 57,
+      "income": 0,
+      "balance": 4500.27,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "パーキングぱーみっと",
+      "date": "2025/10/14",
+      "category": "ホームステイ等、必要経費",
+      "expense": 50,
+      "income": 0,
+      "balance": 4450.27,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代10月",
+      "date": "2025/10/17",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1340,
+      "income": 0,
+      "balance": 3110.2700000000004,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "ジョーダンのパーカー",
+      "date": "2025/10/22",
+      "category": "衣服代",
+      "expense": 87.8,
+      "income": 0,
+      "balance": 3022.4700000000003,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "ニックサグリーク",
+      "date": "2025/10/27",
+      "category": "食費",
+      "expense": 13.66,
+      "income": 0,
+      "balance": 3008.8100000000004,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "アイス",
+      "date": "2025/10/27",
+      "category": "食費",
+      "expense": 8.8,
+      "income": 0,
+      "balance": 3000.01,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "くつの消臭剤",
+      "date": "2025/10/28",
+      "category": "環境・自己投資",
+      "expense": 8.96,
+      "income": 0,
+      "balance": 2991.05,
+      "month": "2025-10",
+      "reconciled": true
+    },
+    {
+      "description": "飲み物代",
+      "date": "2025/11/03",
+      "category": "食費",
+      "expense": 13.22,
+      "income": 0,
+      "balance": 2977.8300000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "免許試験代",
+      "date": "2025/11/05",
+      "category": "ホームステイ等、必要経費",
+      "expense": 9,
+      "income": 0,
+      "balance": 2968.8300000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代11月",
+      "date": "2025/11/10",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1440,
+      "income": 0,
+      "balance": 1528.8300000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "クレンジング",
+      "date": "2025/11/12",
+      "category": "環境・自己投資",
+      "expense": 13.49,
+      "income": 0,
+      "balance": 1515.3400000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "アイス",
+      "date": "2025/11/12",
+      "category": "食費",
+      "expense": 20.65,
+      "income": 0,
+      "balance": 1494.6900000000003,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "ぼばてぃー",
+      "date": "2025/11/12",
+      "category": "食費",
+      "expense": 8.41,
+      "income": 0,
+      "balance": 1486.2800000000002,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "タオル",
+      "date": "2025/11/13",
+      "category": "環境・自己投資",
+      "expense": 16.35,
+      "income": 0,
+      "balance": 1469.9300000000003,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "こんにゃくパフ",
+      "date": "2025/11/13",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 1467.4600000000003,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "ベルト、アウター",
+      "date": "2025/11/17",
+      "category": "衣服代",
+      "expense": 65.48,
+      "income": 0,
+      "balance": 1401.9800000000002,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "りゅうとくんへのチキン代",
+      "date": "2025/11/17",
+      "category": "食費",
+      "expense": 6.11,
+      "income": 0,
+      "balance": 1395.8700000000003,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "たくせいさんへの飲み物代",
+      "date": "2025/11/21",
+      "category": "娯楽費",
+      "expense": 11.1,
+      "income": 0,
+      "balance": 1384.7700000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "入金",
+      "date": "2025/11/24",
+      "category": "入金",
+      "expense": 0,
+      "income": 1000,
+      "balance": 2384.7700000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "授業料",
+      "date": "2025/11/24",
+      "category": "ホームステイ等、必要経費",
+      "expense": 438,
+      "income": 0,
+      "balance": 1946.7700000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "Gas",
+      "date": "2025/11/24",
+      "category": "ガソリン交通費",
+      "expense": 30.97,
+      "income": 0,
+      "balance": 1915.8000000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "シャンプー",
+      "date": "2025/11/25",
+      "category": "環境・自己投資",
+      "expense": 9.28,
+      "income": 0,
+      "balance": 1906.5200000000004,
+      "month": "2025-11",
+      "reconciled": true
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/04",
+      "category": "環境・自己投資",
+      "expense": 4.94,
+      "income": 0,
+      "balance": 1901.5800000000004,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2025/12/05",
+      "category": "食費",
+      "expense": 17.43,
+      "income": 0,
+      "balance": 1884.1500000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2025/12/08",
+      "category": "食費",
+      "expense": 8.19,
+      "income": 0,
+      "balance": 1875.9600000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "チポレ",
+      "date": "2025/12/11",
+      "category": "食費",
+      "expense": 28.5,
+      "income": 0,
+      "balance": 1847.4600000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "Bowling",
+      "date": "2025/12/15",
+      "category": "娯楽費",
+      "expense": 14.05,
+      "income": 0,
+      "balance": 1833.4100000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "おみやげ",
+      "date": "2025/12/16",
+      "category": "娯楽費",
+      "expense": 12,
+      "income": 0,
+      "balance": 1821.4100000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ぼばてぃ",
+      "date": "2025/12/16",
+      "category": "食費",
+      "expense": 8.55,
+      "income": 0,
+      "balance": 1812.8600000000004,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "タイヤパンク",
+      "date": "2025/12/16",
+      "category": "ホームステイ等、必要経費",
+      "expense": 54.99,
+      "income": 0,
+      "balance": 1757.8700000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "くつ",
+      "date": "2025/12/17",
+      "category": "衣服代",
+      "expense": 126.21,
+      "income": 0,
+      "balance": 1631.6600000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/17",
+      "category": "ガソリン交通費",
+      "expense": 17.88,
+      "income": 0,
+      "balance": 1613.7800000000002,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ギラデリ",
+      "date": "2025/12/17",
+      "category": "娯楽費",
+      "expense": 21.82,
+      "income": 0,
+      "balance": 1591.9600000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ギラデリ",
+      "date": "2025/12/17",
+      "category": "娯楽費",
+      "expense": 80.25,
+      "income": 0,
+      "balance": 1511.7100000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "パーキング",
+      "date": "2025/12/18",
+      "category": "ガソリン交通費",
+      "expense": 5,
+      "income": 0,
+      "balance": 1506.7100000000003,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/18",
+      "category": "環境・自己投資",
+      "expense": 4.88,
+      "income": 0,
+      "balance": 1501.8300000000002,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代12月",
+      "date": "2025/12/19",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1000,
+      "income": 0,
+      "balance": 501.83000000000015,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ダイソー",
+      "date": "2025/12/22",
+      "category": "環境・自己投資",
+      "expense": 2.25,
+      "income": 0,
+      "balance": 499.58000000000015,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "トレジョ",
+      "date": "2025/12/22",
+      "category": "環境・自己投資",
+      "expense": 3.29,
+      "income": 0,
+      "balance": 496.29000000000013,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "セーフウェイ",
+      "date": "2025/12/22",
+      "category": "環境・自己投資",
+      "expense": 18,
+      "income": 0,
+      "balance": 478.29000000000013,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "映画の返金",
+      "date": "2025/12/23",
+      "category": "娯楽費",
+      "expense": 0,
+      "income": 13.05,
+      "balance": 491.34000000000015,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/24",
+      "category": "ガソリン交通費",
+      "expense": 27.34,
+      "income": 0,
+      "balance": 464.00000000000017,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "映画",
+      "date": "2025/12/24",
+      "category": "娯楽費",
+      "expense": 27.98,
+      "income": 0,
+      "balance": 436.02000000000015,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ロンティー",
+      "date": "2025/12/24",
+      "category": "娯楽費",
+      "expense": 29.61,
+      "income": 0,
+      "balance": 406.41000000000014,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "googleのマグカップ",
+      "date": "2025/12/26",
+      "category": "娯楽費",
+      "expense": 16.37,
+      "income": 0,
+      "balance": 390.04000000000013,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "コーヒー",
+      "date": "2025/12/26",
+      "category": "食費",
+      "expense": 1.36,
+      "income": 0,
+      "balance": 388.6800000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "タコベル",
+      "date": "2025/12/26",
+      "category": "食費",
+      "expense": 2.61,
+      "income": 0,
+      "balance": 386.0700000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/29",
+      "category": "ガソリン交通費",
+      "expense": 21.22,
+      "income": 0,
+      "balance": 364.85000000000014,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "Panda",
+      "date": "2025/12/30",
+      "category": "食費",
+      "expense": 65.99,
+      "income": 0,
+      "balance": 298.8600000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "Waymo",
+      "date": "2025/12/30",
+      "category": "ガソリン交通費",
+      "expense": 23.61,
+      "income": 0,
+      "balance": 275.2500000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "Waymo",
+      "date": "2025/12/30",
+      "category": "ガソリン交通費",
+      "expense": 15.3,
+      "income": 0,
+      "balance": 259.9500000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2025/12/31",
+      "category": "ガソリン交通費",
+      "expense": 16.94,
+      "income": 0,
+      "balance": 243.0100000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "サンフラベーカリーカフェ",
+      "date": "2025/12/31",
+      "category": "食費",
+      "expense": 63.22,
+      "income": 0,
+      "balance": 179.7900000000001,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "アルカトラズ",
+      "date": "2025/12/31",
+      "category": "娯楽費",
+      "expense": 63.82,
+      "income": 0,
+      "balance": 115.97000000000011,
+      "month": "2025-12",
+      "reconciled": true
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/01/02",
+      "category": "ガソリン交通費",
+      "expense": 1,
+      "income": 0,
+      "balance": 114.97000000000011,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "ヨセミテのTシャツ",
+      "date": "2026/01/02",
+      "category": "衣服代",
+      "expense": 44.38,
+      "income": 0,
+      "balance": 70.59000000000012,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/01/05",
+      "category": "ガソリン交通費",
+      "expense": 12.78,
+      "income": 0,
+      "balance": 57.810000000000116,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "マグカップ",
+      "date": "2026/01/05",
+      "category": "娯楽費",
+      "expense": 16.45,
+      "income": 0,
+      "balance": 41.36000000000011,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "入金",
+      "date": "2026/01/26",
+      "category": "入金",
+      "expense": 0,
+      "income": 6350,
+      "balance": 6391.36,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "パーキングぱーみっと",
+      "date": "2026/01/28",
+      "category": "ホームステイ等、必要経費",
+      "expense": 50,
+      "income": 0,
+      "balance": 6341.36,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代1月",
+      "date": "2026/01/28",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 4891.36,
+      "month": "2026-01",
+      "reconciled": true
+    },
+    {
+      "description": "教科書",
+      "date": "2026/02/04",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55.22,
+      "income": 0,
+      "balance": 4836.139999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ダイソー",
+      "date": "2026/02/06",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4833.669999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ジム",
+      "date": "2026/02/09",
+      "category": "娯楽費",
+      "expense": 199,
+      "income": 0,
+      "balance": 4634.669999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/10",
+      "category": "娯楽費",
+      "expense": 41.39,
+      "income": 0,
+      "balance": 4593.279999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/02/13",
+      "category": "娯楽費",
+      "expense": 34.71,
+      "income": 0,
+      "balance": 4558.569999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/02/17",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 3108.569999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "アンクルバーガー",
+      "date": "2026/02/17",
+      "category": "食費",
+      "expense": 13.16,
+      "income": 0,
+      "balance": 3095.409999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ごはんかい",
+      "date": "2026/02/23",
+      "category": "食費",
+      "expense": 15,
+      "income": 0,
+      "balance": 3080.409999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/02/24",
+      "category": "娯楽費",
+      "expense": 20.16,
+      "income": 0,
+      "balance": 3060.249999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "飲み物",
+      "date": "2026/02/25",
+      "category": "食費",
+      "expense": 3.5,
+      "income": 0,
+      "balance": 3056.749999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/26",
+      "category": "ガソリン交通費",
+      "expense": 26.7,
+      "income": 0,
+      "balance": 3030.0499999999993,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/02/26",
+      "category": "ガソリン交通費",
+      "expense": 20.69,
+      "income": 0,
+      "balance": 3009.359999999999,
+      "month": "2026-02",
+      "reconciled": true
+    },
+    {
+      "description": "ジェノブ",
+      "date": "2026/03/02",
+      "category": "食費",
+      "expense": 18.52,
+      "income": 0,
+      "balance": 2990.8399999999992,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "カフェてでなんかかった",
+      "date": "2026/03/03",
+      "category": "食費",
+      "expense": 3,
+      "income": 0,
+      "balance": 2987.8399999999992,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/03/05",
+      "category": "食費",
+      "expense": 5.37,
+      "income": 0,
+      "balance": 2982.4699999999993,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/03/09",
+      "category": "ガソリン交通費",
+      "expense": 47.68,
+      "income": 0,
+      "balance": 2934.7899999999995,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/03/09",
+      "category": "娯楽費",
+      "expense": 4.7,
+      "income": 0,
+      "balance": 2930.0899999999997,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "アマゾンでなんかかった",
+      "date": "2026/03/13",
+      "category": "娯楽費",
+      "expense": 18.56,
+      "income": 0,
+      "balance": 2911.5299999999997,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/03/16",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 1461.5299999999997,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "三脚かなたぶん",
+      "date": "2026/03/16",
+      "category": "娯楽費",
+      "expense": 162.78,
+      "income": 0,
+      "balance": 1298.7499999999998,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "帽子",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 38.86,
+      "income": 0,
+      "balance": 1259.8899999999999,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "Tシャツ",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 27.61,
+      "income": 0,
+      "balance": 1232.28,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "エマール",
+      "date": "2026/03/16",
+      "category": "環境・自己投資",
+      "expense": 8.81,
+      "income": 0,
+      "balance": 1223.47,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "スニーカー",
+      "date": "2026/03/16",
+      "category": "衣服代",
+      "expense": 126.78,
+      "income": 0,
+      "balance": 1096.69,
+      "month": "2026-03",
+      "reconciled": true
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "特別体験・イベント費",
+      "expense": 79.18,
+      "income": 0,
+      "balance": 1017.51,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "特別体験・イベント費",
+      "expense": 84.95,
+      "income": 0,
+      "balance": 932.56,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/19",
+      "category": "特別体験・イベント費",
+      "expense": 202.69,
+      "income": 0,
+      "balance": 729.8699999999999,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ぼばてぃ",
+      "date": "2026/03/23",
+      "category": "特別体験・イベント費",
+      "expense": 8.76,
+      "income": 0,
+      "balance": 721.1099999999999,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/03/23",
+      "category": "特別体験・イベント費",
+      "expense": 3,
+      "income": 0,
+      "balance": 718.1099999999999,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/23",
+      "category": "特別体験・イベント費",
+      "expense": 85.32,
+      "income": 0,
+      "balance": 632.79,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "パーキング",
+      "date": "2026/03/23",
+      "category": "特別体験・イベント費",
+      "expense": 4,
+      "income": 0,
+      "balance": 628.79,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "野球",
+      "date": "2026/03/23",
+      "category": "特別体験・イベント費",
+      "expense": 105.15,
+      "income": 0,
+      "balance": 523.64,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "よはねに送ってもらった",
+      "date": "2026/03/24",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 500,
+      "balance": 1023.64,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "innout",
+      "date": "2026/03/24",
+      "category": "特別体験・イベント費",
+      "expense": 8.53,
+      "income": 0,
+      "balance": 1015.11,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ホテル",
+      "date": "2026/03/24",
+      "category": "特別体験・イベント費",
+      "expense": 129.31,
+      "income": 0,
+      "balance": 885.8,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/24",
+      "category": "特別体験・イベント費",
+      "expense": 29.42,
+      "income": 0,
+      "balance": 856.38,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "入金",
+      "date": "2026/03/25",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 6250,
+      "balance": 7106.38,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "きんぐまんめし",
+      "date": "2026/03/25",
+      "category": "特別体験・イベント費",
+      "expense": 22.38,
+      "income": 0,
+      "balance": 7084,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/26",
+      "category": "特別体験・イベント費",
+      "expense": 27.4,
+      "income": 0,
+      "balance": 7056.6,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "めし",
+      "date": "2026/03/26",
+      "category": "特別体験・イベント費",
+      "expense": 8.32,
+      "income": 0,
+      "balance": 7048.280000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ミュージアム",
+      "date": "2026/03/26",
+      "category": "特別体験・イベント費",
+      "expense": 10,
+      "income": 0,
+      "balance": 7038.280000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "キングマン飯",
+      "date": "2026/03/26",
+      "category": "特別体験・イベント費",
+      "expense": 22.16,
+      "income": 0,
+      "balance": 7016.120000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "キングマンめし",
+      "date": "2026/03/27",
+      "category": "特別体験・イベント費",
+      "expense": 20.15,
+      "income": 0,
+      "balance": 6995.970000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "グランドキャニオン飯",
+      "date": "2026/03/27",
+      "category": "特別体験・イベント費",
+      "expense": 27.52,
+      "income": 0,
+      "balance": 6968.450000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "キングマン飯",
+      "date": "2026/03/27",
+      "category": "特別体験・イベント費",
+      "expense": 16.13,
+      "income": 0,
+      "balance": 6952.320000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 27.23,
+      "income": 0,
+      "balance": 6925.090000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 39.47,
+      "income": 0,
+      "balance": 6885.620000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "リッジクレスト",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 10.15,
+      "income": 0,
+      "balance": 6875.470000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "飯",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 31.97,
+      "income": 0,
+      "balance": 6843.500000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ナショナルパーク年パス",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 80,
+      "income": 0,
+      "balance": 6763.500000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 14.71,
+      "income": 0,
+      "balance": 6748.790000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 6.28,
+      "income": 0,
+      "balance": 6742.510000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "セリグマン",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 16,
+      "income": 0,
+      "balance": 6726.510000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "グランドキャニオン",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 35,
+      "income": 0,
+      "balance": 6691.510000000001,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ステーキ",
+      "date": "2026/03/30",
+      "category": "特別体験・イベント費",
+      "expense": 62.11,
+      "income": 0,
+      "balance": 6629.4000000000015,
+      "month": "2026-03",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/04/02",
+      "category": "特別体験・イベント費",
+      "expense": 52.24,
+      "income": 0,
+      "balance": 6577.160000000002,
+      "month": "2026-04",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/04/03",
+      "category": "食費",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 6572.040000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ホットドッグ",
+      "date": "2026/04/06",
+      "category": "食費",
+      "expense": 1.65,
+      "income": 0,
+      "balance": 6570.390000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ホットドッグ",
+      "date": "2026/04/06",
+      "category": "食費",
+      "expense": 4.38,
+      "income": 0,
+      "balance": 6566.010000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ジム",
+      "date": "2026/04/08",
+      "category": "娯楽費",
+      "expense": 59,
+      "income": 0,
+      "balance": 6507.010000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "いんおうつ",
+      "date": "2026/04/13",
+      "category": "食費",
+      "expense": 3.55,
+      "income": 0,
+      "balance": 6503.460000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ガス",
+      "date": "2026/04/13",
+      "category": "ガソリン交通費",
+      "expense": 32.99,
+      "income": 0,
+      "balance": 6470.470000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "BBQ",
+      "date": "2026/04/14",
+      "category": "娯楽費",
+      "expense": 10,
+      "income": 0,
+      "balance": 6460.470000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/04/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 5010.470000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "野球観戦",
+      "date": "2026/04/20",
+      "category": "娯楽費",
+      "expense": 195,
+      "income": 0,
+      "balance": 4815.470000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ごはん",
+      "date": "2026/04/22",
+      "category": "食費",
+      "expense": 8.74,
+      "income": 0,
+      "balance": 4806.730000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/04/23",
+      "category": "ガソリン交通費",
+      "expense": 26.51,
+      "income": 0,
+      "balance": 4780.220000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "柔軟剤",
+      "date": "2026/04/23",
+      "category": "環境・自己投資",
+      "expense": 12.72,
+      "income": 0,
+      "balance": 4767.500000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "野球観戦のごはん",
+      "date": "2026/04/23",
+      "category": "食費",
+      "expense": 14.37,
+      "income": 0,
+      "balance": 4753.130000000002,
+      "month": "2026-04",
+      "reconciled": true
+    },
+    {
+      "description": "旅行代の清算",
+      "date": "2026/05/04",
+      "category": "特別体験・イベント費",
+      "expense": 356.68,
+      "income": 0,
+      "balance": 4396.450000000002,
+      "month": "2026-05",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "BUCHIご飯会",
+      "date": "2026/05/04",
+      "category": "食費",
+      "expense": 27.5,
+      "income": 0,
+      "balance": 4368.950000000002,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "パネラ",
+      "date": "2026/05/04",
+      "category": "食費",
+      "expense": 5.12,
+      "income": 0,
+      "balance": 4363.830000000002,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "モニターアーム",
+      "date": "2026/05/04",
+      "category": "環境・自己投資",
+      "expense": 32.76,
+      "income": 0,
+      "balance": 4331.0700000000015,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "旅行ご飯代清算",
+      "date": "2026/05/05",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 40,
+      "balance": 4371.0700000000015,
+      "month": "2026-05",
+      "eventTag": "スプリングブレイク",
+      "reconciled": true
+    },
+    {
+      "description": "プロジェクター半額分",
+      "date": "2026/05/05",
+      "category": "娯楽費",
+      "expense": 0,
+      "income": 54.62,
+      "balance": 4425.690000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "スイッチボット",
+      "date": "2026/05/06",
+      "category": "環境・自己投資",
+      "expense": 33.93,
+      "income": 0,
+      "balance": 4391.760000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "プロジェクター",
+      "date": "2026/05/06",
+      "category": "娯楽費",
+      "expense": 109.24,
+      "income": 0,
+      "balance": 4282.520000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "くつ置き",
+      "date": "2026/05/06",
+      "category": "環境・自己投資",
+      "expense": 19.67,
+      "income": 0,
+      "balance": 4262.850000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "壁掛けフック",
+      "date": "2026/05/06",
+      "category": "環境・自己投資",
+      "expense": 7.41,
+      "income": 0,
+      "balance": 4255.440000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "プロジェクター用スクリーン",
+      "date": "2026/05/07",
+      "category": "娯楽費",
+      "expense": 14.52,
+      "income": 0,
+      "balance": 4240.920000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/05/11",
+      "category": "ガソリン交通費",
+      "expense": 2,
+      "income": 0,
+      "balance": 4238.920000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ディフューザースティック",
+      "date": "2026/05/11",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4236.450000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/11",
+      "category": "ガソリン交通費",
+      "expense": 53.88,
+      "income": 0,
+      "balance": 4182.570000000001,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "両面テープ",
+      "date": "2026/05/11",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4180.1,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ドアノブケース",
+      "date": "2026/05/11",
+      "category": "環境・自己投資",
+      "expense": 6.54,
+      "income": 0,
+      "balance": 4173.56,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "壁掛け用フック",
+      "date": "2026/05/14",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 4171.09,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "モバイルバッテリー",
+      "date": "2026/05/18",
+      "category": "環境・自己投資",
+      "expense": 24.35,
+      "income": 0,
+      "balance": 4146.74,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイFee",
+      "date": "2026/05/18",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 2696.74,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ご飯会",
+      "date": "2026/05/21",
+      "category": "食費",
+      "expense": 11,
+      "income": 0,
+      "balance": 2685.74,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/26",
+      "category": "ガソリン交通費",
+      "expense": 31.8,
+      "income": 0,
+      "balance": 2653.9399999999996,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ごはん",
+      "date": "2026/05/26",
+      "category": "食費",
+      "expense": 8.26,
+      "income": 0,
+      "balance": 2645.6799999999994,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "クレンジング",
+      "date": "2026/05/26",
+      "category": "環境・自己投資",
+      "expense": 25.35,
+      "income": 0,
+      "balance": 2620.3299999999995,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/05/27",
+      "category": "ガソリン交通費",
+      "expense": 16,
+      "income": 0,
+      "balance": 2604.3299999999995,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ドライヤー",
+      "date": "2026/05/27",
+      "category": "環境・自己投資",
+      "expense": 65.54,
+      "income": 0,
+      "balance": 2538.7899999999995,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/05/29",
+      "category": "ガソリン交通費",
+      "expense": 18.29,
+      "income": 0,
+      "balance": 2520.4999999999995,
+      "month": "2026-05",
+      "reconciled": true
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/06/01",
+      "category": "ガソリン交通費",
+      "expense": 8,
+      "income": 0,
+      "balance": 2512.4999999999995,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/03",
+      "category": "ガソリン交通費",
+      "expense": 31.58,
+      "income": 0,
+      "balance": 2480.9199999999996,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "駐車場",
+      "date": "2026/06/03",
+      "category": "ガソリン交通費",
+      "expense": 10,
+      "income": 0,
+      "balance": 2470.9199999999996,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ボルダリング",
+      "date": "2026/06/03",
+      "category": "娯楽費",
+      "expense": 25,
+      "income": 0,
+      "balance": 2445.9199999999996,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "タンクトップ",
+      "date": "2026/06/04",
+      "category": "衣服代",
+      "expense": 14.96,
+      "income": 0,
+      "balance": 2430.9599999999996,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "タンクトップ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 20.47,
+      "income": 0,
+      "balance": 2410.49,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "パンツ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 27.37,
+      "income": 0,
+      "balance": 2383.12,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "パンツ",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 11.22,
+      "income": 0,
+      "balance": 2371.9,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ネックレス",
+      "date": "2026/06/08",
+      "category": "衣服代",
+      "expense": 7.53,
+      "income": 0,
+      "balance": 2364.37,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "野球",
+      "date": "2026/06/09",
+      "category": "娯楽費",
+      "expense": 12,
+      "income": 0,
+      "balance": 2352.37,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "やきにく",
+      "date": "2026/06/12",
+      "category": "食費",
+      "expense": 31.25,
+      "income": 0,
+      "balance": 2321.12,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ナッツベリーファーム",
+      "date": "2026/06/12",
+      "category": "娯楽費",
+      "expense": 69,
+      "income": 0,
+      "balance": 2252.12,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ナッツベリーファーム立替",
+      "date": "2026/06/15",
+      "category": "娯楽費",
+      "expense": 75,
+      "income": 0,
+      "balance": 2177.12,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "やきにく立替",
+      "date": "2026/06/15",
+      "category": "食費",
+      "expense": 31.25,
+      "income": 0,
+      "balance": 2145.87,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "寿司",
+      "date": "2026/06/15",
+      "category": "食費",
+      "expense": 30,
+      "income": 0,
+      "balance": 2115.87,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/15",
+      "category": "ガソリン交通費",
+      "expense": 12.35,
+      "income": 0,
+      "balance": 2103.52,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/06/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1450,
+      "income": 0,
+      "balance": 653.52,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "事故修理代",
+      "date": "2026/06/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 300,
+      "income": 0,
+      "balance": 353.52,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/06/18",
+      "category": "ガソリン交通費",
+      "expense": 61.32,
+      "income": 0,
+      "balance": 292.2,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "ターゲットで何か買った",
+      "date": "2026/06/22",
+      "category": "環境・自己投資",
+      "expense": 19.3,
+      "income": 0,
+      "balance": 272.9,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "教科書",
+      "date": "2026/06/22",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55,
+      "income": 0,
+      "balance": 217.89999999999998,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "教科書",
+      "date": "2026/06/22",
+      "category": "ホームステイ等、必要経費",
+      "expense": 55.01,
+      "income": 0,
+      "balance": 162.89,
+      "month": "2026-06",
+      "reconciled": true
+    },
+    {
+      "description": "Uber",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 5.59,
+      "income": 0,
+      "balance": 157.29999999999998,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "水",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 1.89,
+      "income": 0,
+      "balance": 155.41,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "充電コード",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 8.66,
+      "income": 0,
+      "balance": 146.75,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 55.91,
+      "income": 0,
+      "balance": 90.84,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "透明バッグ",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 88.37,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "入金",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 6135.95,
+      "balance": 6224.32,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "現金入金",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 392,
+      "balance": 6616.32,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ヨハネからの清算",
+      "date": "2026/06/29",
+      "category": "特別体験・イベント費",
+      "expense": 0,
+      "income": 16.42,
+      "balance": 6632.74,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 73.74,
+      "income": 0,
+      "balance": 6559,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 46.95,
+      "income": 0,
+      "balance": 6512.05,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "充電器、朝飯",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 46.61,
+      "income": 0,
+      "balance": 6465.4400000000005,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 7.94,
+      "income": 0,
+      "balance": 6457.500000000001,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 9.95,
+      "income": 0,
+      "balance": 6447.550000000001,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "朝食",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 8.78,
+      "income": 0,
+      "balance": 6438.770000000001,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ロッカー",
+      "date": "2026/06/30",
+      "category": "特別体験・イベント費",
+      "expense": 6.95,
+      "income": 0,
+      "balance": 6431.8200000000015,
+      "month": "2026-06",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ウーバー",
+      "date": "2026/07/01",
+      "category": "特別体験・イベント費",
+      "expense": 8.95,
+      "income": 0,
+      "balance": 6422.870000000002,
+      "month": "2026-07",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "お土産",
+      "date": "2026/07/01",
+      "category": "特別体験・イベント費",
+      "expense": 19.47,
+      "income": 0,
+      "balance": 6403.4000000000015,
+      "month": "2026-07",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "インターナショナル手数料",
+      "date": "2026/07/01",
+      "category": "特別体験・イベント費",
+      "expense": 0.77,
+      "income": 0,
+      "balance": 6402.630000000001,
+      "month": "2026-07",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "宇宙センター",
+      "date": "2026/07/01",
+      "category": "特別体験・イベント費",
+      "expense": 25.71,
+      "income": 0,
+      "balance": 6376.920000000001,
+      "month": "2026-07",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "ワールドカップTシャツ",
+      "date": "2026/07/01",
+      "category": "特別体験・イベント費",
+      "expense": 126.62,
+      "income": 0,
+      "balance": 6250.300000000001,
+      "month": "2026-07",
+      "eventTag": "World Cup/Houston",
+      "reconciled": true
+    },
+    {
+      "description": "かご",
+      "date": "2026/07/13",
+      "category": "環境・自己投資",
+      "expense": 2.47,
+      "income": 0,
+      "balance": 6247.830000000001,
+      "month": "2026-07",
+      "reconciled": true
+    },
+    {
+      "description": "ホームステイ代",
+      "date": "2026/07/15",
+      "category": "ホームステイ等、必要経費",
+      "expense": 1490,
+      "income": 0,
+      "balance": 4757.830000000001,
+      "month": "2026-07",
+      "reconciled": true
+    },
+    {
+      "description": "ガソリン",
+      "date": "2026/07/15",
+      "category": "ガソリン交通費",
+      "expense": 37.73,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": "2026-07",
+      "reconciled": true
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "ホームステイ等、必要経費",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "",
+      "date": "",
+      "category": "",
+      "expense": 0,
+      "income": 0,
+      "balance": 4720.100000000001,
+      "month": ""
+    },
+    {
+      "description": "トラックボールマウス",
+      "date": "2026/07/21",
+      "category": "環境・自己投資",
+      "expense": 120.16,
+      "income": 0,
+      "balance": 4599.940000000001,
+      "month": "2026-07",
+      "recordType": "expense_normal",
+      "reconciled": true
+    }
+  ],
+  "monthlySettings": {
+    "2026-07": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1490"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "120"
+        },
+        {
+          "id": "3",
+          "name": "環境・自己投資",
+          "amount": "140"
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "60"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "30"
+        },
+        {
+          "id": "cat_1_1784427591908",
+          "name": "特別体験・イベント費",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 100
+    },
+    "2026-08": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1450"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "120"
+        },
+        {
+          "id": "3",
+          "name": "環境・自己投資",
+          "amount": "120"
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "70"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "30"
+        },
+        {
+          "id": "cat_1_1784427591908",
+          "name": "特別体験・イベント費",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 150
+    },
+    "2026-09": {
+      "fixedExpenses": [
+        {
+          "id": "1",
+          "name": "ホームステイ等、必要経費",
+          "amount": "1450"
+        },
+        {
+          "id": "2",
+          "name": "娯楽費",
+          "amount": "120"
+        },
+        {
+          "id": "3",
+          "name": "環境・自己投資",
+          "amount": "120"
+        },
+        {
+          "id": "cat_3_1784359947893",
+          "name": "衣服代",
+          "amount": "70"
+        },
+        {
+          "id": "cat_4_1784359947893",
+          "name": "ガソリン交通費",
+          "amount": "60"
+        },
+        {
+          "id": "cat_5_1784359947893",
+          "name": "食費",
+          "amount": "30"
+        },
+        {
+          "id": "cat_1_1784427591908",
+          "name": "特別体験・イベント費",
+          "amount": 0
+        }
+      ],
+      "savingsGoal": 150
+    }
+  },
+  "accounts": [
+    {
+      "id": "main",
+      "name": "メイン口座"
+    },
+    {
+      "id": "savings",
+      "name": "貯金口座"
+    }
+  ],
+  "wishlist": [
+    {
+      "id": "1784392955504",
+      "name": "マイク",
+      "amount": 30,
+      "category": "環境・自己投資",
+      "isApplied": true
+    }
+  ],
+  "ignoredBudgetCategories": [
+    "特別体験・イベント費"
+  ]
+}
