@@ -370,7 +370,7 @@ ${futureSettings}
   const originalExpenseData = data?.expenseData || [];
   const monthlyData = data?.monthlyData || [];
   const accountBalances = data?.accountBalances || [];
-  const formatCurrency = (val: number) => `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatCurrency = (val: number) => loading ? '---' : `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // --- Dynamic Pie Chart Data Calculation ---
   const targetMonth = pieChartMonth === 'current' ? currentRealMonth : null;
