@@ -12,7 +12,8 @@ export const useFinanceData = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/finance');
+      const timestamp = new Date().getTime();
+      const res = await fetch(`/api/finance?t=${timestamp}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('API Request Failed');
       const json = await res.json();
       if (json.error) throw new Error(json.error);

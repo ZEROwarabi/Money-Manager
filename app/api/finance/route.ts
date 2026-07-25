@@ -3,9 +3,17 @@ import { GoogleGenAI } from '@google/genai';
 import fs from 'fs/promises';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
+import { createClient } from '@supabase/supabase-js';
 import { Database, Transaction, MonthlySettings, FixedExpense, WishlistItem, AccountBalance } from '../../types';
 
+export const dynamic = 'force-dynamic';
+
 const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
+
+const getSupabase = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 
 const DEFAULT_FIXED_EXPENSES = [
   { id: "1", name: "ホームステイ等、必要経費", amount: 0 },
@@ -21,6 +29,21 @@ async function readDB() {
   try {
     const data = await fs.readFile(DB_PATH, 'utf-8');
     const parsed = JSON.parse(data);
+    
+    // Supabaseからトランザクションを取得
+    const supabase = getSupabase();
+    const { data: txs } = await supabase.from('transactions').select('*').order('created_at', { ascending: true });
+    if (txs) {
+      parsed.records = txs.map(t => ({
+        ...t,
+        recordType: t.record_type,
+        expense: Number(t.expense),
+        income: Number(t.income)
+      }));
+    } else {
+      parsed.records = [];
+    }
+
     if (!parsed.monthlySettings) parsed.monthlySettings = {};
     if (!parsed.accounts) {
       parsed.accounts = [
@@ -505,24 +528,23 @@ export async function POST(request: Request) {
         }
       }
 
-      db.records.push({
+      const supabase = getSupabase();
+      const { error } = await supabase.from('transactions').insert({
         description: description || '',
         date: date || '',
         category: category || '',
         expense: expenseAmount,
         income: incomeAmount,
-        balance: 0,
         month: month,
-        recordType: recordType || 'expense_normal'
+        record_type: recordType || 'expense_normal',
+        reconciled: false
       });
-      
-      let currentBalance = 0;
-      for (let i = 0; i < db.records.length; i++) {
-        currentBalance += (parseFloat(db.records[i].income) || 0) - (parseFloat(db.records[i].expense) || 0);
-        db.records[i].balance = currentBalance;
+
+      if (error) {
+        console.error('Supabase Insert Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      await writeDB(db);
       return NextResponse.json({ success: true, message: '記録を追加しました。' });
 
     } else if (body.action === 'trip_reconcile') {
@@ -699,12 +721,15 @@ ${JSON.stringify(promptData, null, 2)}
     } else if (body.action === 'edit_record' || body.action === 'delete_record') {
       const { index, ...payload } = body.payload;
       if (index >= 0 && index < db.records.length) {
+        const targetRecord = db.records[index];
+        const supabase = getSupabase();
+        
         if (body.action === 'delete_record') {
-          db.records.splice(index, 1);
+          await supabase.from('transactions').delete().eq('id', targetRecord.id);
         } else {
           let exp = parseFloat(payload.expense) || 0;
           let inc = parseFloat(payload.income) || 0;
-          const recType = payload.recordType || db.records[index].recordType;
+          const recType = payload.recordType || targetRecord.recordType;
           
           if (recType === 'income_allowance' || recType === 'income_special' || recType === 'advance_recovery') {
             inc = Math.abs(exp || inc);
@@ -717,27 +742,18 @@ ${JSON.stringify(promptData, null, 2)}
             inc = 0;
           }
 
-          db.records[index] = {
-            ...db.records[index],
+          await supabase.from('transactions').update({
             description: payload.description || '',
             date: payload.date || '',
             category: payload.category || '',
             expense: exp,
             income: inc,
-            month: payload.month || db.records[index].month,
-            recordType: recType,
-            isRecovered: payload.isRecovered !== undefined ? payload.isRecovered : db.records[index].isRecovered
-          };
+            month: payload.month || targetRecord.month,
+            record_type: recType,
+            reconciled: payload.reconciled !== undefined ? payload.reconciled : targetRecord.reconciled
+          }).eq('id', targetRecord.id);
         }
         
-        // 残高 (balance) の再計算
-        let currentBalance = 0;
-        for (let i = 0; i < db.records.length; i++) {
-          currentBalance += (parseFloat(db.records[i].income) || 0) - (parseFloat(db.records[i].expense) || 0);
-          db.records[i].balance = currentBalance;
-        }
-        
-        await writeDB(db);
         return NextResponse.json({ success: true, message: body.action === 'delete_record' ? '削除しました。' : '更新しました。' });
       } else {
         return NextResponse.json({ error: 'レコードが見つかりません。' }, { status: 404 });
