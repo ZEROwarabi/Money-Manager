@@ -99,6 +99,7 @@ function DashboardContent() {
 
   // New Engine State
   const [showOffsetModal, setShowOffsetModal] = useState(false);
+  const [showAnalysisReport, setShowAnalysisReport] = useState(false);
   
   const [showReconcileModal, setShowReconcileModal] = useState(false);
   const [csvRecords, setCsvRecords] = useState<Transaction[]>([]);
@@ -926,11 +927,52 @@ ${futureSettings}
         </div>
       </section>
 
-      <AnalysisReport 
-        variableCategories={variableCategories} 
-        variableFreeMoney={variableFreeMoney} 
-        savingsTotal={savingsAccount?.total || 0} 
-      />
+      {!showAnalysisReport ? (
+        <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '1rem' }}>
+          <button 
+            type="button" 
+            className="action-button primary" 
+            onClick={() => setShowAnalysisReport(true)}
+            style={{ 
+              fontSize: '1.1rem', 
+              padding: '0.8rem 2rem', 
+              background: 'linear-gradient(135deg, #0369a1, #0284c7)', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '30px', 
+              boxShadow: '0 8px 15px rgba(2, 132, 199, 0.2)', 
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            📊 今月の家計を分析する
+          </button>
+        </section>
+      ) : (
+        <div style={{ position: 'relative' }}>
+          <AnalysisReport 
+            variableCategories={variableCategories} 
+            variableFreeMoney={variableFreeMoney} 
+            savingsTotal={savingsAccount?.total || 0} 
+          />
+          <button 
+            onClick={() => setShowAnalysisReport(false)}
+            style={{
+              position: 'absolute',
+              top: '3rem',
+              right: '1rem',
+              background: 'transparent',
+              border: 'none',
+              fontSize: '1.2rem',
+              cursor: 'pointer',
+              color: '#94a3b8'
+            }}
+            title="閉じる"
+          >
+            ✖
+          </button>
+        </div>
+      )}
 
       <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
         <button type="button" className="action-button primary" onClick={() => setShowOffsetModal(true)} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', background: '#ecfdf5', color: '#059669', border: '1px solid #34d399', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.1)', fontWeight: 'bold' }}>

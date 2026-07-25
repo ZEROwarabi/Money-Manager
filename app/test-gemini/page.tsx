@@ -4,36 +4,52 @@ import React, { useState } from 'react';
 export default function TestGeminiPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [modelName, setModelName] = useState('gemini-2.0-flash');
+  const [modelName, setModelName] = useState('local-gemma2');
 
   const handleTest = async () => {
     setLoading(true);
     setResult(null);
     try {
-      const res = await fetch('/api/test-gemini', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelName }),
-      });
-      const data = await res.json();
-      setResult({ status: res.status, data });
+      if (modelName === 'local-gemma2') {
+        const res = await fetch('http://localhost:11434/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'gemma2',
+            prompt: 'こんにちは！テストメッセージです。',
+            stream: false
+          })
+        });
+        if (!res.ok) throw new Error(`Ollama HTTP Error: ${res.status}`);
+        const data = await res.json();
+        setResult({ status: 200, data: { success: true, text: data.response }});
+      } else {
+        const res = await fetch('/api/test-gemini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ modelName }),
+        });
+        const data = await res.json();
+        setResult({ status: res.status, data });
+      }
     } catch (e: any) {
-      setResult({ error: e.message });
+      setResult({ status: 500, data: { success: false }, error: e.message });
     }
     setLoading(false);
   };
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gemini API 動作テストツール</h1>
+      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>AI API 動作テストツール</h1>
       <p style={{ marginBottom: '1rem', color: '#666' }}>
-        現在 `.env.local` に設定されている `GEMINI_API_KEY` を使って、実際にGoogleのサーバーと通信テストを行います。
+        Gemini（クラウド）または Ollama（ローカル）との通信テストを行います。
       </p>
       
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ marginRight: '1rem' }}>
           モデル選択: 
           <select value={modelName} onChange={e => setModelName(e.target.value)} style={{ marginLeft: '0.5rem', padding: '0.3rem' }}>
+            <option value="local-gemma2">Ollama: Gemma 2 (Local)</option>
             <option value="gemini-2.0-flash">gemini-2.0-flash</option>
             <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
             <option value="gemini-1.5-flash">gemini-1.5-flash</option>
@@ -60,7 +76,7 @@ export default function TestGeminiPage() {
         <div style={{ marginTop: '2rem' }}>
           <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>テスト結果:</h2>
           
-          {result.status === 200 && result.data.success ? (
+          {result.status === 200 && result.data?.success ? (
             <div style={{ background: '#dcfce7', padding: '1rem', borderRadius: '8px', color: '#166534' }}>
               <strong>✅ 通信成功！</strong>
               <p style={{ marginTop: '0.5rem' }}>AIの返答: {result.data.text}</p>
@@ -72,7 +88,9 @@ export default function TestGeminiPage() {
                 {JSON.stringify(result.data || result.error, null, 2)}
               </pre>
               <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-                ※ <code>Quota exceeded</code> や <code>limit: 0</code> が出ている場合、APIキーがGoogleによって制限されています。Google AI Studioで利用枠を確認してください。
+                {modelName === 'local-gemma2' 
+                  ? '※ Ollamaが起動しているか、OLLAMA_ORIGINS="*" が設定されているか確認してください。'
+                  : '※ Quota exceeded 等が出ている場合、APIキーがGoogleによって制限されています。'}
               </p>
             </div>
           )}
