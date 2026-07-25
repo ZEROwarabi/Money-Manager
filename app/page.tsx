@@ -36,6 +36,7 @@ import { ExpenseModal } from './components/modals/ExpenseModal';
 import { CsvReconcileModal } from './components/modals/CsvReconcileModal';
 import { ExpensePieChart } from './components/charts/ExpensePieChart';
 import { MonthlyBarChart } from './components/charts/MonthlyBarChart';
+import AnalysisReport from './components/AnalysisReport';
 import { formatCurrency } from './lib/format';
 import { useFinanceData } from './hooks/useFinanceData';
 import { FinanceDataProvider, useFinanceContext } from './context/FinanceContext';
@@ -62,12 +63,6 @@ function DashboardContent() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showFixedModal, setShowFixedModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
-  
-  // AI State
-  const [aiAdvice, setAiAdvice] = useState<string>('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  
   // Forms
   const [expenseForm, setExpenseForm] = useState({ date: '', category: '', description: '', amount: '', recordType: 'expense_normal' });
   const [isNewCategory, setIsNewCategory] = useState(false);
@@ -443,65 +438,6 @@ ${futureSettings}
   const lastMonthSettings = data?.monthlySettings?.[lastMonthStr] || { fixedExpenses: [] };
   const lastMonthBudget = lastMonthSettings.fixedExpenses?.reduce((sum: number, f: FixedExpense) => sum + (parseFloat(String(f.amount)) || 0), 0) || 0;
 
-  const fetchAiAdvice = async () => {
-    setIsAiLoading(true);
-    setAiAdvice('');
-    try {
-      const payload = {
-        totalBalance: summary?.currentBalance || 0,
-        variableFreeMoney,
-        savingsTotal: savingsAccount?.total || 0,
-        savingsPast: savingsAccount?.past || 0,
-        savingsPlanned: savingsAccount?.planned || 0,
-        monthlyExpenses: variableCategories.map((c: CategoryBudget) => ({ category: c.name, budget: c.budget, spent: c.spent, remaining: c.remaining })),
-        lastMonth: {
-          spent: lastMonthSpent,
-          budget: lastMonthBudget
-        },
-        wishlist: data?.wishlist || [],
-        monthlySettings: data?.monthlySettings || {}
-      };
-      const res = await fetch('/api/finance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get_ai_advice', payload })
-      });
-      const json = await res.json();
-      if (json.error) {
-        setAiAdvice(`エラー: ${json.error}`);
-      } else {
-        setAiAdvice(json.advice);
-      }
-    } catch (err) {
-      setAiAdvice("エラーが発生しました。");
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const copyDataForAi = () => {
-    const payload = {
-      totalBalance: summary?.currentBalance || 0,
-      variableFreeMoney,
-      savingsTotal: savingsAccount?.total || 0,
-      savingsPast: savingsAccount?.past || 0,
-      savingsPlanned: savingsAccount?.planned || 0,
-      monthlyExpenses: variableCategories.map((c: CategoryBudget) => ({ category: c.name, budget: c.budget, spent: c.spent, remaining: c.remaining })),
-      lastMonth: {
-        spent: lastMonthSpent,
-        budget: lastMonthBudget
-      },
-      wishlist: data?.wishlist || [],
-      monthlySettings: data?.monthlySettings || {}
-    };
-    
-    const prompt = `あなたは優秀なファイナンシャルプランナーです。以下の家計簿データを分析し、アドバイスをください。\n\n【データ概要】\n${JSON.stringify(payload, null, 2)}`;
-    navigator.clipboard.writeText(prompt).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    });
-  };
-
   return (
     <div className="dashboard-container">
       <header style={{ marginBottom: '2rem' }}>
@@ -519,7 +455,7 @@ ${futureSettings}
             </button>
           </div>
         </div>
-        <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>あなたのお金の動きを、もっと直感的に。</p>
+        <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>あなたのお金の動き, もっと直感的に。</p>
       </header>
 
       <section className="stats-grid">
@@ -535,7 +471,7 @@ ${futureSettings}
           <div className="stat-title">今月自由に使えるお金</div>
           <div className="stat-value" style={{ color: 'var(--accent-color)' }}>{formatCurrency(variableFreeMoney)}</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
-            ※固定費を除く、各カテゴリの残り予算の合計
+            ※固定費を除く, 各カテゴリの残り予算の合計
           </div>
           {variableWishlistDeductions > 0 && (
             <div style={{ fontSize: '0.9rem', color: '#d97706', marginTop: '10px', fontWeight: 'bold' }}>
@@ -593,7 +529,7 @@ ${futureSettings}
             <div className="stat-title" style={{ color: '#ef4444' }}>🤝 未回収の立替金</div>
             <div className="stat-value" style={{ color: '#ef4444' }}>{formatCurrency(summary.unrecoveredAdvance)}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
-              ※友人の代わりに支払った金額。総資産からは減っていますが、月々の予算グラフには影響しません。回収したら下のRecent Activityから「✓ 回収」を押してください。
+              ※友人の代わりに支払った金額。総資産からは減っていますが, 月々の予算グラフには影響しません。回収したら下のRecent Activityから「✓ 回収」を押してください。
             </div>
           </div>
         )}
@@ -703,7 +639,7 @@ ${futureSettings}
                 {cat.name === 'ガソリン交通費' && realRemaining < 0 && (
                   <div style={{ marginTop: '0.8rem', background: '#fff1f2', padding: '0.8rem', borderRadius: '8px', border: '1px solid #fecdd3' }}>
                     <p style={{ color: '#be123c', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                      ⚠️ 交通費がオーバーしています！実需の移動をカバーするため、予算を自動補填しますか？
+                      ⚠️ 交通費がオーバーしています！実需の移動をカバーするため, 予算を自動補填しますか？
                     </p>
                     <button 
                       onClick={() => handleAutoCoverTransportation(Math.abs(realRemaining))}
@@ -725,7 +661,7 @@ ${futureSettings}
           <span>🛒 買いたいものシミュレーション</span>
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          今月買いたいものをリストアップ！チェックを入れると、上の「メイン口座」と「カテゴリの残り予算」から一時的に引かれて、買っても大丈夫かシミュレーションできます。
+          今月買いたいものをリストアップ！チェックを入れると, 上の「メイン口座」と「カテゴリの残り予算」から一時的に引かれて, 買っても大丈夫かシミュレーションできます。
         </p>
         
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
@@ -963,15 +899,14 @@ ${futureSettings}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-secondary)' }}>実際の支出</span>
-
-              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
-                {formatCurrency(lastMonthSpent)}
-              </span>
-            </div>
-            
-            <hr style={{ border: 'none', borderTop: '1px dashed var(--glass-border)', margin: '5px 0' }} />
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
+              {formatCurrency(lastMonthSpent)}
+            </span>
+          </div>
+          
+          <hr style={{ border: 'none', borderTop: '1px dashed var(--glass-border)', margin: '5px 0' }} />
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 'bold' }}>予算達成状況</span>
               <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
                 {lastMonthSpent > lastMonthBudget 
@@ -991,37 +926,11 @@ ${futureSettings}
         </div>
       </section>
 
-            <div style={{ textAlign: 'center', marginTop: '3rem', marginBottom: '1rem', display: 'flex', justifyContent: 'center', gap: '15px' }}>
-        <button className="action-button primary" onClick={fetchAiAdvice} disabled={isAiLoading} style={{ fontSize: '1.1rem', padding: '0.8rem 1.8rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', opacity: isAiLoading ? 0.7 : 1 }}>
-          {isAiLoading ? '📊 レポートを作成中...' : '📊 今月の家計を分析する'}
-        </button>
-        <button className="action-button secondary" onClick={copyDataForAi} style={{ fontSize: '1.1rem', padding: '0.8rem 1.8rem' }}>
-          {isCopied ? '📋 コピーしました！' : '📋 データをコピー (AI用)'}
-        </button>
-      </div>
-
-      {aiAdvice && (
-        <div className="glass-card highlight" style={{ marginTop: '1rem', textAlign: 'left', background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240, 249, 255, 0.8))', borderColor: 'var(--accent-color)' }}>
-          <h2 className="chart-title" style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>📊</span> 家計分析レポート
-          </h2>
-          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-            {aiAdvice.split('\n').map((line, i) => {
-              const parts = line.split(/(\*\*.*?\*\*)/g);
-              return (
-                <div key={i} style={{ minHeight: '1em' }}>
-                  {parts.map((part, j) => {
-                    if (part.startsWith('**') && part.endsWith('**')) {
-                      return <strong key={j} style={{ color: '#0369a1' }}>{part.slice(2, -2)}</strong>;
-                    }
-                    return part;
-                  })}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <AnalysisReport 
+        variableCategories={variableCategories} 
+        variableFreeMoney={variableFreeMoney} 
+        savingsTotal={savingsAccount?.total || 0} 
+      />
 
       <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
         <button type="button" className="action-button primary" onClick={() => setShowOffsetModal(true)} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', background: '#ecfdf5', color: '#059669', border: '1px solid #34d399', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.1)', fontWeight: 'bold' }}>

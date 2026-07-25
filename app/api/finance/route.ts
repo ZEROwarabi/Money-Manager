@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+
 import fs from 'fs/promises';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
@@ -122,90 +122,6 @@ async function writeDB(data: Database) {
   }
 }
 
-function generateRuleBasedAdvice(payload: any): string {
-  const tips: string[] = [];
-  const expenses = payload?.monthlyExpenses || [];
-  const freeMoney = payload?.variableFreeMoney ?? 0;
-  const savingsTotal = payload?.savingsTotal ?? 0;
-  
-  // 1. 今月の進捗（固定表示）
-  const today = new Date();
-  const currentDay = today.getDate();
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const monthProgress = currentDay / daysInMonth; // 0.0 ~ 1.0
-  const progressPercent = Math.round(monthProgress * 100);
-  
-  tips.push(`📅 **今月の進捗**: 今日は${currentDay}日（月の約${progressPercent}%が経過）です。`);
-
-  // 2. 全体的なペース（経過率 vs 支出率）
-  let totalVariableBudget = 0;
-  let totalVariableSpent = 0;
-  expenses.forEach((c: { category: string; budget: number; spent: number; }) => {
-    totalVariableBudget += (c.budget || 0);
-    totalVariableSpent += (c.spent || 0);
-  });
-
-  if (totalVariableBudget > 0) {
-    const overallSpendRatio = totalVariableSpent / totalVariableBudget;
-    const spendPercent = Math.round(overallSpendRatio * 100);
-    const diff = overallSpendRatio - monthProgress;
-
-    if (diff > 0.05) {
-      tips.push(`🔴 **全体的なペース**: 支出ペースが少し早いです（消化率 ${spendPercent}%）。一度内訳を見直すのがおすすめです。`);
-    } else if (diff < -0.05) {
-      tips.push(`🟢 **全体的なペース**: 支出は順調（消化率 ${spendPercent}%）です。この調子でいきましょう！`);
-    } else {
-      tips.push(`🟡 **全体的なペース**: 経過日数とほぼ同じ支出ペース（消化率 ${spendPercent}%）です。後半は少し意識してみましょう。`);
-    }
-  }
-
-  // 3. カテゴリ別の状況（動的抽出）
-  const categoryStatus = expenses
-    .filter((c: any) => (c.budget || 0) > 0)
-    .map((c: any) => {
-      const budget = c.budget || 0;
-      const spent = c.spent || 0;
-      const remainRatio = (budget - spent) / budget;
-      return { category: c.category, remainRatio };
-    });
-
-  const warningCategories = categoryStatus.filter((c: any) => c.remainRatio < 0.1);
-  const goodCategories = categoryStatus
-    .filter((c: any) => c.remainRatio >= 0.1)
-    .sort((a: any, b: any) => b.remainRatio - a.remainRatio); // 残高割合が高い順
-
-  if (warningCategories.length > 0) {
-    const names = warningCategories.map((c: any) => c.category).join('、');
-    tips.push(`⚠️ **注意が必要な項目**: ${names} が予算上限に近づいています。注意してください。`);
-  } else if (goodCategories.length > 0) {
-    const topGood = goodCategories.slice(0, 2).map((c: any) => c.category).join('、');
-    tips.push(`🌟 **素晴らしい節約**: ${topGood} は十分な余裕があります。見事な管理ですね！`);
-  }
-
-  // 4. 余裕資金
-  if (totalVariableBudget > 0) {
-    const freeRatio = freeMoney / totalVariableBudget;
-    if (freeRatio < 0.1) {
-      tips.push(`💧 **余裕資金**: 残り $${freeMoney.toLocaleString()} となっています。今週は計画的に使いましょう。`);
-    } else {
-      tips.push(`💰 **余裕資金**: 現在、自由に使えるお金が $${freeMoney.toLocaleString()} 残っています。`);
-    }
-  } else {
-    // 予算設定がない場合のフォールバック
-    if (freeMoney < 50) {
-       tips.push(`💧 **余裕資金**: 残り $${freeMoney.toLocaleString()} となっています。今週は計画的に使いましょう。`);
-    } else {
-       tips.push(`💰 **余裕資金**: 現在、自由に使えるお金が $${freeMoney.toLocaleString()} 残っています。`);
-    }
-  }
-
-  // 5. 体験投資バケツ（目標・積立枠）
-  if (savingsTotal >= 0) {
-    tips.push(`💎 **体験投資バケツ**: これまでに $${savingsTotal.toLocaleString()} の準備金が積み上がっています。未来の特別な体験への準備が着々と進んでいますね！`);
-  }
-
-  return tips.join('\n');
-}
 
 export async function GET() {
   try {
@@ -735,44 +651,7 @@ export async function POST(request: Request) {
       await writeDB(db);
       return NextResponse.json({ success: true, message: '予算を移動しました' });
 
-    } else if (body.action === 'get_ai_advice') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return NextResponse.json({ error: 'GEMINI_API_KEY が設定されていません。' }, { status: 400 });
-      }
 
-      const promptData = body.payload;
-      const prompt = `あなたは優秀なファイナンシャルアドバイザーです。
-以下のユーザーの今月の家計簿サマリーデータを見て、1〜3つの具体的なアドバイスや気づきを提供してください。
-なるべく優しく、モチベーションが上がるようなトーンでお願いします。文章は箇条書きや改行を使って見やすくしてください。
-なお、このユーザーは「貯金」という概念を廃止し、「特別体験・イベント準備金（体験投資バケツ）」として未来の経験資本に投資する財務戦略を取っています。アドバイス内で「貯金」という言葉は絶対に使わず、「体験投資」や「未来への投資」などの言葉を使ってください。
-
-【家計データ】
-${JSON.stringify(promptData, null, 2)}
-`;
-
-      // モデルを順番に試す（flash-lite は別クォータ枠の可能性あり）
-      const modelsToTry = ['gemini-2.0-flash-lite', 'gemini-2.0-flash'];
-      
-      for (const modelName of modelsToTry) {
-        try {
-          const ai = new GoogleGenAI({ apiKey });
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents: prompt,
-          });
-          return NextResponse.json({ success: true, advice: response.text });
-        } catch (aiError: unknown) {
-          const err = aiError as Error;
-          console.error(`Gemini API Error (${modelName}):`, err?.message || err);
-          // 最後のモデルでも失敗したらルールベースにフォールバック
-          if (modelName === modelsToTry[modelsToTry.length - 1]) {
-            console.error("全モデル失敗。ルールベースにフォールバック。");
-            const ruleAdvice = generateRuleBasedAdvice(promptData);
-            return NextResponse.json({ success: true, advice: ruleAdvice, source: 'rule-based' });
-          }
-        }
-      }
     } else if (body.action === 'edit_record' || body.action === 'delete_record') {
       const { index, ...payload } = body.payload;
       if (index >= 0 && index < db.records.length) {
