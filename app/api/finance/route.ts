@@ -1,5 +1,32 @@
+import { NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
+import fs from 'fs/promises';
+import path from 'path';
+import { parse } from 'csv-parse/sync';
+import { createClient } from '@supabase/supabase-js';
+import { Database, Transaction, MonthlySettings, FixedExpense, WishlistItem, AccountBalance } from '../../types';
+
+export const dynamic = 'force-dynamic';
+
+const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
+
+const getSupabase = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
+
+const DEFAULT_FIXED_EXPENSES = [
+  { id: "1", name: "ホームステイ等、必要経費", amount: 0 },
+  { id: "2", name: "食費", amount: 0 },
+  { id: "3", name: "衣服代", amount: 0 },
+  { id: "4", name: "ガソリン交通費", amount: 0 },
+  { id: "5", name: "環境・自己投資", amount: 0 },
+  { id: "6", name: "娯楽・リフレッシュ費", amount: 0 },
+  { id: "7", name: "特別体験・イベント費", amount: 0 }
+];
+
 async function readDB() {
-  let parsed = { 
+  let parsed: any = { 
     records: [], 
     monthlySettings: {},
     accounts: [
@@ -39,45 +66,6 @@ async function readDB() {
   }
 
   return parsed;
-}
-
-async function readDB() {
-  try {
-    const data = await fs.readFile(DB_PATH, 'utf-8');
-    const parsed = JSON.parse(data);
-    
-    // Supabaseからトランザクションを取得
-    const supabase = getSupabase();
-    const { data: txs } = await supabase.from('transactions').select('*').order('created_at', { ascending: true });
-    if (txs) {
-      parsed.records = txs.map(t => ({
-        ...t,
-        recordType: t.record_type,
-        expense: Number(t.expense),
-        income: Number(t.income)
-      }));
-    } else {
-      parsed.records = [];
-    }
-
-    if (!parsed.monthlySettings) parsed.monthlySettings = {};
-    if (!parsed.accounts) {
-      parsed.accounts = [
-        { id: 'main', name: 'メイン口座' },
-        { id: 'savings', name: '貯金口座' }
-      ];
-    }
-    return parsed;
-  } catch (error) {
-    return { 
-      records: [], 
-      monthlySettings: {},
-      accounts: [
-        { id: 'main', name: 'メイン口座' },
-        { id: 'savings', name: '貯金口座' }
-      ]
-    };
-  }
 }
 
 async function writeDB(data: Database) {

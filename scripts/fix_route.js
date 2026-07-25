@@ -1,7 +1,7 @@
 const fs = require('fs');
 let code = fs.readFileSync('app/api/finance/route.ts', 'utf8');
 
-const oldFn = code.substring(code.indexOf('async function readDB()'), code.indexOf('async function writeDB(data)'));
+const oldFn = code.substring(code.indexOf('async function readDB()'), code.indexOf('async function writeDB'));
 const newFn = `async function readDB() {
   let parsed = { 
     records: [], 
