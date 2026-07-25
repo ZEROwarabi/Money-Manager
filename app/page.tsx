@@ -939,29 +939,12 @@ ${futureSettings}
           </button>
         </section>
       ) : (
-        <div style={{ position: 'relative' }}>
-          <AnalysisReport 
-            variableCategories={variableCategories} 
-            variableFreeMoney={variableFreeMoney} 
-            savingsTotal={savingsAccount?.total || 0} 
-          />
-          <button 
-            onClick={() => setShowAnalysisReport(false)}
-            style={{
-              position: 'absolute',
-              top: '3rem',
-              right: '1rem',
-              background: 'transparent',
-              border: 'none',
-              fontSize: '1.2rem',
-              cursor: 'pointer',
-              color: '#94a3b8'
-            }}
-            title="閉じる"
-          >
-            ✖
-          </button>
-        </div>
+        <AnalysisReport 
+          variableCategories={variableCategories} 
+          variableFreeMoney={variableFreeMoney} 
+          savingsTotal={savingsAccount?.total || 0}
+          onClose={() => setShowAnalysisReport(false)}
+        />
       )}
 
       <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>

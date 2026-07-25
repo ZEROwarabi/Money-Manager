@@ -5,9 +5,10 @@ interface AnalysisReportProps {
   variableCategories: CategoryBudget[];
   variableFreeMoney: number;
   savingsTotal: number;
+  onClose?: () => void;
 }
 
-export default function AnalysisReport({ variableCategories, variableFreeMoney, savingsTotal }: AnalysisReportProps) {
+export default function AnalysisReport({ variableCategories, variableFreeMoney, savingsTotal, onClose }: AnalysisReportProps) {
   const staticReport = useMemo(() => {
     const items: { icon: string; title: string; text: string }[] = [];
     
@@ -107,7 +108,35 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
   }, [variableCategories, variableFreeMoney, savingsTotal]);
 
   return (
-    <div className="glass-card highlight" style={{ marginTop: '2rem', textAlign: 'left', borderColor: 'var(--accent-color)' }}>
+    <div className="glass-card highlight" style={{ position: 'relative', marginTop: '2rem', textAlign: 'left', borderColor: 'var(--accent-color)' }}>
+      {onClose && (
+        <button 
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'transparent',
+            border: 'none',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            color: 'var(--text-secondary)',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '50%',
+            opacity: 0.6,
+            transition: 'opacity 0.2s ease',
+          }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseOut={(e) => e.currentTarget.style.opacity = '0.6'}
+          title="閉じる"
+        >
+          ×
+        </button>
+      )}
       <h2 className="chart-title" style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
         <span>📊</span> 家計分析レポート
       </h2>
