@@ -167,6 +167,16 @@ body {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.modal-content.large {
+  max-width: 800px;
+}
+
+.fixed-table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -271,13 +281,23 @@ body {
     justify-content: flex-start !important;
   }
   /* Table: compact on mobile */
-  .recent-table {
+  .recent-table, .fixed-table {
     font-size: 0.78rem !important;
   }
   .recent-table th,
-  .recent-table td {
+  .recent-table td,
+  .fixed-table th,
+  .fixed-table td {
     padding: 0.5rem 0.4rem !important;
     min-width: 0 !important;
+  }
+  
+  .fixed-table th {
+    white-space: nowrap;
+    min-width: 120px !important;
+  }
+  .fixed-table input {
+    min-width: 80px;
   }
   .recent-table .col-date {
     white-space: nowrap;
