@@ -403,9 +403,17 @@ ${futureSettings}
       value: pieExpensesByCategory[key]
     })).sort((a, b) => b.value - a.value);
 
-    const uCategories = Array.from(new Set(['特別体験・イベント費', ...(genPieData.map(item => item.name))]));
+    const currentFixedExpenses = data?.monthlySettings?.[currentRealMonth]?.fixedExpenses;
+    const budgetCategoryNames = currentFixedExpenses
+      ? currentFixedExpenses.map((f: any) => f.name)
+      : [];
+    const uCategories = Array.from(new Set([
+      '特別体験・イベント費',
+      ...budgetCategoryNames,
+      ...(genPieData.map(item => item.name))
+    ]));
     return { generatedPieData: genPieData, uniqueCategories: uCategories };
-  }, [data?.records, targetMonth, ignoredBudgetCategories]);
+  }, [data?.records, data?.monthlySettings, currentRealMonth, targetMonth, ignoredBudgetCategories]);
 
   const visibleExpenseData = React.useMemo(() => {
     return generatedPieData.filter((item) => !hiddenCategories[item.name]);
@@ -497,9 +505,9 @@ ${futureSettings}
   return (
     <div className="dashboard-container">
       <header style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
+        <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
           <h1 className="header-title" style={{ margin: 0, flex: '1 1 auto', wordBreak: 'break-word', lineHeight: 1.1, minWidth: 0 }}>Smart Money Manager</h1>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
+          <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
             <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
               ＋ 支出を追加
             </button>
@@ -780,14 +788,14 @@ ${futureSettings}
         <section className="glass-card" style={{ marginTop: '2rem' }}>
           <h2 className="chart-title">🕒 Recent Activity (直近10件)</h2>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+            <table className="recent-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: 'var(--text-secondary)' }}>
-                  <th style={{ padding: '0.8rem', minWidth: '100px' }}>日付</th>
-                  <th style={{ padding: '0.8rem', minWidth: '150px' }}>メモ・説明</th>
-                  <th style={{ padding: '0.8rem', minWidth: '120px' }}>カテゴリ</th>
-                  <th style={{ padding: '0.8rem', minWidth: '90px', textAlign: 'right' }}>金額</th>
-                  <th style={{ padding: '0.8rem', minWidth: '100px', textAlign: 'center' }}>操作</th>
+                  <th className="col-date" style={{ padding: '0.8rem' }}>日付</th>
+                  <th className="col-desc" style={{ padding: '0.8rem' }}>メモ・説明</th>
+                  <th className="col-category" style={{ padding: '0.8rem' }}>カテゴリ</th>
+                  <th className="col-amount" style={{ padding: '0.8rem', textAlign: 'right' }}>金額</th>
+                  <th className="col-actions" style={{ padding: '0.8rem', textAlign: 'center' }}>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -797,17 +805,17 @@ ${futureSettings}
                   const amount = isIncome ? record.income : record.expense;
                   return (
                     <tr key={originalIndex} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#f8fafc' }}>
-                      <td style={{ padding: '0.8rem' }}>{record.date}</td>
-                      <td style={{ padding: '0.8rem', fontWeight: 500 }}>{record.description}</td>
-                      <td style={{ padding: '0.8rem' }}>
-                        <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                      <td className="col-date" style={{ padding: '0.8rem' }}>{record.date}</td>
+                      <td className="col-desc" style={{ padding: '0.8rem', fontWeight: 500 }}>{record.description}</td>
+                      <td className="col-category" style={{ padding: '0.8rem' }}>
+                        <span className="category-badge" style={{ background: '#e0f2fe', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
                           {record.category}
                         </span>
                       </td>
-                      <td style={{ padding: '0.8rem', textAlign: 'right', fontWeight: 'bold', color: isIncome ? '#059669' : '#e11d48' }}>
+                      <td className="col-amount" style={{ padding: '0.8rem', textAlign: 'right', fontWeight: 'bold', color: isIncome ? '#059669' : '#e11d48', whiteSpace: 'nowrap' }}>
                         {isIncome ? '+' : '-'}{formatCurrency(amount)}
                       </td>
-                      <td style={{ padding: '0.8rem', textAlign: 'center' }}>
+                      <td className="col-actions" style={{ padding: '0.8rem', textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
                           {record.recordType === 'advance_payment' && !record.isRecovered && (
                             confirmRecoveryIndex === originalIndex ? (

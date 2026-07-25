@@ -215,30 +215,81 @@ body {
 
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 1rem;
+    padding: 0.75rem;
     padding-bottom: 80px;
   }
   .glass-card {
-    padding: 1.2rem;
+    padding: 1rem;
+    border-radius: 14px;
   }
   .stat-value {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
   .header-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
   .charts-grid {
     grid-template-columns: 1fr;
   }
   .modal-content {
-    padding: 1.5rem;
+    padding: 1.2rem;
     width: 95%;
+    border-radius: 16px;
   }
   .action-button {
-    padding: 0.7rem 1.2rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  /* Header layout: stack vertically on mobile */
+  .header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .header-buttons {
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+  /* Table: compact on mobile */
+  .recent-table {
+    font-size: 0.78rem !important;
+  }
+  .recent-table th,
+  .recent-table td {
+    padding: 0.5rem 0.4rem !important;
+    min-width: 0 !important;
+  }
+  .recent-table .col-date {
+    white-space: nowrap;
+  }
+  .recent-table .col-desc {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .recent-table .col-category {
+    white-space: nowrap;
+  }
+  .recent-table .col-amount {
+    white-space: nowrap;
+  }
+  .recent-table .col-actions {
+    white-space: nowrap;
+  }
+  .category-badge {
+    white-space: nowrap !important;
+    font-size: 0.7rem !important;
+    padding: 0.15rem 0.4rem !important;
+  }
+  .chart-title {
+    font-size: 1.1rem;
+  }
+  .budget-section .category-header h3 {
     font-size: 0.95rem;
   }
 }
