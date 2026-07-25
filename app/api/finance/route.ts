@@ -128,82 +128,83 @@ function generateRuleBasedAdvice(payload: any): string {
   const freeMoney = payload?.variableFreeMoney ?? 0;
   const savingsTotal = payload?.savingsTotal ?? 0;
   
-  // 今月の進行度（日付から計算）
+  // 1. 今月の進捗（固定表示）
   const today = new Date();
   const currentDay = today.getDate();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const monthProgress = currentDay / daysInMonth; // 0.0 ~ 1.0
+  const progressPercent = Math.round(monthProgress * 100);
+  
+  tips.push(`📅 **今月の進捗**: 今日は${currentDay}日（月の約${progressPercent}%が経過）です。`);
 
+  // 2. 全体的なペース（経過率 vs 支出率）
   let totalVariableBudget = 0;
   let totalVariableSpent = 0;
-
-  // 1. 各カテゴリの詳細なペース分析
-  const fastPaced: string[] = [];
-  const overBudget: string[] = [];
-  const superSavers: string[] = [];
-
   expenses.forEach((c: { category: string; budget: number; spent: number; }) => {
-    const budget = c.budget || 0;
-    const spent = c.spent || 0;
-    totalVariableBudget += budget;
-    totalVariableSpent += spent;
-
-    if (budget > 0) {
-      const spendRatio = spent / budget;
-      if (spendRatio >= 1.0) {
-        overBudget.push(c.category);
-      } else if (spendRatio > monthProgress + 0.15) {
-        // 月の進行度より15%以上早く消費している
-        fastPaced.push(c.category);
-      } else if (spendRatio < monthProgress - 0.2) {
-        // 月の進行度より20%以上遅い（節約できている）
-        superSavers.push(c.category);
-      }
-    }
+    totalVariableBudget += (c.budget || 0);
+    totalVariableSpent += (c.spent || 0);
   });
 
-  // レポート生成開始
-  tips.push(`🗓 **今月の進捗**: 今日は${currentDay}日（月の約${Math.round(monthProgress * 100)}%が経過）です。`);
-
-  // 全体のペース判定
   if (totalVariableBudget > 0) {
     const overallSpendRatio = totalVariableSpent / totalVariableBudget;
-    if (overallSpendRatio > monthProgress + 0.1) {
-      tips.push(`⚠️ **全体的なペース**: 予算に対して支出ペースがやや早め（消化率 ${Math.round(overallSpendRatio * 100)}%）です。後半は引き締めを意識しましょう！`);
-    } else if (overallSpendRatio <= monthProgress) {
-      tips.push(`🟢 **全体的なペース**: 支出ペースは非常に順調（消化率 ${Math.round(overallSpendRatio * 100)}%）です。この調子でキープしましょう！`);
+    const spendPercent = Math.round(overallSpendRatio * 100);
+    const diff = overallSpendRatio - monthProgress;
+
+    if (diff > 0.05) {
+      tips.push(`🔴 **全体的なペース**: 支出ペースが少し早いです（消化率 ${spendPercent}%）。一度内訳を見直すのがおすすめです。`);
+    } else if (diff < -0.05) {
+      tips.push(`🟢 **全体的なペース**: 支出は順調（消化率 ${spendPercent}%）です。この調子でいきましょう！`);
+    } else {
+      tips.push(`🟡 **全体的なペース**: 経過日数とほぼ同じ支出ペース（消化率 ${spendPercent}%）です。後半は少し意識してみましょう。`);
     }
   }
 
-  // カテゴリ別の警告と称賛
-  if (overBudget.length > 0) {
-    tips.push(`🔴 **予算超過**: ${overBudget.join('、')} がすでに予算をオーバーしています。他のカテゴリでカバーできるか確認してください。`);
-  }
-  
-  if (fastPaced.length > 0) {
-    tips.push(`🟡 **要注意**: ${fastPaced.join('、')} の出費ペースが少し早いです。月末に向けて調整をおすすめします。`);
+  // 3. カテゴリ別の状況（動的抽出）
+  const categoryStatus = expenses
+    .filter((c: any) => (c.budget || 0) > 0)
+    .map((c: any) => {
+      const budget = c.budget || 0;
+      const spent = c.spent || 0;
+      const remainRatio = (budget - spent) / budget;
+      return { category: c.category, remainRatio };
+    });
+
+  const warningCategories = categoryStatus.filter((c: any) => c.remainRatio < 0.1);
+  const goodCategories = categoryStatus
+    .filter((c: any) => c.remainRatio >= 0.1)
+    .sort((a: any, b: any) => b.remainRatio - a.remainRatio); // 残高割合が高い順
+
+  if (warningCategories.length > 0) {
+    const names = warningCategories.map((c: any) => c.category).join('、');
+    tips.push(`⚠️ **注意が必要な項目**: ${names} が予算上限に近づいています。注意してください。`);
+  } else if (goodCategories.length > 0) {
+    const topGood = goodCategories.slice(0, 2).map((c: any) => c.category).join('、');
+    tips.push(`🌟 **素晴らしい節約**: ${topGood} は十分な余裕があります。見事な管理ですね！`);
   }
 
-  if (superSavers.length > 0) {
-    tips.push(`🌟 **素晴らしい節約**: ${superSavers.join('、')} は予算に対してかなり余裕があります。見事な管理です！`);
+  // 4. 余裕資金
+  if (totalVariableBudget > 0) {
+    const freeRatio = freeMoney / totalVariableBudget;
+    if (freeRatio < 0.1) {
+      tips.push(`💧 **余裕資金**: 残り $${freeMoney.toLocaleString()} となっています。今週は計画的に使いましょう。`);
+    } else {
+      tips.push(`💰 **余裕資金**: 現在、自由に使えるお金が $${freeMoney.toLocaleString()} 残っています。`);
+    }
+  } else {
+    // 予算設定がない場合のフォールバック
+    if (freeMoney < 50) {
+       tips.push(`💧 **余裕資金**: 残り $${freeMoney.toLocaleString()} となっています。今週は計画的に使いましょう。`);
+    } else {
+       tips.push(`💰 **余裕資金**: 現在、自由に使えるお金が $${freeMoney.toLocaleString()} 残っています。`);
+    }
   }
 
-  // 貯金とフリーマネー
-  if (freeMoney > 0) {
-    tips.push(`💰 **余裕資金**: 現在、純粋に自由に使えるお金が **$${freeMoney.toLocaleString()}** 残っています。`);
-  } else if (freeMoney < 0) {
-    tips.push(`🚨 **資金ショートの兆候**: カテゴリ残高の合計に対して、全体の残高が不足しています。口座の入出金漏れがないか確認してください。`);
+  // 5. 体験投資バケツ（目標・積立枠）
+  if (savingsTotal >= 0) {
+    tips.push(`💎 **体験投資バケツ**: これまでに $${savingsTotal.toLocaleString()} の準備金が積み上がっています。未来の特別な体験への準備が着々と進んでいますね！`);
   }
 
-  if (savingsTotal > 0) {
-    tips.push(`💎 **体験投資バケツ**: これまでに **$${savingsTotal.toLocaleString()}** の特別体験・イベント準備金が積み上がっています。未来の特別な体験への準備が着々と整っていますね！`);
-  }
-
-  if (tips.length === 1) {
-    tips.push(`📝 支出をカテゴリーごとに記録していくと、ここで詳しい分析レポートが見られるようになります！`);
-  }
-
-  return tips.join('\n\n');
+  return tips.join('\n');
 }
 
 export async function GET() {
