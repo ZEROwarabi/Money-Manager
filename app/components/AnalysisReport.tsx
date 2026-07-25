@@ -107,35 +107,18 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
   }, [variableCategories, variableFreeMoney, savingsTotal]);
 
   return (
-    <div style={{
-      marginTop: '2rem',
-      padding: '2rem',
-      borderRadius: '16px',
-      border: '2px solid #38bdf8',
-      background: 'linear-gradient(to right bottom, #f0f9ff, #e0f2fe)',
-      boxShadow: '0 10px 25px rgba(56, 189, 248, 0.1)',
-      color: '#334155',
-      textAlign: 'left'
-    }}>
-      <h2 style={{
-        color: '#0284c7',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: '2rem',
-        fontSize: '1.4rem',
-        margin: '0 0 1.5rem 0'
-      }}>
-        <span style={{ fontSize: '1.6rem' }}>📊</span> 家計分析レポート
+    <div className="glass-card highlight" style={{ marginTop: '2rem', textAlign: 'left', borderColor: 'var(--accent-color)' }}>
+      <h2 className="chart-title" style={{ color: 'var(--accent-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+        <span>📊</span> 家計分析レポート
       </h2>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5' }}>
         {staticReport.map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
             <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>{item.icon}</span>
             <div>
-              <span style={{ color: '#0284c7', fontWeight: 'bold' }}>{item.title}</span>
-              <span style={{ color: '#475569' }}>: {item.text}</span>
+              <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{item.title}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>: {item.text}</span>
             </div>
           </div>
         ))}

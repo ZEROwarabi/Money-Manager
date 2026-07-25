@@ -933,17 +933,7 @@ ${futureSettings}
             type="button" 
             className="action-button primary" 
             onClick={() => setShowAnalysisReport(true)}
-            style={{ 
-              fontSize: '1.1rem', 
-              padding: '0.8rem 2rem', 
-              background: 'linear-gradient(135deg, #0369a1, #0284c7)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '30px', 
-              boxShadow: '0 8px 15px rgba(2, 132, 199, 0.2)', 
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}
+            style={{ fontSize: '1rem', padding: '0.6rem 1.5rem', fontWeight: 'bold' }}
           >
             📊 今月の家計を分析する
           </button>
