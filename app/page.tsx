@@ -682,36 +682,78 @@ ${futureSettings}
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>リストは空です</div>
           ) : (
             localWishlist.map(w => (
-              <div key={w.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderRadius: '8px', background: w.isApplied ? 'rgba(56, 189, 248, 0.1)' : '#fff', border: '1px solid var(--glass-border)', opacity: w.isApplied ? 1 : 0.6, transition: 'all 0.2s' }}>
-                {editingWishlistId === w.id ? (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', width: '100%', gap: '10px', alignItems: 'center' }}>
-                    <input type="text" value={editingWishlistForm.name} onChange={e => setEditingWishlistForm({...editingWishlistForm, name: e.target.value})} style={{ flex: '1 1 150px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                    <input type="number" step="0.01" value={editingWishlistForm.amount} onChange={e => setEditingWishlistForm({...editingWishlistForm, amount: e.target.value})} style={{ flex: '1 1 80px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                    <select value={editingWishlistForm.category} onChange={e => setEditingWishlistForm({...editingWishlistForm, category: e.target.value})} style={{ flex: '1 1 100px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                      <option value="">カテゴリ選択</option>
-                      {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <button onClick={() => handleUpdateWishlist(w.id)} className="action-button primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>保存</button>
-                    <button onClick={() => setEditingWishlistId(null)} className="action-button secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>取消</button>
+              <div key={w.id} style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '1rem', borderRadius: '8px', background: w.isApplied ? 'rgba(56, 189, 248, 0.1)' : '#fff', border: '1px solid var(--glass-border)', opacity: w.isApplied ? 1 : 0.6, transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  {editingWishlistId === w.id ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', width: '100%', gap: '10px', alignItems: 'center' }}>
+                      <input type="text" value={editingWishlistForm.name} onChange={e => setEditingWishlistForm({...editingWishlistForm, name: e.target.value})} style={{ flex: '1 1 150px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                      <input type="number" step="0.01" value={editingWishlistForm.amount} onChange={e => setEditingWishlistForm({...editingWishlistForm, amount: e.target.value})} style={{ flex: '1 1 80px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                      <select value={editingWishlistForm.category} onChange={e => setEditingWishlistForm({...editingWishlistForm, category: e.target.value})} style={{ flex: '1 1 100px', padding: '0.4rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                        <option value="">カテゴリ選択</option>
+                        {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <button onClick={() => handleUpdateWishlist(w.id)} className="action-button primary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>保存</button>
+                      <button onClick={() => setEditingWishlistId(null)} className="action-button secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.9rem' }}>取消</button>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <input type="checkbox" checked={w.isApplied} onChange={(e) => handleToggleWishlist(w.id, e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                        <div>
+                          <div style={{ fontWeight: 600, color: w.isApplied ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{w.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{w.category}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ fontWeight: 'bold', color: w.isApplied ? 'var(--accent-color)' : 'var(--text-secondary)' }}>{formatCurrency(w.amount)}</div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => handleBuyWishlist(w)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px', fontSize: '1.2rem' }} title="買う!">🛒</button>
+                          <button onClick={() => { setEditingWishlistId(w.id); setEditingWishlistForm({ name: w.name, amount: String(w.amount), category: w.category }); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px' }}>✏️</button>
+                          <button onClick={() => handleDeleteWishlist(w.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }}>✕</button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {!editingWishlistId && (
+                  <div style={{ marginTop: '0.5rem', padding: '0.8rem 1rem', background: w.isApplied ? 'rgba(255, 255, 255, 0.4)' : '#f8fafc', borderRadius: '8px', borderLeft: w.isApplied ? '4px solid #38bdf8' : '4px solid #94a3b8', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    {(() => {
+                      const wAmount = parseFloat(String(w.amount || 0));
+                      const currentSavingsGoal = parseFloat(String(data?.monthlySettings?.[currentRealMonth]?.savingsGoal || 0));
+                      if (w.category === 'イベント準備金') {
+                        const eventBonus = categoryBudgets.find((c: CategoryBudget) => c.name === '特別体験・イベント費')?.transferredIn || 0;
+                        const pool = (savingsAccount?.total || 0) + (mainAccount?.balance || 0) + eventBonus;
+                        if (wAmount <= pool) {
+                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🎉</span> <b>今すぐ買えます！</b> イベント準備金（{formatCurrency(pool)}）から余裕で出せますよ！</>;
+                        } else {
+                          const diff = wAmount - pool;
+                          if (currentSavingsGoal > 0) {
+                            const months = Math.ceil(diff / currentSavingsGoal);
+                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🔥</span> <b>目標まであと{formatCurrency(diff)}！</b> 今の貯金ペースなら約<b>{months}ヶ月後</b>に買えるようになります！</>;
+                          } else {
+                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>💡</span> あと{formatCurrency(diff)}足りません。「毎月の貯金目標額」を設定すると、買える時期が予測できます！</>;
+                          }
+                        }
+                      } else {
+                        const categoryBudget = variableCategories.find((c: CategoryBudget) => c.name === w.category);
+                        const pool = categoryBudget?.remaining || 0;
+                        if (wAmount <= pool) {
+                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🎉</span> <b>今すぐ買えます！</b> カテゴリ「{w.category}」の今月の残り予算（{formatCurrency(pool)}）に収まっています！</>;
+                        } else if (wAmount <= variableFreeMoney) {
+                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>👍</span> <b>今すぐ買えます！</b> カテゴリ予算はオーバーしますが、全体の自由に使えるお金（{formatCurrency(variableFreeMoney)}）を使えば購入可能です！</>;
+                        } else {
+                          const diff = wAmount - variableFreeMoney;
+                          if (currentSavingsGoal > 0) {
+                            const months = Math.ceil(diff / currentSavingsGoal);
+                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>✨</span> <b>今は我慢の時！</b> 生活費を圧迫するため今はおすすめしません。今の貯金ペースなら約<b>{months}ヶ月後</b>に余裕で買えるようになります！</>;
+                          } else {
+                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>⚠️</span> 現在の資金では生活費がショートします。「毎月の貯金目標額」を設定して計画を立ててみましょう！</>;
+                          }
+                        }
+                      }
+                    })()}
                   </div>
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                      <input type="checkbox" checked={w.isApplied} onChange={(e) => handleToggleWishlist(w.id, e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
-                      <div>
-                        <div style={{ fontWeight: 600, color: w.isApplied ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{w.name}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{w.category}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                      <div style={{ fontWeight: 'bold', color: w.isApplied ? 'var(--accent-color)' : 'var(--text-secondary)' }}>{formatCurrency(w.amount)}</div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleBuyWishlist(w)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px', fontSize: '1.2rem' }} title="買う!">🛒</button>
-                        <button onClick={() => { setEditingWishlistId(w.id); setEditingWishlistForm({ name: w.name, amount: String(w.amount), category: w.category }); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '5px' }}>✏️</button>
-                        <button onClick={() => handleDeleteWishlist(w.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }}>✕</button>
-                      </div>
-                    </div>
-                  </>
                 )}
               </div>
             ))
