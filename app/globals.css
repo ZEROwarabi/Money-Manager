@@ -168,7 +168,8 @@ body {
 }
 
 .modal-content.large {
-  max-width: 800px;
+  max-width: 1200px;
+  width: 95%;
 }
 
 .fixed-table-container {

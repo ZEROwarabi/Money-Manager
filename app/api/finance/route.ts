@@ -49,7 +49,23 @@ async function readDB() {
 
   try {
     const supabase = getSupabase();
-    const { data: txs, error } = await supabase.from('transactions').select('*').order('created_at', { ascending: true });
+    
+    // Read Settings from Supabase
+    const { data: settingsData, error: settingsError } = await supabase.from('transactions').select('*').eq('record_type', 'app_settings').eq('category', 'global_settings');
+    if (settingsData && settingsData.length > 0) {
+      try {
+        const p = JSON.parse(settingsData[0].description);
+        if (p.monthlySettings) parsed.monthlySettings = p.monthlySettings;
+        if (p.accounts) parsed.accounts = p.accounts;
+        if (p.categoryBudgets) parsed.categoryBudgets = p.categoryBudgets;
+        if (p.wishlist) parsed.wishlist = p.wishlist;
+        if (p.ignoredBudgetCategories) parsed.ignoredBudgetCategories = p.ignoredBudgetCategories;
+      } catch (e) {
+        console.error('Failed to parse settings from Supabase', e);
+      }
+    }
+
+    const { data: txs, error } = await supabase.from('transactions').select('*').neq('record_type', 'app_settings').order('created_at', { ascending: true });
     if (error) {
       console.error('Supabase fetch error:', error);
     }
@@ -69,7 +85,41 @@ async function readDB() {
 }
 
 async function writeDB(data: Database) {
-  await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('Could not write local db.json, ignoring.');
+  }
+
+  try {
+    const supabase = getSupabase();
+    const settingsData = {
+      monthlySettings: data.monthlySettings,
+      accounts: data.accounts,
+      categoryBudgets: data.categoryBudgets,
+      wishlist: data.wishlist,
+      ignoredBudgetCategories: data.ignoredBudgetCategories
+    };
+
+    const { data: existing, error: selectError } = await supabase.from('transactions').select('id').eq('record_type', 'app_settings').eq('category', 'global_settings');
+    
+    if (existing && existing.length > 0) {
+      await supabase.from('transactions').update({ description: JSON.stringify(settingsData) }).eq('id', existing[0].id);
+    } else {
+      await supabase.from('transactions').insert({
+        record_type: 'app_settings',
+        category: 'global_settings',
+        description: JSON.stringify(settingsData),
+        date: new Date().toISOString(),
+        month: 'settings',
+        expense: 0,
+        income: 0,
+        reconciled: false
+      });
+    }
+  } catch (e) {
+    console.error('Failed to write settings to Supabase', e);
+  }
 }
 
 function generateRuleBasedAdvice(payload: any): string {

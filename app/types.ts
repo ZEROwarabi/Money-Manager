@@ -104,4 +104,5 @@ export interface Database {
   accounts: AccountBalance[];
   wishlist: WishlistItem[];
   ignoredBudgetCategories: string[];
+  categoryBudgets?: CategoryBudget[];
 }
