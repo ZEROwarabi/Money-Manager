@@ -838,6 +838,24 @@ ${futureSettings}
                               </button>
                             )
                           )}
+                          {record.recordType === 'advance_payment' && record.description?.includes('（回収済）') && (
+                            <button 
+                              onClick={async () => {
+                                showConfirm('回収済み状態を取り消します。\\n※自動で追加された入金履歴は手動で削除してください。', async () => {
+                                  await fetch('/api/finance', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, description: record.description.replace(' （回収済）', '').replace('（回収済）', '') } })
+                                  });
+                                  fetchData();
+                                });
+                              }}
+                              className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#fef3c7', color: '#b45309', borderColor: '#fde68a', whiteSpace: 'nowrap' }}
+                              title="回収済を取り消す"
+                            >
+                              ↺ 戻す
+                            </button>
+                          )}
                           <button 
                             onClick={() => {
                               setEditingRecordIndex(originalIndex);
