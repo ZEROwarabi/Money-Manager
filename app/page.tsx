@@ -121,6 +121,11 @@ function DashboardContent() {
 
   useEffect(() => {
     setMounted(true);
+    // @ts-ignore
+    window.showAlert = showAlert;
+    // @ts-ignore
+    window.showConfirm = showConfirm;
+
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0].replace(/-/g, '/'); // YYYY/MM/DD
     const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM

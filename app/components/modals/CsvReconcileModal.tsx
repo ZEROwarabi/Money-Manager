@@ -74,14 +74,14 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
          setSelectedCsvIndices(new Set());
          setSelectedAppIndices(new Set());
          if (remainingCsv.length === 0) {
-            alert('すべてのCSVデータが照合されました！');
+            (typeof window !== "undefined" && (window as any).showAlert || window.alert)('すべてのCSVデータが照合されました！');
             onClose();
          }
       } else {
-         alert('更新に失敗しました');
+         (typeof window !== "undefined" && (window as any).showAlert || window.alert)('更新に失敗しました');
       }
     } catch (err) {
-      alert('エラーが発生しました');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('エラーが発生しました');
     }
   };
 

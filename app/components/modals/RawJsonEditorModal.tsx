@@ -24,7 +24,7 @@ export const RawJsonEditorModal: React.FC<RawJsonEditorModalProps> = ({
           setRawJsonText(JSON.stringify(data.db, null, 2));
         }
       } catch (err) {
-        alert('データの取得に失敗しました。');
+        (typeof window !== "undefined" && (window as any).showAlert || window.alert)('データの取得に失敗しました。');
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -43,14 +43,14 @@ export const RawJsonEditorModal: React.FC<RawJsonEditorModalProps> = ({
       });
       const result = await res.json();
       if (result.success) {
-        alert('データを保存しました。');
+        (typeof window !== "undefined" && (window as any).showAlert || window.alert)('データを保存しました。');
         onClose();
         fetchData();
       } else {
-        alert(result.error || '保存に失敗しました。');
+        (typeof window !== "undefined" && (window as any).showAlert || window.alert)(result.error || '保存に失敗しました。');
       }
     } catch (err) {
-      alert('JSONの形式が正しくありません。');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('JSONの形式が正しくありません。');
       console.error(err);
     }
   };

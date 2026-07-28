@@ -23,7 +23,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
     e.preventDefault();
     if (!transferForm.fromCategory || !transferForm.toCategory || !transferForm.amount) return;
     if (transferForm.fromCategory === transferForm.toCategory) {
-      alert("同じカテゴリ間では移動できません。");
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)("同じカテゴリ間では移動できません。");
       return;
     }
 
@@ -46,10 +46,10 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         fetchData();
       } else {
         const errorData = await res.json();
-        alert(`エラー: ${errorData.error}`);
+        (typeof window !== "undefined" && (window as any).showAlert || window.alert)(`エラー: ${errorData.error}`);
       }
     } catch (err) {
-      alert("エラーが発生しました");
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)("エラーが発生しました");
     }
   };
 

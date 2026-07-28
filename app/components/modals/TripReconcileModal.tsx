@@ -29,11 +29,11 @@ export const TripReconcileModal: React.FC<TripReconcileModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'trip_reconcile', payload })
       });
-      alert('旅行プールの一括精算が完了しました！');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('旅行プールの一括精算が完了しました！');
       onClose();
       fetchData();
     } catch (err) {
-      alert('エラーが発生しました');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('エラーが発生しました');
     }
   };
 

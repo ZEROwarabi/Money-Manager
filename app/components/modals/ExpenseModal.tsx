@@ -32,7 +32,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     e.preventDefault();
     const finalCategory = isNewCategory ? newCategoryName : expenseForm.category;
     if (!finalCategory) {
-      alert("カテゴリを入力してください。");
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)("カテゴリを入力してください。");
       return;
     }
     
@@ -53,14 +53,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         setWishlistIdToDeleteOnAdd(null);
       }
 
-      alert('支出を追加しました！');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('支出を追加しました！');
       onClose();
       fetchData();
       setIsNewCategory(false);
       setNewCategoryName('');
       setExpenseForm({ date: expenseForm.date, category: expenseForm.category, description: '', amount: '', recordType: 'expense_normal' });
     } catch (err) {
-      alert('エラーが発生しました');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('エラーが発生しました');
     }
   };
 

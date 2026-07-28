@@ -30,11 +30,11 @@ export const OffsetModal: React.FC<OffsetModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'add_expense', payload })
       });
-      alert(`+$${offsetForm.amount} が ${offsetForm.category} の予算に復活しました！`);
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)(`+$${offsetForm.amount} が ${offsetForm.category} の予算に復活しました！`);
       onClose();
       fetchData();
     } catch (err) {
-      alert('エラーが発生しました');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('エラーが発生しました');
     }
   };
 

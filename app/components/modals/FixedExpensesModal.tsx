@@ -105,7 +105,7 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
       onClose();
       fetchData();
     } catch (err) {
-      alert('保存に失敗しました');
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('保存に失敗しました');
     }
   };
 
