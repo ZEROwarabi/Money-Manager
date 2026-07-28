@@ -796,7 +796,7 @@ ${futureSettings}
                       </td>
                       <td className="col-actions" style={{ padding: '0.8rem', textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                          {record.recordType === 'advance_payment' && !record.isRecovered && (
+                          {record.recordType === 'advance_payment' && !record.description?.includes('（回収済）') && (
                             confirmRecoveryIndex === originalIndex ? (
                               <button 
                                 onClick={async () => {
@@ -816,7 +816,7 @@ ${futureSettings}
                                   await fetch('/api/finance', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, isRecovered: true } })
+                                      body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, description: record.description ? `${record.description} （回収済）` : '（回収済）' } })
                                   });
                                   fetchData();
                                 }}
