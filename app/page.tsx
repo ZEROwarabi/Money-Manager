@@ -61,6 +61,11 @@ function DashboardContent() {
   const [hiddenCategories, setHiddenCategories] = useState<Record<string, boolean>>({ 'ホームステイ等、必要経費': true });
   // Modals
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string; title?: string }>({ isOpen: false, message: '' });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; message: string; title?: string; onConfirm: () => void; onCancel?: () => void }>({ isOpen: false, message: '', onConfirm: () => {} });
+
+  const showAlert = (message: string, title: string = 'お知らせ') => setAlertModal({ isOpen: true, message, title });
+  const showConfirm = (message: string, onConfirm: () => void, title: string = '確認') => setConfirmModal({ isOpen: true, message, title, onConfirm });
   const [showFixedModal, setShowFixedModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   // Forms
@@ -162,7 +167,7 @@ function DashboardContent() {
           bankRecords = deduplicateBankRecords(bankRecords, reconciledRecords);
           
           if (bankRecords.length === 0) {
-             alert('このCSVのデータはすべて取り込み済み・照合済みです。');
+             showAlert('このCSVのデータはすべて取り込み済み・照合済みです。');
              return;
           }
 
@@ -191,13 +196,13 @@ function DashboardContent() {
           setShowCsvModal(true);
           
           if (matchedBankIndices.size > 0) {
-             alert(`🤖 🚀 ${matchedBankIndices.size}件のデータを自動照合しました。\n残りの${unmatchedBankRecords.length}件の不一致データを手動で確認してください。`);
+             showAlert(`🤖 🚀 ${matchedBankIndices.size}件のデータを自動照合しました。\n残りの${unmatchedBankRecords.length}件の不一致データを手動で確認してください。`);
           } else {
-             alert('自動照合できるデータはありませんでした。手動で確認してください。');
+             showAlert('自動照合できるデータはありませんでした。手動で確認してください。');
           }
         }
       } catch (err) {
-        alert('読み込みに失敗しました');
+        showAlert('読み込みに失敗しました');
       }
     };
     reader.readAsText(file);
@@ -264,10 +269,10 @@ function DashboardContent() {
     if (editingRecordIndex === null) return;
     try {
       await editRecord(editingRecordIndex, editingRecordForm);
-      alert('編集内容を保存しました！');
+      showAlert('編集内容を保存しました！');
       setEditingRecordIndex(null);
     } catch (err) {
-      alert('エラーが発生しました');
+      showAlert('エラーが発生しました');
     }
   };
 
@@ -276,7 +281,7 @@ function DashboardContent() {
       await deleteRecord(index);
       setConfirmDeleteIndex(null);
     } catch (err) {
-      alert('エラーが発生しました');
+      showAlert('エラーが発生しました');
     }
   };
 
@@ -284,9 +289,9 @@ function DashboardContent() {
   const handleAutoCoverTransportation = async (neededAmount: number) => {
     try {
       const transfers = await autoCoverTransportation(neededAmount, currentRealMonth);
-      if (transfers.length > 0) alert('交通費の自動補填が完了しました！');
+      if (transfers.length > 0) showAlert('交通費の自動補填が完了しました！');
     } catch (e: any) {
-      alert(e.message || 'エラーが発生しました。');
+      showAlert(e.message || 'エラーが発生しました。');
     }
   };;
 
@@ -294,7 +299,7 @@ function DashboardContent() {
     try {
       await exportData();
     } catch (err: any) {
-      alert(err.message || 'バックアップの作成に失敗しました。');
+      showAlert(err.message || 'バックアップの作成に失敗しました。');
       console.error(err);
     }
   };
@@ -304,9 +309,9 @@ function DashboardContent() {
     if (!file) return;
     try {
       await importData(file);
-      alert('データを復元しました。');
+      showAlert('データを復元しました。');
     } catch (err: any) {
-      alert(err.message || 'リストアに失敗しました。');
+      showAlert(err.message || 'リストアに失敗しました。');
       console.error(err);
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -358,10 +363,10 @@ ${detailedExpenses}
 ${futureSettings}
 `;
     navigator.clipboard.writeText(promptText).then(() => {
-      alert("現在の詳細な家計簿データをクリップボードにコピーしました！\n\n開いた画面（Gemini）の入力欄に貼り付け（Ctrl+V）して送信してください。");
+      showAlert("現在の詳細な家計簿データをクリップボードにコピーしました！\n\n開いた画面（Gemini）の入力欄に貼り付け（Ctrl+V）して送信してください。");
       window.open('https://gemini.google.com/app', 'GeminiPopup', 'width=800,height=800,scrollbars=yes,resizable=yes');
     }).catch(err => {
-      alert("クリップボードへのコピーに失敗しました。");
+      showAlert("クリップボードへのコピーに失敗しました。");
     });
   };
 
@@ -1063,6 +1068,37 @@ ${futureSettings}
       {/* CSV Reconcile Modal */}
       {showCsvModal && (
         <CsvReconcileModal onClose={() => setShowCsvModal(false)} csvRecords={csvRecords} setCsvRecords={setCsvRecords} />
+      )}
+
+      {/* Custom Alert Modal */}
+      {alertModal.isOpen && (
+        <div className="modal-overlay" onClick={() => setAlertModal({ ...alertModal, isOpen: false })}>
+          <div className="modal-content glass-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', zIndex: 10000 }}>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.2rem' }}>{alertModal.title}</h2>
+            <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{alertModal.message}</p>
+            <button className="action-button primary" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} style={{ width: '100%', padding: '0.8rem', fontSize: '1rem' }}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Confirm Modal */}
+      {confirmModal.isOpen && (
+        <div className="modal-overlay" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}>
+          <div className="modal-content glass-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', zIndex: 10000 }}>
+            <h2 style={{ marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.2rem' }}>{confirmModal.title}</h2>
+            <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{confirmModal.message}</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="action-button secondary" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} style={{ flex: 1, padding: '0.8rem', fontSize: '1rem' }}>
+                キャンセル
+              </button>
+              <button className="action-button primary" onClick={() => { confirmModal.onConfirm(); setConfirmModal({ ...confirmModal, isOpen: false }); }} style={{ flex: 1, padding: '0.8rem', fontSize: '1rem', background: '#ef4444', borderColor: '#ef4444' }}>
+                実行
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
