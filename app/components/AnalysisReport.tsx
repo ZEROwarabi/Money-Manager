@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { CategoryBudget } from '../types';
 
 interface AnalysisReportProps {
@@ -9,6 +9,9 @@ interface AnalysisReportProps {
 }
 
 export default function AnalysisReport({ variableCategories, variableFreeMoney, savingsTotal, onClose }: AnalysisReportProps) {
+  const [aiSummary, setAiSummary] = useState<string>('');
+  const [isLoadingSummary, setIsLoadingSummary] = useState<boolean>(true);
+
   const staticReport = useMemo(() => {
     const items: { icon: string; title: string; text: string }[] = [];
     
@@ -93,19 +96,29 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
       items.push({ icon: '💎', title: '体験投資バケツ', text: `これまでに $${savingsTotal.toLocaleString()} の準備金が積み上がっています。未来の特別な体験への準備が着々と進んでいますね！` });
     }
 
-    // 6. 全体総括（AIの代わり）
-    if (diff < -0.05 && variableFreeMoney > 0 && warningCategories.length === 0) {
-      items.push({ icon: '🔥', title: 'AIからの総括', text: '今のペースならバッチリです！この調子で浮いたお金を未来のワクワクする体験投資に回しちゃいましょう✨ 最高ですね！' });
-    } else if (Math.abs(diff) <= 0.05 && variableFreeMoney > 0) {
-      items.push({ icon: '🎉', title: 'AIからの総括', text: '計画通り、とても綺麗にお金を使えています！残りの日数もこの素晴らしいペースを維持して、週末は少し自分にご褒美をあげてもいいかもですね！' });
-    } else if (variableFreeMoney > 0) {
-      items.push({ icon: '💪', title: 'AIからの総括', text: '少しペースが早い部分もありますが、全体としてはまだ余裕がありますよ！今日から少し意識するだけで軌道修正できるので、前向きにコントロールしていきましょう✨' });
-    } else {
-      items.push({ icon: '📈', title: 'AIからの総括', text: '今月は少し予算オーバー気味ですが、しっかり記録をつけているだけでも100点満点です！ここからの学びが、必ず来月の素晴らしいやりくりに繋がりますよ。応援しています！' });
-    }
-
     return items;
   }, [variableCategories, variableFreeMoney, savingsTotal]);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingSummary(true);
+    fetch('/api/report-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportItems: staticReport })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (isMounted && data.success) {
+        setAiSummary(data.advice);
+        setIsLoadingSummary(false);
+      }
+    })
+    .catch(() => {
+      if (isMounted) setIsLoadingSummary(false);
+    });
+    return () => { isMounted = false; };
+  }, [staticReport]);
 
   return (
     <div className="glass-card highlight" style={{ position: 'relative', marginTop: '2rem', textAlign: 'left', borderColor: 'var(--accent-color)' }}>
@@ -151,6 +164,14 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
             </div>
           </div>
         ))}
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '0.5rem', padding: '1rem', background: 'rgba(255, 255, 255, 0.5)', borderRadius: '8px', borderLeft: '4px solid #38bdf8' }}>
+          <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>🤖</span>
+          <div>
+            <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>AIからの総括</span>
+            <span style={{ color: 'var(--text-secondary)' }}>: {isLoadingSummary ? <span><span style={{ display: 'inline-block', animation: 'pulse 1.5s infinite opacity' }}>⏳</span> シミュレーション中...</span> : aiSummary}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
