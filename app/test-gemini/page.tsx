@@ -50,9 +50,8 @@ export default function TestGeminiPage() {
           モデル選択: 
           <select value={modelName} onChange={e => setModelName(e.target.value)} style={{ marginLeft: '0.5rem', padding: '0.3rem' }}>
             <option value="local-gemma2">Ollama: Gemma 2 (Local)</option>
-            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-            <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
-            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash (最新版)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (旧版)</option>
           </select>
         </label>
       </div>
