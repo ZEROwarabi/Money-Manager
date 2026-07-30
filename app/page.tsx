@@ -42,6 +42,37 @@ import { useFinanceData } from './hooks/useFinanceData';
 import { FinanceDataProvider, useFinanceContext } from './context/FinanceContext';
 import { toCents, calculateConfidence, findSubsetSum, matchOneToMany, deduplicateBankRecords, autoReconcile } from './lib/reconcile';
 
+const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
+  const [advice, setAdvice] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    fetch('/api/simulate-wishlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        itemName: item.name, amount: item.amount, category: item.category, categoryRemaining: pool, freeMoney, savingsGoal
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (isMounted && data.success) {
+        setAdvice(data.advice);
+        setLoading(false);
+      }
+    })
+    .catch(() => {
+      if (isMounted) setLoading(false);
+    });
+    return () => { isMounted = false; };
+  }, [item.id, item.name, item.amount, item.category, pool, freeMoney, savingsGoal]);
+
+  if (loading) return <span>⏳ 🤖 AIがシミュレーション中...</span>;
+  return <span>🤖 {advice}</span>;
+};
+
 export default function Page() {
   return (
     <FinanceDataProvider>
@@ -731,37 +762,15 @@ ${futureSettings}
                     {(() => {
                       const wAmount = parseFloat(String(w.amount || 0));
                       const currentSavingsGoal = parseFloat(String(data?.monthlySettings?.[currentRealMonth]?.savingsGoal || 0));
+                      let pool = 0;
                       if (w.category === 'イベント準備金') {
                         const eventBonus = categoryBudgets.find((c: CategoryBudget) => c.name === '特別体験・イベント費')?.transferredIn || 0;
-                        const pool = (savingsAccount?.total || 0) + (mainAccount?.balance || 0) + eventBonus;
-                        if (wAmount <= pool) {
-                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🎉</span> <b>今すぐ買えます！</b> イベント準備金（{formatCurrency(pool)}）から余裕で出せますよ！</>;
-                        } else {
-                          const diff = wAmount - pool;
-                          if (currentSavingsGoal > 0) {
-                            const months = Math.ceil(diff / currentSavingsGoal);
-                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🔥</span> <b>目標まであと{formatCurrency(diff)}！</b> 今の貯金ペースなら約<b>{months}ヶ月後</b>に買えるようになります！</>;
-                          } else {
-                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>💡</span> あと{formatCurrency(diff)}足りません。「毎月の貯金目標額」を設定すると、買える時期が予測できます！</>;
-                          }
-                        }
+                        pool = (savingsAccount?.total || 0) + (mainAccount?.balance || 0) + eventBonus;
                       } else {
                         const categoryBudget = variableCategories.find((c: CategoryBudget) => c.name === w.category);
-                        const pool = categoryBudget?.remaining || 0;
-                        if (wAmount <= pool) {
-                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>🎉</span> <b>今すぐ買えます！</b> カテゴリ「{w.category}」の今月の残り予算（{formatCurrency(pool)}）に収まっています！</>;
-                        } else if (wAmount <= variableFreeMoney) {
-                          return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>👍</span> <b>今すぐ買えます！</b> カテゴリ予算はオーバーしますが、全体の自由に使えるお金（{formatCurrency(variableFreeMoney)}）を使えば購入可能です！</>;
-                        } else {
-                          const diff = wAmount - variableFreeMoney;
-                          if (currentSavingsGoal > 0) {
-                            const months = Math.ceil(diff / currentSavingsGoal);
-                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>✨</span> <b>今は我慢の時！</b> 生活費を圧迫するため今はおすすめしません。今の貯金ペースなら約<b>{months}ヶ月後</b>に余裕で買えるようになります！</>;
-                          } else {
-                            return <><span style={{fontSize: '1.1rem', marginRight: '5px'}}>⚠️</span> 現在の資金では生活費がショートします。「毎月の貯金目標額」を設定して計画を立ててみましょう！</>;
-                          }
-                        }
+                        pool = categoryBudget?.remaining || 0;
                       }
+                      return <AIAdvice item={w} pool={pool} freeMoney={variableFreeMoney} savingsGoal={currentSavingsGoal} />;
                     })()}
                   </div>
                 )}

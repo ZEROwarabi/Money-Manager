@@ -43,6 +43,8 @@ export interface WishlistItem {
   amount: number;
   category: string;
   isApplied: boolean;
+  aiAdvice?: string;
+  isLoadingAdvice?: boolean;
 }
 
 export interface AccountBalance {
