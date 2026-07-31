@@ -58,8 +58,12 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
     })
     .then(r => r.json())
     .then(data => {
-      if (isMounted && data.success) {
-        setAdvice(data.advice);
+      if (isMounted) {
+        if (data.success) {
+          setAdvice(data.advice);
+        } else {
+          setAdvice(data.message || '⚠️ AIサーバーが混雑しています。少し待ってからお試しください！');
+        }
         setLoading(false);
       }
     })

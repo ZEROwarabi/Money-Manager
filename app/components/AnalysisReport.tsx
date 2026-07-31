@@ -109,8 +109,12 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
     })
     .then(r => r.json())
     .then(data => {
-      if (isMounted && data.success) {
-        setAiSummary(data.advice);
+      if (isMounted) {
+        if (data.success) {
+          setAiSummary(data.advice);
+        } else {
+          setAiSummary(data.message || '⚠️ AIサーバーが混雑しています。少し待ってからお試しください！');
+        }
         setIsLoadingSummary(false);
       }
     })
