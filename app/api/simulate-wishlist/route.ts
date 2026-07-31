@@ -34,10 +34,19 @@ export async function POST(req: Request) {
 - 絵文字を適度に使って、読みやすく親しみやすいトーンにしてください。
 - アドバイス本文のみを出力し、余計な挨拶やマークダウン装飾は含めないでください。`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
-      contents: prompt,
-    });
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: prompt,
+      });
+    } catch (e: any) {
+      console.warn('gemini-3.5-flash failed, falling back to gemini-1.5-flash', e.message);
+      response = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        contents: prompt,
+      });
+    }
 
     return NextResponse.json({ success: true, advice: response.text });
   } catch (error: any) {
