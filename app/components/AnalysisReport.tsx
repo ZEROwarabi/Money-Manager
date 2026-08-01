@@ -119,7 +119,10 @@ export default function AnalysisReport({ variableCategories, variableFreeMoney, 
       }
     })
     .catch(() => {
-      if (isMounted) setIsLoadingSummary(false);
+      if (isMounted) {
+        setAiSummary('⚠️ 通信エラーが発生しました。時間を置いて再度お試しください。');
+        setIsLoadingSummary(false);
+      }
     });
     return () => { isMounted = false; };
   }, [staticReport]);

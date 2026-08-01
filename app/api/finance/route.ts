@@ -123,7 +123,7 @@ async function writeDB(data: Database) {
 }
 
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const db = await readDB();
     const rows = db.records || [];
@@ -213,8 +213,10 @@ export async function GET() {
     }
 
     // Calculate Savings and Future Fixed Expenses
+    const { searchParams } = new URL(req.url);
+    const clientMonthParam = searchParams.get('clientMonth');
     const today = new Date();
-    const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonthStr = clientMonthParam || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     
     let pastSavings = 0;
     let plannedSavings = 0;

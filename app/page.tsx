@@ -68,7 +68,10 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
       }
     })
     .catch(() => {
-      if (isMounted) setLoading(false);
+      if (isMounted) {
+        setAdvice('⚠️ 通信エラーが発生しました。時間を置いて再度お試しください。');
+        setLoading(false);
+      }
     });
     return () => { isMounted = false; };
   }, [item.id, item.name, item.amount, item.category, pool, freeMoney, savingsGoal]);
