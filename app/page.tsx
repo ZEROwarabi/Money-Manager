@@ -643,8 +643,8 @@ ${futureSettings}
                         {wishlistForCat > 0 && (
                           <>
                             <span className="separator" style={{ color: '#cbd5e1', margin: '0 6px' }}>|</span>
-                            <span style={{ color: wishlistForCat > realRemaining ? '#ef4444' : '#d97706', fontWeight: 'bold' }}>
-                              使用検討: {formatCurrency(wishlistForCat)}
+                            <span style={{ color: wishlistForCat > realRemaining ? '#ec4899' : '#d97706', fontWeight: 'bold' }}>
+                              使用検討{wishlistForCat > realRemaining ? '(予測オーバー)' : ''}: {formatCurrency(wishlistForCat)}
                             </span>
                           </>
                         )}
@@ -668,8 +668,8 @@ ${futureSettings}
                   {wishlistForCat > 0 && (
                     <div style={{
                       height: '100%',
-                      background: wishlistForCat > realRemaining ? '#ef4444' : '#fcd34d',
-                      opacity: 0.8,
+                      background: wishlistForCat > realRemaining ? 'repeating-linear-gradient(45deg, #ec4899 0px, #ec4899 6px, #fbcfe8 6px, #fbcfe8 12px)' : '#fcd34d',
+                      opacity: 0.9,
                       width: `${Math.min(wishProgress, 100 - Math.min(usedProgress, 100))}%`,
                       transition: 'width 0.3s ease'
                     }}></div>

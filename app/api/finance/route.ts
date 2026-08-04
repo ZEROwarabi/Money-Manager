@@ -241,7 +241,7 @@ export async function GET(req: Request) {
       '環境・自己投資': { isRolloverEnabled: true, maxPoolCap: 350, overflowAction: 'DISCARD' },
       '衣服代': { isRolloverEnabled: true, maxPoolCap: 250, overflowAction: 'DISCARD' },
       '娯楽・リフレッシュ費': { isRolloverEnabled: true, maxPoolCap: 150, overflowAction: 'TRANSFER_TO_EVENT_FUND' },
-      '食費': { isRolloverEnabled: false, maxPoolCap: 0, overflowAction: 'TRANSFER_TO_EVENT_FUND' }
+      '食費': { isRolloverEnabled: false, overflowAction: 'TRANSFER_TO_EVENT_FUND' }
     };
 
     let totalTransferredToEventFund = 0;
