@@ -684,7 +684,7 @@ ${futureSettings}
                   {wishlistForCat > 0 && (
                     <div style={{
                       height: '100%',
-                      background: wishlistForCat > realRemaining ? 'repeating-linear-gradient(45deg, #ec4899 0px, #ec4899 6px, #fbcfe8 6px, #fbcfe8 12px)' : '#fcd34d',
+                      background: wishlistForCat > realRemaining ? '#fbcfe8' : '#fcd34d',
                       opacity: 0.9,
                       width: `${Math.min(wishProgress, 100 - Math.min(usedProgress, 100))}%`,
                       transition: 'width 0.3s ease'
