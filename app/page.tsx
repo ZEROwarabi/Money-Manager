@@ -507,7 +507,7 @@ ${futureSettings}
     <div className="dashboard-container">
       <header style={{ marginBottom: '2rem' }}>
         <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
-          <h1 className="header-title" style={{ margin: 0, flex: '1 1 auto', wordBreak: 'break-word', lineHeight: 1.1, minWidth: 0 }}>Smart Money Manager</h1>
+          <h1 className="header-title" style={{ margin: 0, flex: '1 1 auto', wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', minWidth: 0, fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
           <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
             <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
               ＋ 支出を追加
