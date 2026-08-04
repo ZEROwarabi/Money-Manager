@@ -48,7 +48,7 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
 
   React.useEffect(() => {
     let isMounted = true;
-    const cacheKey = `ai_advice_${item.id}_${item.name}_${item.amount}_${item.category}_${pool}_${freeMoney}_${savingsGoal}`;
+    const cacheKey = `ai_advice_${item.id}_${item.name}_${item.amount}_${item.category}`;
     
     try {
       const cached = localStorage.getItem(cacheKey);
@@ -90,7 +90,7 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
       }
     });
     return () => { isMounted = false; };
-  }, [item.id, item.name, item.amount, item.category, pool, freeMoney, savingsGoal]);
+  }, [item.id, item.name, item.amount, item.category]);
 
   if (loading) return <span>⏳ 🤖 AIがシミュレーション中...</span>;
   return <span>🤖 {advice}</span>;
