@@ -445,38 +445,67 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, records: newRecords });
 
     } else if (body.action === 'batch_reconcile' || body.action === 'batch_update') {
+      const supabase = getSupabase();
+
       if (body.action === 'batch_update') {
         const { records } = body;
         if (records && Array.isArray(records)) {
-          records.forEach((updatedRecord: any) => {
+          for (const updatedRecord of records) {
             const idx = db.records.findIndex((r: any) => r.originalIndex === updatedRecord.originalIndex || (r.date === updatedRecord.date && r.expense === updatedRecord.expense && r.income === updatedRecord.income && r.description === updatedRecord.description));
-            if (idx !== -1) {
-              db.records[idx] = { ...db.records[idx], ...updatedRecord, reconciled: true };
+            
+            if (idx !== -1 && db.records[idx].id) {
+              const rowId = db.records[idx].id;
+              await supabase.from('transactions').update({
+                category: updatedRecord.category,
+                description: updatedRecord.description,
+                reconciled: true
+              }).eq('id', rowId);
             } else if (updatedRecord.description === 'CSV照合調整') {
-               db.records.push(updatedRecord);
+              await supabase.from('transactions').insert({
+                description: updatedRecord.description,
+                date: updatedRecord.date,
+                category: updatedRecord.category || '',
+                expense: updatedRecord.expense || 0,
+                income: updatedRecord.income || 0,
+                month: updatedRecord.month || '',
+                record_type: 'expense_normal',
+                reconciled: true
+              });
             }
-          });
+          }
         }
       } else {
         const { reconciledIds, newRecords } = body.payload;
         
         if (reconciledIds && Array.isArray(reconciledIds)) {
-          db.records = db.records.map((r: any, idx: number) => {
-            if (reconciledIds.includes(idx)) {
-              return { ...r, reconciled: true };
+          const idsToUpdate = [];
+          db.records.forEach((r: any, idx: number) => {
+            if (reconciledIds.includes(idx) && r.id) {
+              idsToUpdate.push(r.id);
             }
-            return r;
           });
+          
+          if (idsToUpdate.length > 0) {
+            // Batch update all matched records to reconciled: true
+            await supabase.from('transactions').update({ reconciled: true }).in('id', idsToUpdate);
+          }
         }
 
-        if (newRecords && Array.isArray(newRecords)) {
-          newRecords.forEach((r: any) => {
-            db.records.push({ ...r, reconciled: true });
-          });
+        if (newRecords && Array.isArray(newRecords) && newRecords.length > 0) {
+          const inserts = newRecords.map((r: any) => ({
+            description: r.description || '',
+            date: r.date || '',
+            category: r.category || '',
+            expense: r.expense || 0,
+            income: r.income || 0,
+            month: r.month || '',
+            record_type: r.recordType || 'expense_normal',
+            reconciled: true
+          }));
+          await supabase.from('transactions').insert(inserts);
         }
       }
 
-      await writeDB(db);
       return NextResponse.json({ success: true, message: '照合が完了しました。' });
     } else if (body.action === 'export_db') {
       return NextResponse.json({ success: true, db });
