@@ -246,7 +246,7 @@ function DashboardContent() {
              });
              if (batchRes.ok) {
                 // Update local data to reflect reconciled status
-                fetchData();
+                await fetchData();
              }
           }
           
