@@ -11,6 +11,7 @@ export type RecordType =
   | 'refund';
 
 export interface Transaction {
+  id?: string;
   description: string;
   date: string;          // "YYYY/MM/DD"
   category: string;
