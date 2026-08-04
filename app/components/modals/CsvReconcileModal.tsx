@@ -30,7 +30,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     
     const csvTotal = Array.from(selectedCsvIndices).reduce((sum, idx) => sum + ((csvRecords[idx]?.expense || 0) - (csvRecords[idx]?.income || 0)), 0);
     const appTotal = Array.from(selectedAppIndices).reduce((sum, idx) => {
-      const r = (data?.records || []).find(x => x.originalIndex === idx);
+      const r = (data?.records || [])[idx];
       return sum + ((r?.expense || 0) - (r?.income || 0));
     }, 0);
     const diff = Math.round((csvTotal - appTotal) * 100) / 100;
@@ -55,7 +55,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     }
 
     const updates = Array.from(selectedAppIndices).map(idx => {
-       const r = (data?.records || []).find(x => x.originalIndex === idx);
+       const r = (data?.records || [])[idx];
        return { ...r, reconciled: true };
     });
     
@@ -92,7 +92,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
 
   const csvTotal = Array.from(selectedCsvIndices).reduce((sum, idx) => sum + ((csvRecords[idx]?.expense || 0) - (csvRecords[idx]?.income || 0)), 0);
   const appTotal = Array.from(selectedAppIndices).reduce((sum, idx) => {
-    const r = (data?.records || []).find(x => x.originalIndex === idx);
+    const r = (data?.records || [])[idx];
     return sum + ((r?.expense || 0) - (r?.income || 0));
   }, 0);
   const diff = Math.round((csvTotal - appTotal) * 100) / 100;
