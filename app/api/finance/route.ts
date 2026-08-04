@@ -444,22 +444,36 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ success: true, records: newRecords });
 
-    } else if (body.action === 'batch_reconcile') {
-      const { reconciledIds, newRecords } = body.payload;
-      
-      if (reconciledIds && Array.isArray(reconciledIds)) {
-        db.records = db.records.map((r: any, idx: number) => {
-          if (reconciledIds.includes(idx)) {
-            return { ...r, reconciled: true };
-          }
-          return r;
-        });
-      }
+    } else if (body.action === 'batch_reconcile' || body.action === 'batch_update') {
+      if (body.action === 'batch_update') {
+        const { records } = body;
+        if (records && Array.isArray(records)) {
+          records.forEach((updatedRecord: any) => {
+            const idx = db.records.findIndex((r: any) => r.originalIndex === updatedRecord.originalIndex || (r.date === updatedRecord.date && r.expense === updatedRecord.expense && r.income === updatedRecord.income && r.description === updatedRecord.description));
+            if (idx !== -1) {
+              db.records[idx] = { ...db.records[idx], ...updatedRecord, reconciled: true };
+            } else if (updatedRecord.description === 'CSV照合調整') {
+               db.records.push(updatedRecord);
+            }
+          });
+        }
+      } else {
+        const { reconciledIds, newRecords } = body.payload;
+        
+        if (reconciledIds && Array.isArray(reconciledIds)) {
+          db.records = db.records.map((r: any, idx: number) => {
+            if (reconciledIds.includes(idx)) {
+              return { ...r, reconciled: true };
+            }
+            return r;
+          });
+        }
 
-      if (newRecords && Array.isArray(newRecords)) {
-        newRecords.forEach((r: any) => {
-          db.records.push({ ...r, reconciled: true });
-        });
+        if (newRecords && Array.isArray(newRecords)) {
+          newRecords.forEach((r: any) => {
+            db.records.push({ ...r, reconciled: true });
+          });
+        }
       }
 
       await writeDB(db);
