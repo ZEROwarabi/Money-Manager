@@ -90,25 +90,25 @@ export const useFinanceData = () => {
     await fetch('/api/finance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'update_ignored_categories', payload: { categories: newCategories } })
+      body: JSON.stringify({ action: 'toggle_ignored_budget_category', category, isIgnored })
     });
     await fetchData();
   };
 
-  const editRecord = async (index: number, payload: any) => {
+  const editRecord = async (id: string, payload: any) => {
     await fetch('/api/finance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'edit_record', payload: { index, ...payload } })
+      body: JSON.stringify({ action: 'edit_record', payload: { id, ...payload } })
     });
     await fetchData();
   };
 
-  const deleteRecord = async (index: number) => {
+  const deleteRecord = async (id: string) => {
     await fetch('/api/finance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete_record', payload: { index } })
+      body: JSON.stringify({ action: 'delete_record', payload: { id } })
     });
     await fetchData();
   };

@@ -47,7 +47,17 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     const diff = Math.round((csvTotal - appTotal) * 100) / 100;
     
     let newRecords: Transaction[] = [];
-    if (isAdjustment && diff !== 0) {
+    if (!isAdjustment && selectedCsvIndices.size > 0 && selectedAppIndices.size === 0) {
+       newRecords = Array.from(selectedCsvIndices).map(idx => {
+          const r = csvRecords[idx];
+          return {
+            ...r,
+            month: r.month || r.date.substring(0, 7).replace('/', '-'),
+            recordType: 'expense_normal',
+            reconciled: true
+          };
+       });
+    } else if (isAdjustment && diff !== 0) {
        const cat = window.prompt("差額分のカテゴリ名を入力してください (例: その他, 手数料, 照合調整金)", "その他");
        if (!cat) return;
        const today = new Date();

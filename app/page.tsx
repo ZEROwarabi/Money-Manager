@@ -151,10 +151,10 @@ function DashboardContent() {
   const [showRawEditor, setShowRawEditor] = useState(false);
 
   // Recent Activity Edit State
-  const [editingRecordIndex, setEditingRecordIndex] = useState<number | null>(null);
-  const [editingRecordForm, setEditingRecordForm] = useState({ date: '', category: '', description: '', expense: '', income: '', month: '', recordType: 'expense_normal' });
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
-  const [confirmRecoveryIndex, setConfirmRecoveryIndex] = useState<number | null>(null);
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({ date: '', category: '', description: '', amount: '', isIncome: false });
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmRecoveryId, setConfirmRecoveryId] = useState<string | null>(null);
 
   // New Engine State
   const [showOffsetModal, setShowOffsetModal] = useState(false);
@@ -330,20 +330,24 @@ function DashboardContent() {
 
   const handleEditRecordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingRecordIndex === null) return;
-    try {
-      await editRecord(editingRecordIndex, editingRecordForm);
+    if (editingRecordId !== null) {
+      const payload = {
+        date: editFormData.date,
+        category: editFormData.category,
+        description: editFormData.description,
+        expense: editFormData.isIncome ? 0 : parseFloat(editFormData.amount),
+        income: editFormData.isIncome ? parseFloat(editFormData.amount) : 0
+      };
+      await editRecord(editingRecordId, payload);
       showAlert('編集内容を保存しました！');
-      setEditingRecordIndex(null);
-    } catch (err) {
-      showAlert('エラーが発生しました');
+      setEditingRecordId(null);
     }
   };
 
-  const handleDeleteRecord = async (index: number) => {
+  const handleDeleteRecord = async (id: string) => {
     try {
-      await deleteRecord(index);
-      setConfirmDeleteIndex(null);
+      await deleteRecord(id);
+      setConfirmDeleteId(null);
     } catch (err) {
       showAlert('エラーが発生しました');
     }
@@ -381,15 +385,18 @@ function DashboardContent() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };;
 
-
-
-  ;
-  
-  ;
-  
-  ;
-
-  ;
+  const handleEditRecord = (record: Transaction) => {
+    if (record.id) {
+      setEditingRecordId(record.id);
+      setEditFormData({
+        date: record.date,
+        category: record.category,
+        description: record.description || '',
+        amount: String(record.expense > 0 ? record.expense : record.income),
+        isIncome: record.income > 0
+      });
+    }
+  };
 
   const openGemini = () => {
     if (!data) return;
@@ -527,7 +534,7 @@ ${futureSettings}
         </div>
         <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
           あなたのお金の動き, もっと直感的に。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.4</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.5</span>
         </p>
       </header>
 
@@ -828,12 +835,11 @@ ${futureSettings}
                 </tr>
               </thead>
               <tbody>
-                {data.records.map((r: any, i: number) => ({ ...r, originalIndex: i })).filter((r: Transaction) => r.date && r.date.trim() !== '').sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10).map((record: any, idx: number) => {
-                  const originalIndex = record.originalIndex;
+                {[...(data.records || [])].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10).map((record: any) => {
                   const isIncome = record.recordType === 'income_allowance' || record.recordType === 'income_special' || record.recordType === 'advance_recovery';
                   const amount = isIncome ? record.income : record.expense;
                   return (
-                    <tr key={originalIndex} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? 'white' : '#f8fafc' }}>
+                    <tr key={record.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td className="col-date" style={{ padding: '0.8rem' }}>{record.date}</td>
                       <td className="col-desc" style={{ padding: '0.8rem', fontWeight: 500 }}>{record.description}</td>
                       <td className="col-category" style={{ padding: '0.8rem' }}>
@@ -847,10 +853,10 @@ ${futureSettings}
                       <td className="col-actions" style={{ padding: '0.8rem', textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
                           {record.recordType === 'advance_payment' && !record.description?.includes('（回収済）') && (
-                            confirmRecoveryIndex === originalIndex ? (
+                            confirmRecoveryId === record.id ? (
                               <button 
                                 onClick={async () => {
-                                  setConfirmRecoveryIndex(null);
+                                  setConfirmRecoveryId(null);
                                   const payload = {
                                     date: new Date().toISOString().split('T')[0].replace(/-/g, '/'),
                                     category: '入金',
@@ -866,7 +872,7 @@ ${futureSettings}
                                   await fetch('/api/finance', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, description: record.description ? `${record.description} （回収済）` : '（回収済）' } })
+                                      body: JSON.stringify({ action: 'edit_record', payload: { id: record.id, ...record, description: record.description ? `${record.description} （回収済）` : '（回収済）' } })
                                   });
                                   fetchData();
                                 }}
@@ -876,61 +882,29 @@ ${futureSettings}
                               </button>
                             ) : (
                               <button 
-                                onClick={() => setConfirmRecoveryIndex(originalIndex)}
+                                onClick={() => setConfirmRecoveryId(record.id ?? null)}
                                 className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#dcfce3', color: '#166534', borderColor: '#bbf7d0', whiteSpace: 'nowrap' }}
                               >
                                 ✓ 回収
                               </button>
                             )
                           )}
-                          {record.recordType === 'advance_payment' && record.description?.includes('（回収済）') && (
-                            <button 
-                              onClick={async () => {
-                                showConfirm('回収済み状態を取り消します。\\n※自動で追加された入金履歴は手動で削除してください。', async () => {
-                                  await fetch('/api/finance', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ action: 'edit_record', payload: { index: originalIndex, ...record, description: record.description.replace(' （回収済）', '').replace('（回収済）', '') } })
-                                  });
-                                  fetchData();
-                                });
-                              }}
-                              className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#fef3c7', color: '#b45309', borderColor: '#fde68a', whiteSpace: 'nowrap' }}
-                              title="回収済を取り消す"
-                            >
-                              ↺ 戻す
-                            </button>
-                          )}
                           <button 
-                            onClick={() => {
-                              setEditingRecordIndex(originalIndex);
-                              setEditingRecordForm({
-                                date: record.date || '',
-                                category: record.category || '',
-                                description: record.description || '',
-                                expense: record.expense || '',
-                                income: record.income || '',
-                                month: record.month || '',
-                                recordType: record.recordType || 'expense_normal'
-                              });
-                            }}
+                            onClick={() => handleEditRecord(record)}
                             className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem' }}
                           >
                             ✏️
                           </button>
-                          {confirmDeleteIndex === originalIndex ? (
+                          {confirmDeleteId === record.id ? (
                             <button 
-                              onClick={() => {
-                                handleDeleteRecord(originalIndex);
-                                setConfirmDeleteIndex(null);
-                              }}
+                              onClick={() => handleDeleteRecord(record.id!)}
                               className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#e11d48', color: 'white', borderColor: '#e11d48' }}
                             >
                               削除する
                             </button>
                           ) : (
                             <button 
-                              onClick={() => setConfirmDeleteIndex(originalIndex)}
+                              onClick={() => setConfirmDeleteId(record.id ?? null)}
                               className="action-button secondary" style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem', background: '#ffe4e6', color: '#e11d48', borderColor: '#fecdd3' }}
                             >
                               🗑️
@@ -948,37 +922,38 @@ ${futureSettings}
       )}
 
       {/* Edit Record Modal */}
-      {editingRecordIndex !== null && (
-        <div className="modal-overlay" onClick={() => setEditingRecordIndex(null)}>
+      {editingRecordId !== null && (
+        <div className="modal-overlay" onClick={() => setEditingRecordId(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2 className="chart-title">✏️ 記録の編集</h2>
             <form onSubmit={handleEditRecordSubmit} className="form-container">
-              <label>日付 <input type="text" value={editingRecordForm.date} onChange={e => setEditingRecordForm({...editingRecordForm, date: e.target.value})} required /></label>
-              <label>対象月 (YYYY-MM) <input type="text" value={editingRecordForm.month} onChange={e => setEditingRecordForm({...editingRecordForm, month: e.target.value})} required /></label>
-              <label>
-                処理タイプ
-                <select value={editingRecordForm.recordType} onChange={e => setEditingRecordForm({...editingRecordForm, recordType: e.target.value})} required>
-                  <option value="expense_normal">通常支出</option>
-                  <option value="trip_sandbox">🎒 旅行・イベント一時プール（隔離保留）</option>
-                  <option value="advance_payment">🤝 友人の立替（予算から除外）</option>
-                  <option value="refund">↩️ 返金・キャンセル（予算復活）</option>
-                  <option value="income_allowance">💰 入金（仕送り）</option>
-                  <option value="income_special">💰 入金（特別資産・大型送金）</option>
-                  <option value="advance_recovery">🤝 入金（立替の回収・清算）</option>
-                </select>
-              </label>
+              <label>日付 <input type="text" value={editFormData.date} onChange={e => setEditFormData({...editFormData, date: e.target.value})} required /></label>
+              
               <label>
                 カテゴリ
-                <select value={editingRecordForm.category} onChange={e => setEditingRecordForm({...editingRecordForm, category: e.target.value})} required>
+                <select value={editFormData.category} onChange={e => setEditFormData({...editFormData, category: e.target.value})} required>
                   {uniqueCategories.map((c: string) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </label>
-              <label>メモ / 品名 <input type="text" value={editingRecordForm.description} onChange={e => setEditingRecordForm({...editingRecordForm, description: e.target.value})} required /></label>
-              <label>支出 ($) <input type="number" step="0.01" value={editingRecordForm.expense} onChange={e => setEditingRecordForm({...editingRecordForm, expense: e.target.value})} /></label>
-              <label>収入 ($) <input type="number" step="0.01" value={editingRecordForm.income} onChange={e => setEditingRecordForm({...editingRecordForm, income: e.target.value})} /></label>
+              <label>メモ / 品名 <input type="text" value={editFormData.description} onChange={e => setEditFormData({...editFormData, description: e.target.value})} required /></label>
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <label style={{ flex: 1 }}>
+                  種類
+                  <select value={editFormData.isIncome ? "income" : "expense"} onChange={e => setEditFormData({...editFormData, isIncome: e.target.value === 'income'})}>
+                    <option value="expense">支出</option>
+                    <option value="income">収入</option>
+                  </select>
+                </label>
+                <label style={{ flex: 1 }}>
+                  金額 ($)
+                  <input type="number" step="0.01" value={editFormData.amount} onChange={e => setEditFormData({...editFormData, amount: e.target.value})} required />
+                </label>
+              </div>
+
               <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-                <button type="submit" className="action-button primary" style={{ flex: 1, background: '#F59E0B' }}>更新する</button>
-                <button type="button" className="action-button secondary" onClick={() => setEditingRecordIndex(null)}>キャンセル</button>
+                <button type="submit" className="action-button primary">保存する</button>
+                <button type="button" onClick={() => setEditingRecordId(null)} className="action-button">キャンセル</button>
               </div>
             </form>
           </div>

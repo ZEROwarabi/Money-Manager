@@ -457,15 +457,16 @@ export async function POST(request: Request) {
                 description: updatedRecord.description,
                 reconciled: true
               }).eq('id', updatedRecord.id);
-            } else if (updatedRecord.description === 'CSV照合調整') {
+            } else {
               await supabase.from('transactions').insert({
                 description: updatedRecord.description,
                 date: updatedRecord.date,
-                category: updatedRecord.category || '',
-                expense: updatedRecord.expense || 0,
-                income: updatedRecord.income || 0,
-                month: updatedRecord.month || '',
-                record_type: 'expense_normal',
+                category: updatedRecord.category,
+                expense: updatedRecord.expense,
+                income: updatedRecord.income,
+                balance: 0,
+                month: updatedRecord.month || updatedRecord.date?.substring(0, 7).replace('/', '-'),
+                recordType: updatedRecord.recordType || 'expense_normal',
                 reconciled: true
               });
             }
@@ -569,30 +570,21 @@ export async function POST(request: Request) {
         }
       }
 
-      for (let i = 0; i < db.records.length; i++) {
-        if (db.records[i].recordType === 'trip_sandbox') {
-          db.records[i].recordType = 'trip_sandbox_settled';
-        }
-      }
-
-      db.records.push({
+      const newTripRecord = {
         description: `旅行一括精算 (総額$${totalSandbox.toFixed(2)} / 回収$${recov.toFixed(2)})`,
         date: date || '',
         category: '特別体験・イベント費',
         expense: share,
         income: recov,
-        balance: 0,
         month: month,
-        recordType: 'trip_reconcile'
-      });
+        record_type: 'trip_reconcile',
+        reconciled: true
+      };
 
-      let currentBalance = 0;
-      for (let i = 0; i < db.records.length; i++) {
-        currentBalance += (parseFloat(db.records[i].income) || 0) - (parseFloat(db.records[i].expense) || 0);
-        db.records[i].balance = currentBalance;
-      }
+      const supabase = getSupabase();
+      await supabase.from('transactions').insert(newTripRecord);
+      await supabase.from('transactions').update({ record_type: 'trip_sandbox_settled' }).eq('record_type', 'trip_sandbox');
 
-      await writeDB(db);
       return NextResponse.json({ success: true, message: '旅行の精算が完了しました。' });
 
     } else if (body.action === 'update_monthly_settings') {
@@ -689,9 +681,9 @@ export async function POST(request: Request) {
 
 
     } else if (body.action === 'edit_record' || body.action === 'delete_record') {
-      const { index, ...payload } = body.payload;
-      if (index >= 0 && index < db.records.length) {
-        const targetRecord = db.records[index];
+      const { id, ...payload } = body.payload;
+      const targetRecord = db.records.find((r: any) => r.id === id);
+      if (targetRecord) {
         const supabase = getSupabase();
         
         if (body.action === 'delete_record') {
