@@ -61,6 +61,11 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     
     const allUpdates = [...updates, ...newRecords];
     
+    if (allUpdates.length === 0) {
+       (typeof window !== "undefined" && (window as any).showAlert || window.alert)('照合するデータが選択されていません');
+       return;
+    }
+    
     try {
       const res = await fetch('/api/finance', {
         method: 'POST',

@@ -233,13 +233,18 @@ function DashboardContent() {
           const { matchedBankIndices, matchedAppIndices } = autoReconcile(bankRecords, appRecords);
           
           if (matchedAppIndices.size > 0) {
+             const matchedIds = Array.from(matchedAppIndices).map(idx => {
+                const r = (data?.records || []).find((x: any) => x.originalIndex === idx);
+                return r?.id;
+             }).filter(Boolean);
+
              const batchRes = await fetch('/api/finance', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   action: 'batch_reconcile',
                   payload: {
-                    reconciledIds: Array.from(matchedAppIndices),
+                    reconciledIds: matchedIds,
                     newRecords: []
                   }
                 })

@@ -451,15 +451,12 @@ export async function POST(request: Request) {
         const { records } = body;
         if (records && Array.isArray(records)) {
           for (const updatedRecord of records) {
-            const idx = db.records.findIndex((r: any) => r.originalIndex === updatedRecord.originalIndex || (r.date === updatedRecord.date && r.expense === updatedRecord.expense && r.income === updatedRecord.income && r.description === updatedRecord.description));
-            
-            if (idx !== -1 && db.records[idx].id) {
-              const rowId = db.records[idx].id;
+            if (updatedRecord.id) {
               await supabase.from('transactions').update({
                 category: updatedRecord.category,
                 description: updatedRecord.description,
                 reconciled: true
-              }).eq('id', rowId);
+              }).eq('id', updatedRecord.id);
             } else if (updatedRecord.description === 'CSV照合調整') {
               await supabase.from('transactions').insert({
                 description: updatedRecord.description,
@@ -476,14 +473,8 @@ export async function POST(request: Request) {
         }
       } else {
         const { reconciledIds, newRecords } = body.payload;
-        
         if (reconciledIds && Array.isArray(reconciledIds)) {
-          const idsToUpdate = [];
-          db.records.forEach((r: any, idx: number) => {
-            if (reconciledIds.includes(idx) && r.id) {
-              idsToUpdate.push(r.id);
-            }
-          });
+          const idsToUpdate = reconciledIds.filter(id => typeof id === 'string');
           
           if (idsToUpdate.length > 0) {
             // Batch update all matched records to reconciled: true
