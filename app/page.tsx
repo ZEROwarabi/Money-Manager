@@ -48,6 +48,19 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
 
   React.useEffect(() => {
     let isMounted = true;
+    const cacheKey = `ai_advice_${item.id}_${item.name}_${item.amount}_${item.category}_${pool}_${freeMoney}_${savingsGoal}`;
+    
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        setAdvice(cached);
+        setLoading(false);
+        return;
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+
     setLoading(true);
     fetch('/api/simulate-wishlist', {
       method: 'POST',
@@ -61,6 +74,9 @@ const AIAdvice = ({ item, pool, freeMoney, savingsGoal }: any) => {
       if (isMounted) {
         if (data.success) {
           setAdvice(data.advice);
+          try {
+            localStorage.setItem(cacheKey, data.advice);
+          } catch (e) {}
         } else {
           setAdvice(data.message || '⚠️ AIサーバーが混雑しています。少し待ってからお試しください！');
         }
