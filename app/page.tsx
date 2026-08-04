@@ -520,7 +520,10 @@ ${futureSettings}
             </button>
           </div>
         </div>
-        <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>あなたのお金の動き, もっと直感的に。</p>
+        <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+          あなたのお金の動き, もっと直感的に。
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.1</span>
+        </p>
       </header>
 
       <section className="stats-grid">
