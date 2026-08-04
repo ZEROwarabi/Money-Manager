@@ -25,8 +25,19 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const parsedBank = parseFloat(String(bankBalanceInput));
   const calculatedBankBalance = (isNaN(parsedBank) ? 0 : parsedBank) + Array.from(selectedCsvIndices).reduce((sum, idx) => sum + ((csvRecords[idx]?.expense || 0) - (csvRecords[idx]?.income || 0)), 0);
 
+  const unreconciled = (data?.records || []).filter((r: Transaction) => !r.reconciled && (r.expense > 0 || r.income > 0));
+
   const handleReconcile = async (isAdjustment = false) => {
-    if (selectedCsvIndices.size === 0 && selectedAppIndices.size === 0) return;
+    // Both sides empty = everything is reconciled
+    if (csvRecords.length === 0 && unreconciled.length === 0) {
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('✨ すべてのデータが照合済みです！');
+      onClose();
+      return;
+    }
+    if (selectedCsvIndices.size === 0 && selectedAppIndices.size === 0) {
+      (typeof window !== "undefined" && (window as any).showAlert || window.alert)('照合するデータにチェックを入れてください');
+      return;
+    }
     
     const csvTotal = Array.from(selectedCsvIndices).reduce((sum, idx) => sum + ((csvRecords[idx]?.expense || 0) - (csvRecords[idx]?.income || 0)), 0);
     const appTotal = Array.from(selectedAppIndices).reduce((sum, idx) => {
