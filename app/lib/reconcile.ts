@@ -147,9 +147,15 @@ export function deduplicateBankRecords(bankRecords: Transaction[], reconciledRec
   });
 }
 
+export type MatchGroup = {
+  bankIndices: number[];
+  appIndices: number[];
+};
+
 export function autoReconcile(bankRecords: Transaction[], appRecords: Transaction[]) {
   const matchedAppIndices = new Set<number>();
   const matchedBankIndices = new Set<number>();
+  const matchGroups: MatchGroup[] = [];
   const parseDate = (dstr: string) => new Date(dstr).getTime();
   const DAY_MS = 24 * 60 * 60 * 1000;
   
@@ -180,6 +186,10 @@ export function autoReconcile(bankRecords: Transaction[], appRecords: Transactio
     if (bestMatch !== -1) {
       matchedBankIndices.add(i);
       matchedAppIndices.add(appRecords[bestMatch].originalIndex ?? -1);
+      matchGroups.push({
+        bankIndices: [i],
+        appIndices: [appRecords[bestMatch].originalIndex ?? -1]
+      });
     }
   }
 
@@ -203,6 +213,10 @@ export function autoReconcile(bankRecords: Transaction[], appRecords: Transactio
     if (match) {
        matchedBankIndices.add(i);
        match.matchedIndices.forEach((idx: number) => matchedAppIndices.add(idx));
+       matchGroups.push({
+         bankIndices: [i],
+         appIndices: match.matchedIndices
+       });
     }
   }
   
@@ -226,9 +240,13 @@ export function autoReconcile(bankRecords: Transaction[], appRecords: Transactio
     if (match) {
        matchedAppIndices.add(a.originalIndex ?? -1);
        match.matchedIndices.forEach((idx: number) => matchedBankIndices.add(idx));
+       matchGroups.push({
+         bankIndices: match.matchedIndices,
+         appIndices: [a.originalIndex ?? -1]
+       });
     }
   }
 
-  return { matchedBankIndices, matchedAppIndices };
+  return { matchedBankIndices, matchedAppIndices, matchGroups };
 }
 

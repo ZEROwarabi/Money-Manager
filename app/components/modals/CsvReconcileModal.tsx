@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Transaction, AppData, RecordType } from '../../types';
 import { formatCurrency } from '../../lib/format';
-import { autoReconcile } from '../../lib/reconcile';
+import { autoReconcile, MatchGroup } from '../../lib/reconcile';
 import { useFinanceContext } from '../../context/FinanceContext';
+
+const MATCH_COLORS = [
+  '#f87171', '#fb923c', '#fbbf24', '#a3e635', '#34d399', 
+  '#2dd4bf', '#38bdf8', '#818cf8', '#c084fc', '#f472b6'
+];
 
 interface CsvReconcileModalProps {
   onClose: () => void;
@@ -15,12 +20,55 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const [bankBalanceInput, setBankBalanceInput] = useState<string>('');
   const [selectedCsvIndices, setSelectedCsvIndices] = useState<Set<number>>(new Set());
   const [selectedAppIndices, setSelectedAppIndices] = useState<Set<number>>(new Set());
+  const [matchGroups, setMatchGroups] = useState<MatchGroup[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [lines, setLines] = useState<{ x1: number, y1: number, x2: number, y2: number, color: string }[]>([]);
 
   const autoReconcileBtn = () => {
     const res = autoReconcile(csvRecords, data?.records || []);
     setSelectedCsvIndices(res.matchedBankIndices);
     setSelectedAppIndices(res.matchedAppIndices);
+    setMatchGroups(res.matchGroups);
   };
+
+  const updateLines = () => {
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newLines: { x1: number, y1: number, x2: number, y2: number, color: string }[] = [];
+
+    matchGroups.forEach((group, groupIdx) => {
+      const color = MATCH_COLORS[groupIdx % MATCH_COLORS.length];
+      
+      group.bankIndices.forEach(bIdx => {
+        const leftRow = containerRef.current?.querySelector(`tr[data-csv-index="${bIdx}"]`);
+        if (!leftRow) return;
+        const leftRect = leftRow.getBoundingClientRect();
+        
+        group.appIndices.forEach(aIdx => {
+          const rightRow = containerRef.current?.querySelector(`tr[data-app-index="${aIdx}"]`);
+          if (!rightRow) return;
+          const rightRect = rightRow.getBoundingClientRect();
+          
+          // Only draw if both are somewhat visible vertically inside their containers
+          // (Actually it's fine to draw them out of bounds, the SVG container will clip them if needed, or we just let them overflow)
+          const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
+          const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
+          const x1 = leftRect.right - containerRect.left;
+          const x2 = rightRect.left - containerRect.left;
+          
+          newLines.push({ x1, y1, x2, y2, color });
+        });
+      });
+    });
+    setLines(newLines);
+  };
+
+  useLayoutEffect(() => {
+    updateLines();
+    const handleResize = () => updateLines();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [matchGroups, selectedCsvIndices, selectedAppIndices, csvRecords, data]);
 
   const parsedBank = parseFloat(String(bankBalanceInput));
   const calculatedBankBalance = (isNaN(parsedBank) ? 0 : parsedBank) + Array.from(selectedCsvIndices).reduce((sum, idx) => sum + ((csvRecords[idx]?.expense || 0) - (csvRecords[idx]?.income || 0)), 0);
@@ -144,7 +192,18 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
           <button className="action-button" onClick={onClose} style={{ background: 'transparent', border: '1px solid var(--border-color)' }}>✕ 閉じる</button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', flex: 1, minHeight: 0 }}>
+        <div ref={containerRef} style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', flex: 1, minHeight: 0 }}>
+          
+          <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
+            {lines.map((line, i) => {
+              const controlPointOffset = 50;
+              const pathData = `M ${line.x1} ${line.y1} C ${line.x1 + controlPointOffset} ${line.y1}, ${line.x2 - controlPointOffset} ${line.y2}, ${line.x2} ${line.y2}`;
+              return (
+                <path key={i} d={pathData} fill="none" stroke={line.color} strokeWidth="3" strokeLinecap="round" style={{ opacity: 0.6 }} />
+              );
+            })}
+          </svg>
+
           <div style={{ background: 'var(--surface-color)', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '15px', borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
               <h3 style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
@@ -152,7 +211,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                 <span style={{ color: 'var(--accent-color)' }}>選択合計: {formatCurrency(csvTotal)}</span>
               </h3>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }} onScroll={updateLines}>
               <table className="data-table">
                 <thead>
                   <tr>
@@ -163,13 +222,28 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                   {csvRecords.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center' }}>データがありません</td></tr>}
                   {csvRecords.map((r, i) => {
                     const isSelected = selectedCsvIndices.has(i);
+                    const groupIdx = matchGroups.findIndex(g => g.bankIndices.includes(i));
+                    const groupColor = groupIdx !== -1 ? MATCH_COLORS[groupIdx % MATCH_COLORS.length] : null;
+                    
                     return (
-                      <tr key={i} onClick={() => {
+                      <tr key={i} data-csv-index={i} onClick={() => {
                         const newSet = new Set(selectedCsvIndices);
-                        if (isSelected) newSet.delete(i);
-                        else newSet.add(i);
+                        if (isSelected) {
+                          newSet.delete(i);
+                          // Remove from matchGroups if user unchecks
+                          setMatchGroups(prev => prev.map(g => ({
+                            ...g,
+                            bankIndices: g.bankIndices.filter(bIdx => bIdx !== i)
+                          })).filter(g => g.bankIndices.length > 0 && g.appIndices.length > 0));
+                        } else {
+                          newSet.add(i);
+                        }
                         setSelectedCsvIndices(newSet);
-                      }} style={{ cursor: 'pointer', background: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent' }}>
+                      }} style={{ 
+                        cursor: 'pointer', 
+                        background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
+                        borderLeft: groupColor ? `4px solid ${groupColor}` : 'none'
+                      }}>
                         <td><input type="checkbox" checked={isSelected} readOnly /></td>
                         <td>{r.date}</td>
                         <td style={{ fontSize: '0.85rem' }}>{r.description}</td>
@@ -190,7 +264,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                 <span style={{ color: 'var(--accent-color)' }}>選択合計: {formatCurrency(appTotal)}</span>
               </h3>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }} onScroll={updateLines}>
               <table className="data-table">
                 <thead>
                   <tr>
@@ -205,13 +279,28 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                       const isSelected = selectedAppIndices.has(r.originalIndex ?? -1);
                       const isIncome = r.income > 0;
                       const amount = isIncome ? r.income : r.expense;
+                      const groupIdx = matchGroups.findIndex(g => g.appIndices.includes(r.originalIndex ?? -1));
+                      const groupColor = groupIdx !== -1 ? MATCH_COLORS[groupIdx % MATCH_COLORS.length] : null;
+
                       return (
-                        <tr key={r.originalIndex} onClick={() => {
+                        <tr key={r.originalIndex} data-app-index={r.originalIndex} onClick={() => {
                           const newSet = new Set(selectedAppIndices);
-                          if (isSelected) newSet.delete(r.originalIndex ?? -1);
-                          else newSet.add(r.originalIndex ?? -1);
+                          if (isSelected) {
+                            newSet.delete(r.originalIndex ?? -1);
+                            // Remove from matchGroups if user unchecks
+                            setMatchGroups(prev => prev.map(g => ({
+                              ...g,
+                              appIndices: g.appIndices.filter(aIdx => aIdx !== (r.originalIndex ?? -1))
+                            })).filter(g => g.bankIndices.length > 0 && g.appIndices.length > 0));
+                          } else {
+                            newSet.add(r.originalIndex ?? -1);
+                          }
                           setSelectedAppIndices(newSet);
-                        }} style={{ cursor: 'pointer', background: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent' }}>
+                        }} style={{ 
+                          cursor: 'pointer', 
+                          background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
+                          borderRight: groupColor ? `4px solid ${groupColor}` : 'none'
+                        }}>
                           <td><input type="checkbox" checked={isSelected} readOnly /></td>
                           <td>{r.date}</td>
                           <td>{r.category}</td>
