@@ -36,7 +36,7 @@ import { ExpenseModal } from './components/modals/ExpenseModal';
 import { CsvReconcileModal } from './components/modals/CsvReconcileModal';
 import { ExpensePieChart } from './components/charts/ExpensePieChart';
 import { MonthlyBarChart } from './components/charts/MonthlyBarChart';
-import AnalysisReport from './components/AnalysisReport';
+
 import { formatCurrency } from './lib/format';
 import { useFinanceData } from './hooks/useFinanceData';
 import { FinanceDataProvider, useFinanceContext } from './context/FinanceContext';
@@ -155,6 +155,8 @@ function DashboardContent() {
   // New Engine State
   const [showOffsetModal, setShowOffsetModal] = useState(false);
   const [showAnalysisReport, setShowAnalysisReport] = useState(false);
+  const [deepAnalysis, setDeepAnalysis] = useState<string>('');
+  const [isDeepAnalyzing, setIsDeepAnalyzing] = useState<boolean>(false);
   
   const [showReconcileModal, setShowReconcileModal] = useState(false);
   const [csvRecords, setCsvRecords] = useState<Transaction[]>([]);
@@ -337,6 +339,37 @@ function DashboardContent() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleDeepAnalysis = async () => {
+    setIsDeepAnalyzing(true);
+    try {
+      const isPastMonth = selectedMonth < currentRealMonth;
+      const totalVarBudget = categoryBudgets.filter(c => !(c.name||'').includes('固定')).reduce((acc, c) => acc + (c.budget || 0), 0);
+      const totalVarSpent = categoryBudgets.filter(c => !(c.name||'').includes('固定')).reduce((acc, c) => acc + (c.spent || 0), 0);
+      
+      const res = await fetch('/api/analyze-month', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          month: selectedMonth,
+          expenses: variableCategories.map((c: any) => ({ category: c.name || c.category, spent: c.spent || 0, budget: c.budget || 0 })),
+          budget: totalVarBudget,
+          freeMoney: variableFreeMoney,
+          totalSpent: totalVarSpent,
+          isPastMonth
+        })
+      });
+      const resData = await res.json();
+      if (resData.success) {
+        setDeepAnalysis(resData.advice);
+      } else {
+        setDeepAnalysis(resData.message || '⚠️ 分析に失敗しました。');
+      }
+    } catch (e) {
+      setDeepAnalysis('⚠️ 通信エラーが発生しました。');
+    }
+    setIsDeepAnalyzing(false);
   };
 
   const handleEditRecordSubmit = async (e: React.FormEvent) => {
@@ -532,25 +565,9 @@ ${futureSettings}
         <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
             <h1 className="header-title" style={{ margin: 0, wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              style={{
-                padding: '0.4rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid var(--accent-color)',
-                background: 'rgba(255,255,255,0.8)',
-                color: 'var(--accent-color)',
-                fontSize: '1rem',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="">全期間表示 (All)</option>
-              {availableMonths.map(m => (
-                <option key={m} value={m}>{m} {m === currentRealMonth ? '(今月)' : ''}</option>
-              ))}
-            </select>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '1.2rem', marginLeft: '10px' }}>
+              {selectedMonth ? `${selectedMonth}${selectedMonth === currentRealMonth ? ' (今月)' : ''}` : '全期間表示'}
+            </span>
           </div>
           <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
             <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
@@ -1001,11 +1018,43 @@ ${futureSettings}
           uniqueCategories={uniqueCategories}
           hiddenCategories={hiddenCategories}
           setHiddenCategories={setHiddenCategories}
+          onDeepAnalyzeClick={handleDeepAnalysis}
+          isDeepAnalyzing={isDeepAnalyzing}
         />
+        
+        {deepAnalysis && (
+          <div className="glass-card" style={{ gridColumn: '1 / -1', background: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: '1px solid #fbcfe8', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ color: '#ec4899', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem' }}>
+                <span>✨</span> 専属プランナーのディープインサイト ({selectedMonth})
+              </h3>
+              <button 
+                onClick={() => setDeepAnalysis('')}
+                style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+              >×</button>
+            </div>
+            <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)', lineHeight: '1.6', fontSize: '0.95rem' }}>
+              {deepAnalysis.split('\n').map((line, i) => {
+                const parts = line.split(/(\*\*.*?\*\*)/g);
+                return (
+                  <div key={i} style={{ marginBottom: line.trim() === '' ? '0.5rem' : '0' }}>
+                    {parts.map((part, j) => {
+                      if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={j} style={{ color: 'var(--accent-color)' }}>{part.slice(2, -2)}</strong>;
+                      }
+                      return part;
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-        <MonthlyBarChart 
+        <MonthlyBarChart  
           monthlyData={data?.monthlyData || []} 
           expenseData={data?.expenseData || []} 
+          onMonthClick={(month) => setSelectedMonth(month)}
         />
       <div className="glass-card">
         <h2 className="chart-title">先月の振り返り ({lastMonthStr})</h2>
@@ -1043,29 +1092,7 @@ ${futureSettings}
         </div>
       </section>
 
-      {!showAnalysisReport ? (
-        <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '1rem' }}>
-          <button 
-            type="button" 
-            className="action-button primary" 
-            onClick={() => setShowAnalysisReport(true)}
-            style={{ fontSize: '1rem', padding: '0.6rem 1.5rem', fontWeight: 'bold' }}
-          >
-            📊 家計を分析する
-          </button>
-        </section>
-      ) : (
-        <AnalysisReport 
-          variableCategories={variableCategories} 
-          variableFreeMoney={variableFreeMoney} 
-          savingsTotal={savingsAccount?.total || 0}
-          selectedMonth={selectedMonth}
-          currentRealMonth={currentRealMonth}
-          totalVariableBudget={variableCategories.reduce((sum, c) => sum + (c.budget || 0), 0)}
-          totalVariableSpent={variableCategories.reduce((sum, c) => sum + (c.spent || 0), 0)}
-          onClose={() => setShowAnalysisReport(false)}
-        />
-      )}
+
 
       <section style={{ textAlign: 'center', padding: '2rem 1rem', marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
         <button type="button" className="action-button primary" onClick={() => setShowOffsetModal(true)} style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', background: '#ecfdf5', color: '#059669', border: '1px solid #34d399', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.1)', fontWeight: 'bold' }}>

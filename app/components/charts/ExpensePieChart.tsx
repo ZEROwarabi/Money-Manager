@@ -12,6 +12,8 @@ interface ExpensePieChartProps {
   uniqueCategories: string[];
   hiddenCategories: Record<string, boolean>;
   setHiddenCategories: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onDeepAnalyzeClick?: () => void;
+  isDeepAnalyzing?: boolean;
 }
 
 export const ExpensePieChart = React.memo(({
@@ -21,7 +23,9 @@ export const ExpensePieChart = React.memo(({
   visibleExpenseData,
   uniqueCategories,
   hiddenCategories,
-  setHiddenCategories
+  setHiddenCategories,
+  onDeepAnalyzeClick,
+  isDeepAnalyzing
 }: ExpensePieChartProps) => {
   return (
     <div className="glass-card">
@@ -67,6 +71,40 @@ export const ExpensePieChart = React.memo(({
           </ResponsiveContainer>
         ) : <p style={{textAlign: 'center', marginTop: '100px'}}>データがありません</p>}
       </div>
+      
+      {onDeepAnalyzeClick && (
+        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <button 
+            className={`action-button ${isDeepAnalyzing ? 'loading' : ''}`}
+            onClick={onDeepAnalyzeClick}
+            disabled={isDeepAnalyzing}
+            style={{ 
+              fontSize: '0.95rem', 
+              padding: '0.6rem 1.5rem', 
+              background: '#fdf4ff', 
+              border: '1px solid #fbcfe8', 
+              color: '#db2777', 
+              borderRadius: '25px', 
+              cursor: 'pointer', 
+              fontWeight: 'bold', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              boxShadow: '0 2px 4px rgba(244, 114, 182, 0.1)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              if (!isDeepAnalyzing) e.currentTarget.style.background = '#fce7f3';
+            }}
+            onMouseOut={(e) => {
+              if (!isDeepAnalyzing) e.currentTarget.style.background = '#fdf4ff';
+            }}
+          >
+            <span>✨</span>
+            {isDeepAnalyzing ? 'AIが分析中...' : `${selectedMonth === currentRealMonth ? '今月' : selectedMonth}の支出を深くAI分析する`}
+          </button>
+        </div>
+      )}
     </div>
   );
 });

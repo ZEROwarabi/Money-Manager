@@ -7,17 +7,32 @@ const COLORS = ['#7dd3fc', '#38bdf8', '#86efac', '#34d399', '#f9a8d4', '#f472b6'
 interface MonthlyBarChartProps {
   monthlyData: any[];
   expenseData: any[];
+  onMonthClick?: (month: string) => void;
 }
 
-export const MonthlyBarChart = React.memo(({ monthlyData, expenseData }: MonthlyBarChartProps) => {
+export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, onMonthClick }: MonthlyBarChartProps) => {
   const [hiddenBars, setHiddenBars] = useState<Record<string, boolean>>({ '収入': true, 'ホームステイ等、必要経費': true });
 
   return (
     <div className="glass-card">
-      <h2 className="chart-title">月別推移</h2>
+      <h2 className="chart-title">
+        月別推移 
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
+          ※グラフをクリックして月を切り替え
+        </span>
+      </h2>
       <div style={{ width: '100%', height: 400 }}>
         <ResponsiveContainer>
-          <BarChart data={monthlyData} margin={{ top: 20, right: 10, left: 10, bottom: 20 }}>
+          <BarChart 
+            data={monthlyData} 
+            margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
+            onClick={(e) => {
+              if (e && e.activeLabel && onMonthClick) {
+                onMonthClick(String(e.activeLabel));
+              }
+            }}
+            style={{ cursor: onMonthClick ? 'pointer' : 'default' }}
+          >
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
             <XAxis 
               dataKey="name" 
