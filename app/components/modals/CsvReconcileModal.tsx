@@ -21,6 +21,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const [selectedCsvIndices, setSelectedCsvIndices] = useState<Set<number>>(new Set());
   const [selectedAppIndices, setSelectedAppIndices] = useState<Set<number>>(new Set());
   const [matchGroups, setMatchGroups] = useState<MatchGroup[]>([]);
+  const [recentlyReconciled, setRecentlyReconciled] = useState<{csv: Transaction[], app: Transaction[]}[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<{ x1: number, y1: number, x2: number, y2: number, color: string }[]>([]);
 
@@ -143,13 +144,19 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
       });
       if (res.ok) {
          fetchData();
+         
+         const justMatchedCsv = Array.from(selectedCsvIndices).map(idx => csvRecords[idx]);
+         const justMatchedApp = Array.from(selectedAppIndices).map(idx => (data?.records || [])[idx]);
+         setRecentlyReconciled(prev => [...prev, { csv: justMatchedCsv, app: justMatchedApp }]);
+
          const remainingCsv = csvRecords.filter((_, idx) => !selectedCsvIndices.has(idx));
          setCsvRecords(remainingCsv);
          setSelectedCsvIndices(new Set());
          setSelectedAppIndices(new Set());
+         setMatchGroups([]);
+         
          if (remainingCsv.length === 0) {
             (typeof window !== "undefined" && (window as any).showAlert || window.alert)('すべてのCSVデータが照合されました！');
-            onClose();
          }
       } else {
          (typeof window !== "undefined" && (window as any).showAlert || window.alert)('更新に失敗しました');
@@ -212,14 +219,18 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
               </h3>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }} onScroll={updateLines}>
-              <table className="data-table">
-                <thead>
+              <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
                   <tr>
-                    <th>選択</th><th>日付</th><th>摘要</th><th>出金</th><th>入金</th>
+                    <th style={{ padding: '8px' }}>選択</th>
+                    <th style={{ padding: '8px' }}>日付</th>
+                    <th style={{ padding: '8px' }}>摘要</th>
+                    <th style={{ padding: '8px', textAlign: 'right' }}>出金</th>
+                    <th style={{ padding: '8px', textAlign: 'right' }}>入金</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {csvRecords.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center' }}>データがありません</td></tr>}
+                  {csvRecords.length === 0 && <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>データがありません</td></tr>}
                   {csvRecords.map((r, i) => {
                     const isSelected = selectedCsvIndices.has(i);
                     const groupIdx = matchGroups.findIndex(g => g.bankIndices.includes(i));
@@ -230,7 +241,6 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                         const newSet = new Set(selectedCsvIndices);
                         if (isSelected) {
                           newSet.delete(i);
-                          // Remove from matchGroups if user unchecks
                           setMatchGroups(prev => prev.map(g => ({
                             ...g,
                             bankIndices: g.bankIndices.filter(bIdx => bIdx !== i)
@@ -242,13 +252,14 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                       }} style={{ 
                         cursor: 'pointer', 
                         background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
-                        borderLeft: groupColor ? `4px solid ${groupColor}` : 'none'
+                        borderLeft: groupColor ? `4px solid ${groupColor}` : 'none',
+                        borderBottom: '1px solid rgba(255,255,255,0.05)'
                       }}>
-                        <td><input type="checkbox" checked={isSelected} readOnly /></td>
-                        <td>{r.date}</td>
-                        <td style={{ fontSize: '0.85rem' }}>{r.description}</td>
-                        <td className="expense">{r.expense > 0 ? formatCurrency(r.expense) : ''}</td>
-                        <td className="income">{r.income > 0 ? formatCurrency(r.income) : ''}</td>
+                        <td style={{ padding: '8px' }}><input type="checkbox" checked={isSelected} readOnly /></td>
+                        <td style={{ padding: '8px' }}>{r.date}</td>
+                        <td style={{ padding: '8px', fontSize: '0.85rem' }}>{r.description}</td>
+                        <td className="expense" style={{ padding: '8px', textAlign: 'right' }}>{r.expense > 0 ? formatCurrency(r.expense) : ''}</td>
+                        <td className="income" style={{ padding: '8px', textAlign: 'right' }}>{r.income > 0 ? formatCurrency(r.income) : ''}</td>
                       </tr>
                     );
                   })}
@@ -265,13 +276,21 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
               </h3>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }} onScroll={updateLines}>
-              <table className="data-table">
-                <thead>
+              <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left' }}>
                   <tr>
-                    <th>選択</th><th>日付</th><th>カテゴリ</th><th>金額</th>
+                    <th style={{ padding: '8px' }}>選択</th>
+                    <th style={{ padding: '8px' }}>日付</th>
+                    <th style={{ padding: '8px' }}>カテゴリ</th>
+                    <th style={{ padding: '8px', textAlign: 'right' }}>金額</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {((data?.records || [])
+                    .map((r: Transaction, i: number) => ({ ...r, originalIndex: i }))
+                    .filter((r: Transaction) => !r.reconciled && (r.expense > 0 || r.income > 0)).length === 0) && (
+                      <tr><td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>未照合のデータがありません</td></tr>
+                  )}
                   {(data?.records || [])
                     .map((r: Transaction, i: number) => ({ ...r, originalIndex: i }))
                     .filter((r: Transaction) => !r.reconciled && (r.expense > 0 || r.income > 0))
@@ -287,7 +306,6 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                           const newSet = new Set(selectedAppIndices);
                           if (isSelected) {
                             newSet.delete(r.originalIndex ?? -1);
-                            // Remove from matchGroups if user unchecks
                             setMatchGroups(prev => prev.map(g => ({
                               ...g,
                               appIndices: g.appIndices.filter(aIdx => aIdx !== (r.originalIndex ?? -1))
@@ -299,12 +317,13 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                         }} style={{ 
                           cursor: 'pointer', 
                           background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
-                          borderRight: groupColor ? `4px solid ${groupColor}` : 'none'
+                          borderRight: groupColor ? `4px solid ${groupColor}` : 'none',
+                          borderBottom: '1px solid rgba(255,255,255,0.05)'
                         }}>
-                          <td><input type="checkbox" checked={isSelected} readOnly /></td>
-                          <td>{r.date}</td>
-                          <td>{r.category}</td>
-                          <td className={isIncome ? 'income' : 'expense'}>{formatCurrency(amount)}</td>
+                          <td style={{ padding: '8px' }}><input type="checkbox" checked={isSelected} readOnly /></td>
+                          <td style={{ padding: '8px' }}>{r.date}</td>
+                          <td style={{ padding: '8px' }}>{r.category}</td>
+                          <td className={isIncome ? 'income' : 'expense'} style={{ padding: '8px', textAlign: 'right' }}>{formatCurrency(amount)}</td>
                         </tr>
                       );
                     })}
@@ -334,6 +353,28 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
              )}
           </div>
         </div>
+        
+        {recentlyReconciled.length > 0 && (
+          <div style={{ marginTop: '20px', padding: '15px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#059669', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>✅ このセッションで照合済みのデータ ({recentlyReconciled.length}件)</span>
+            </h4>
+            <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+              {recentlyReconciled.map((group, idx) => (
+                <div key={idx} style={{ padding: '8px', borderBottom: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', gap: '20px' }}>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ color: '#059669' }}>CSV:</strong> {group.csv.length === 0 ? 'なし' : group.csv.map(c => `${c.date} ${c.description} (${formatCurrency(c.expense || c.income)})`).join(', ')}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ color: '#059669' }}>アプリ:</strong> {group.app.length === 0 ? 'なし' : group.app.map(a => `${a.date} ${a.category} (${formatCurrency(a.expense || a.income)})`).join(', ')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
