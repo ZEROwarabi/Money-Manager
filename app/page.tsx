@@ -611,7 +611,18 @@ ${futureSettings}
 
   return (
     <div className="dashboard-container">
-      <header style={{ marginBottom: '2rem' }}>
+      <header style={{ 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 100, 
+        background: 'rgba(224, 242, 254, 0.85)', 
+        backdropFilter: 'blur(12px)', 
+        WebkitBackdropFilter: 'blur(12px)',
+        margin: '-2rem -2rem 2rem -2rem',
+        padding: '1.5rem 2rem 1rem 2rem',
+        borderBottom: '1px solid rgba(255,255,255,0.3)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+      }}>
         <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
             <h1 className="header-title" style={{ margin: 0, wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
