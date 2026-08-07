@@ -218,6 +218,30 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const diff = Math.round((csvTotal - appTotal) * 100) / 100;
   const isMatch = Math.abs(diff) < 0.01;
 
+  const handleClose = async () => {
+    // 閉じる時に、マッチンググループ（AIによる自動マッチや、確定済みのグループ）に
+    // 含まれているアプリデータを自動でDB保存(reconciled: true)する
+    const appUpdateIndices = new Set<number>();
+    matchGroups.forEach(g => {
+      g.appIndices.forEach(idx => appUpdateIndices.add(idx));
+    });
+
+    if (appUpdateIndices.size > 0) {
+      const updates = Array.from(appUpdateIndices).map(idx => {
+         const r = (data?.records || [])[idx];
+         return { ...r, reconciled: true };
+      });
+      // 裏側でサイレントにAPIを叩いて保存
+      fetch('/api/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'batch_update', records: updates })
+      }).then(() => fetchData());
+    }
+    
+    onClose();
+  };
+
   return (
     <div className="modal-overlay" style={{ zIndex: 9999 }}>
       <div className="modal-content" style={{ width: '95%', maxWidth: '1200px', height: '90vh', display: 'flex', flexDirection: 'column' }}>
@@ -240,7 +264,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
             </div>
             <button className="action-button secondary" onClick={autoReconcileBtn}>🤖 AI 自動照合 (Beta)</button>
           </div>
-          <button className="action-button" onClick={onClose} style={{ background: 'transparent', border: '1px solid var(--border-color)' }}>✕ 閉じる</button>
+          <button className="action-button" onClick={handleClose} style={{ background: 'transparent', border: '1px solid var(--border-color)' }}>✕ 閉じる</button>
         </div>
 
         <div ref={containerRef} style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', flex: 1, minHeight: 0 }}>
