@@ -90,7 +90,7 @@ export const useFinanceData = () => {
     await fetch('/api/finance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'toggle_ignored_budget_category', category, isIgnored })
+      body: JSON.stringify({ action: 'toggle_ignored_budget_category', payload: { category, isIgnored } })
     });
     await fetchData();
   };
