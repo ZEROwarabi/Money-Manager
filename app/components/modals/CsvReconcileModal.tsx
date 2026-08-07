@@ -51,133 +51,63 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     }
   }, [autoReconcileBtn, data?.records, csvRecords]);
 
-  // --- 手動再選択アルゴリズム ---
-  // 金額一致＋日付近接で最適なペアを探す（1対1マッチング）
-  const findBestMatch = (
-    csvIdx: number,
-    candidateAppIndices: number[],
-    currentGroups: MatchGroup[]
-  ): number | null => {
-    const csvRec = csvRecords[csvIdx];
-    if (!csvRec) return null;
-    const csvAmt = (csvRec.expense || 0) - (csvRec.income || 0);
-    const csvTime = new Date(csvRec.date).getTime();
-
-    let bestMatch: number | null = null;
-    let bestDaysDiff = Infinity;
-
-    for (const ai of candidateAppIndices) {
-      // 既にグループに入っているアプリデータはスキップ
-      if (currentGroups.some(g => g.appIndices.includes(ai))) continue;
-      const appRec = (data?.records || [])[ai];
-      if (!appRec) continue;
-      const appAmt = (appRec.expense || 0) - (appRec.income || 0);
-
-      // 金額が一致するか
-      if (Math.abs(csvAmt - appAmt) < 0.01) {
-        const daysDiff = Math.abs(csvTime - new Date(appRec.date).getTime()) / (1000 * 60 * 60 * 24);
-        if (daysDiff < bestDaysDiff) {
-          bestDaysDiff = daysDiff;
-          bestMatch = ai;
-        }
-      }
+  // --- リアルタイム再照合アルゴリズム ---
+  // 選択が変わるたびに、全選択アイテムに対してフルの照合エンジンを再実行する
+  // これにより 1:1、1:N、N:1 のすべてのパターンに対応できる
+  const recomputeAllGroups = (csvSet: Set<number>, appSet: Set<number>) => {
+    const csvIndices = Array.from(csvSet);
+    const appIndices = Array.from(appSet);
+    
+    if (csvIndices.length === 0 || appIndices.length === 0) {
+      setMatchGroups([]);
+      return;
     }
-    return bestMatch;
-  };
-
-  const findBestCsvMatch = (
-    appOriginalIdx: number,
-    candidateCsvIndices: number[],
-    currentGroups: MatchGroup[]
-  ): number | null => {
-    const appRec = (data?.records || [])[appOriginalIdx];
-    if (!appRec) return null;
-    const appAmt = (appRec.expense || 0) - (appRec.income || 0);
-    const appTime = new Date(appRec.date).getTime();
-
-    let bestMatch: number | null = null;
-    let bestDaysDiff = Infinity;
-
-    for (const ci of candidateCsvIndices) {
-      if (currentGroups.some(g => g.bankIndices.includes(ci))) continue;
-      const csvRec = csvRecords[ci];
-      if (!csvRec) continue;
-      const csvAmt = (csvRec.expense || 0) - (csvRec.income || 0);
-
-      if (Math.abs(csvAmt - appAmt) < 0.01) {
-        const daysDiff = Math.abs(appTime - new Date(csvRec.date).getTime()) / (1000 * 60 * 60 * 24);
-        if (daysDiff < bestDaysDiff) {
-          bestDaysDiff = daysDiff;
-          bestMatch = ci;
-        }
-      }
-    }
-    return bestMatch;
-  };
-
-  // --- 対称的なクリックハンドラ ---
-  const handleCsvClick = (i: number) => {
-    const isSelected = selectedCsvIndices.has(i);
-    const newCsvSet = new Set(selectedCsvIndices);
-    const newAppSet = new Set(selectedAppIndices);
-    let newGroups = [...matchGroups];
-
-    if (isSelected) {
-      // アンチェック: このCSVアイテムのペアグループを丸ごと削除し、相手のアプリ側もアンチェック
-      newCsvSet.delete(i);
-      const groupIdx = newGroups.findIndex(g => g.bankIndices.includes(i));
-      if (groupIdx !== -1) {
-        const group = newGroups[groupIdx];
-        group.appIndices.forEach(ai => newAppSet.delete(ai));
-        newGroups.splice(groupIdx, 1);
-      }
-    } else {
-      // チェック: 追加し、未ペアのアプリアイテムから最適なマッチを探してグループ化
-      newCsvSet.add(i);
-      const unmatchedAppIndices = Array.from(newAppSet).filter(
-        ai => !newGroups.some(g => g.appIndices.includes(ai))
-      );
-      const match = findBestMatch(i, unmatchedAppIndices, newGroups);
-      if (match !== null) {
-        newGroups.push({ bankIndices: [i], appIndices: [match] });
-      }
-    }
-
-    setSelectedCsvIndices(newCsvSet);
-    setSelectedAppIndices(newAppSet);
+    
+    // 選択されたアイテムだけで照合エンジンを走らせる
+    // originalIndex / index を除去して、autoReconcile内のインデックスを正確にする
+    const csvForMatch: Transaction[] = csvIndices.map(i => {
+      const { originalIndex, index, ...clean } = csvRecords[i] as any;
+      return clean as Transaction;
+    });
+    
+    const appForMatch: Transaction[] = appIndices.map(i => {
+      const { originalIndex, index, ...clean } = ((data?.records || [])[i] || {}) as any;
+      return { ...clean, originalIndex: i } as Transaction;
+    });
+    
+    const result = autoReconcile(csvForMatch, appForMatch);
+    
+    // bankIndices: autoReconcileの結果はcsvForMatch配列のインデックス → 元のCSVインデックスに変換
+    // appIndices: autoReconcileはoriginalIndexを使うので、すでに元のdata.recordsインデックス
+    const newGroups: MatchGroup[] = result.matchGroups.map(g => ({
+      bankIndices: g.bankIndices.map(bi => csvIndices[bi]),
+      appIndices: g.appIndices
+    }));
+    
     setMatchGroups(newGroups);
+  };
+
+  // --- クリックハンドラ（独立選択 + 即時再照合）---
+  const handleCsvClick = (i: number) => {
+    const newSet = new Set(selectedCsvIndices);
+    if (newSet.has(i)) {
+      newSet.delete(i);
+    } else {
+      newSet.add(i);
+    }
+    setSelectedCsvIndices(newSet);
+    recomputeAllGroups(newSet, selectedAppIndices);
   };
 
   const handleAppClick = (originalIndex: number) => {
-    const isSelected = selectedAppIndices.has(originalIndex);
-    const newCsvSet = new Set(selectedCsvIndices);
-    const newAppSet = new Set(selectedAppIndices);
-    let newGroups = [...matchGroups];
-
-    if (isSelected) {
-      // アンチェック: このアプリアイテムのペアグループを丸ごと削除し、相手のCSV側もアンチェック
-      newAppSet.delete(originalIndex);
-      const groupIdx = newGroups.findIndex(g => g.appIndices.includes(originalIndex));
-      if (groupIdx !== -1) {
-        const group = newGroups[groupIdx];
-        group.bankIndices.forEach(bi => newCsvSet.delete(bi));
-        newGroups.splice(groupIdx, 1);
-      }
+    const newSet = new Set(selectedAppIndices);
+    if (newSet.has(originalIndex)) {
+      newSet.delete(originalIndex);
     } else {
-      // チェック: 追加し、未ペアのCSVアイテムから最適なマッチを探してグループ化
-      newAppSet.add(originalIndex);
-      const unmatchedCsvIndices = Array.from(newCsvSet).filter(
-        ci => !newGroups.some(g => g.bankIndices.includes(ci))
-      );
-      const match = findBestCsvMatch(originalIndex, unmatchedCsvIndices, newGroups);
-      if (match !== null) {
-        newGroups.push({ bankIndices: [match], appIndices: [originalIndex] });
-      }
+      newSet.add(originalIndex);
     }
-
-    setSelectedCsvIndices(newCsvSet);
-    setSelectedAppIndices(newAppSet);
-    setMatchGroups(newGroups);
+    setSelectedAppIndices(newSet);
+    recomputeAllGroups(selectedCsvIndices, newSet);
   };
 
   // --- 線の描画（matchGroupsのみ。手動の全対全はやらない）---
