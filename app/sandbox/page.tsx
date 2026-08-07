@@ -51,10 +51,10 @@ const SandboxApp = () => {
   }, []);
 
   return (
-    <div style={{ padding: '20px', background: '#0f172a', minHeight: '100vh', color: 'white' }}>
-      <h1>🧪 安全なローカル検証用サンドボックス</h1>
-      <p>このページはダミーデータを使用しており、実際のデータベースには一切影響を与えません。</p>
-      <p>「照合確定」を押してもデータは保存されないため、何度でも線の動きや履歴機能をテストできます。</p>
+    <div style={{ padding: '20px', background: '#0f172a', minHeight: '100vh', color: 'var(--text-primary)' }}>
+      <h1 style={{ color: 'white' }}>🧪 安全なローカル検証用サンドボックス</h1>
+      <p style={{ color: 'white' }}>このページはダミーデータを使用しており、実際のデータベースには一切影響を与えません。</p>
+      <p style={{ color: 'white' }}>「照合確定」を押してもデータは保存されないため、何度でも線の動きや履歴機能をテストできます。</p>
       
       <button 
         onClick={() => {

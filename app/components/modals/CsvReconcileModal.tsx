@@ -26,7 +26,11 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const [lines, setLines] = useState<{ x1: number, y1: number, x2: number, y2: number, color: string }[]>([]);
 
   const autoReconcileBtn = () => {
-    const res = autoReconcile(csvRecords, data?.records || []);
+    const unreconciledAppRecords = (data?.records || [])
+      .map((r, i) => ({ ...r, originalIndex: i }))
+      .filter((r) => !r.reconciled && (r.expense > 0 || r.income > 0));
+      
+    const res = autoReconcile(csvRecords, unreconciledAppRecords);
     setSelectedCsvIndices(res.matchedBankIndices);
     setSelectedAppIndices(res.matchedAppIndices);
     setMatchGroups(res.matchGroups);
