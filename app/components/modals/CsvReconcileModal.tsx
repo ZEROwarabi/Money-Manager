@@ -51,6 +51,136 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     }
   }, [autoReconcileBtn, data?.records, csvRecords]);
 
+  // --- 手動再選択アルゴリズム ---
+  // 金額一致＋日付近接で最適なペアを探す（1対1マッチング）
+  const findBestMatch = (
+    csvIdx: number,
+    candidateAppIndices: number[],
+    currentGroups: MatchGroup[]
+  ): number | null => {
+    const csvRec = csvRecords[csvIdx];
+    if (!csvRec) return null;
+    const csvAmt = (csvRec.expense || 0) - (csvRec.income || 0);
+    const csvTime = new Date(csvRec.date).getTime();
+
+    let bestMatch: number | null = null;
+    let bestDaysDiff = Infinity;
+
+    for (const ai of candidateAppIndices) {
+      // 既にグループに入っているアプリデータはスキップ
+      if (currentGroups.some(g => g.appIndices.includes(ai))) continue;
+      const appRec = (data?.records || [])[ai];
+      if (!appRec) continue;
+      const appAmt = (appRec.expense || 0) - (appRec.income || 0);
+
+      // 金額が一致するか
+      if (Math.abs(csvAmt - appAmt) < 0.01) {
+        const daysDiff = Math.abs(csvTime - new Date(appRec.date).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysDiff < bestDaysDiff) {
+          bestDaysDiff = daysDiff;
+          bestMatch = ai;
+        }
+      }
+    }
+    return bestMatch;
+  };
+
+  const findBestCsvMatch = (
+    appOriginalIdx: number,
+    candidateCsvIndices: number[],
+    currentGroups: MatchGroup[]
+  ): number | null => {
+    const appRec = (data?.records || [])[appOriginalIdx];
+    if (!appRec) return null;
+    const appAmt = (appRec.expense || 0) - (appRec.income || 0);
+    const appTime = new Date(appRec.date).getTime();
+
+    let bestMatch: number | null = null;
+    let bestDaysDiff = Infinity;
+
+    for (const ci of candidateCsvIndices) {
+      if (currentGroups.some(g => g.bankIndices.includes(ci))) continue;
+      const csvRec = csvRecords[ci];
+      if (!csvRec) continue;
+      const csvAmt = (csvRec.expense || 0) - (csvRec.income || 0);
+
+      if (Math.abs(csvAmt - appAmt) < 0.01) {
+        const daysDiff = Math.abs(appTime - new Date(csvRec.date).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysDiff < bestDaysDiff) {
+          bestDaysDiff = daysDiff;
+          bestMatch = ci;
+        }
+      }
+    }
+    return bestMatch;
+  };
+
+  // --- 対称的なクリックハンドラ ---
+  const handleCsvClick = (i: number) => {
+    const isSelected = selectedCsvIndices.has(i);
+    const newCsvSet = new Set(selectedCsvIndices);
+    const newAppSet = new Set(selectedAppIndices);
+    let newGroups = [...matchGroups];
+
+    if (isSelected) {
+      // アンチェック: このCSVアイテムのペアグループを丸ごと削除し、相手のアプリ側もアンチェック
+      newCsvSet.delete(i);
+      const groupIdx = newGroups.findIndex(g => g.bankIndices.includes(i));
+      if (groupIdx !== -1) {
+        const group = newGroups[groupIdx];
+        group.appIndices.forEach(ai => newAppSet.delete(ai));
+        newGroups.splice(groupIdx, 1);
+      }
+    } else {
+      // チェック: 追加し、未ペアのアプリアイテムから最適なマッチを探してグループ化
+      newCsvSet.add(i);
+      const unmatchedAppIndices = Array.from(newAppSet).filter(
+        ai => !newGroups.some(g => g.appIndices.includes(ai))
+      );
+      const match = findBestMatch(i, unmatchedAppIndices, newGroups);
+      if (match !== null) {
+        newGroups.push({ bankIndices: [i], appIndices: [match] });
+      }
+    }
+
+    setSelectedCsvIndices(newCsvSet);
+    setSelectedAppIndices(newAppSet);
+    setMatchGroups(newGroups);
+  };
+
+  const handleAppClick = (originalIndex: number) => {
+    const isSelected = selectedAppIndices.has(originalIndex);
+    const newCsvSet = new Set(selectedCsvIndices);
+    const newAppSet = new Set(selectedAppIndices);
+    let newGroups = [...matchGroups];
+
+    if (isSelected) {
+      // アンチェック: このアプリアイテムのペアグループを丸ごと削除し、相手のCSV側もアンチェック
+      newAppSet.delete(originalIndex);
+      const groupIdx = newGroups.findIndex(g => g.appIndices.includes(originalIndex));
+      if (groupIdx !== -1) {
+        const group = newGroups[groupIdx];
+        group.bankIndices.forEach(bi => newCsvSet.delete(bi));
+        newGroups.splice(groupIdx, 1);
+      }
+    } else {
+      // チェック: 追加し、未ペアのCSVアイテムから最適なマッチを探してグループ化
+      newAppSet.add(originalIndex);
+      const unmatchedCsvIndices = Array.from(newCsvSet).filter(
+        ci => !newGroups.some(g => g.bankIndices.includes(ci))
+      );
+      const match = findBestCsvMatch(originalIndex, unmatchedCsvIndices, newGroups);
+      if (match !== null) {
+        newGroups.push({ bankIndices: [match], appIndices: [originalIndex] });
+      }
+    }
+
+    setSelectedCsvIndices(newCsvSet);
+    setSelectedAppIndices(newAppSet);
+    setMatchGroups(newGroups);
+  };
+
+  // --- 線の描画（matchGroupsのみ。手動の全対全はやらない）---
   const updateLines = () => {
     if (!containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -78,32 +208,6 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
         });
       });
     });
-
-    // 手動で選択されたアイテム（どのmatchGroupにも属していないもの）同士も線で結ぶ
-    const manualBankIndices = Array.from(selectedCsvIndices).filter(i => !matchGroups.some(g => g.bankIndices.includes(i)));
-    const manualAppIndices = Array.from(selectedAppIndices).filter(i => !matchGroups.some(g => g.appIndices.includes(i)));
-    
-    if (manualBankIndices.length > 0 && manualAppIndices.length > 0) {
-      const color = '#6366f1'; // インディゴ（手動選択のデフォルト色）
-      manualBankIndices.forEach(bIdx => {
-        const leftRow = containerRef.current?.querySelector(`tr[data-csv-index="${bIdx}"]`);
-        if (!leftRow) return;
-        const leftRect = leftRow.getBoundingClientRect();
-        
-        manualAppIndices.forEach(aIdx => {
-          const rightRow = containerRef.current?.querySelector(`tr[data-app-index="${aIdx}"]`);
-          if (!rightRow) return;
-          const rightRect = rightRow.getBoundingClientRect();
-          
-          const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
-          const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
-          const x1 = leftRect.right - containerRect.left;
-          const x2 = rightRect.left - containerRect.left;
-          
-          newLines.push({ x1, y1, x2, y2, color });
-        });
-      });
-    }
 
     setLines(newLines);
   };
@@ -305,19 +409,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                     const groupColor = groupIdx !== -1 ? MATCH_COLORS[groupIdx % MATCH_COLORS.length] : null;
                     
                     return (
-                      <tr key={i} data-csv-index={i} onClick={() => {
-                        const newSet = new Set(selectedCsvIndices);
-                        if (isSelected) {
-                          newSet.delete(i);
-                          setMatchGroups(prev => prev.map(g => ({
-                            ...g,
-                            bankIndices: g.bankIndices.filter(bIdx => bIdx !== i)
-                          })).filter(g => g.bankIndices.length > 0 && g.appIndices.length > 0));
-                        } else {
-                          newSet.add(i);
-                        }
-                        setSelectedCsvIndices(newSet);
-                      }} style={{ 
+                      <tr key={i} data-csv-index={i} onClick={() => handleCsvClick(i)} style={{ 
                         cursor: 'pointer', 
                         background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
                         borderLeft: groupColor ? `4px solid ${groupColor}` : 'none',
@@ -370,19 +462,7 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
                       const groupColor = groupIdx !== -1 ? MATCH_COLORS[groupIdx % MATCH_COLORS.length] : null;
 
                       return (
-                        <tr key={r.originalIndex} data-app-index={r.originalIndex} onClick={() => {
-                          const newSet = new Set(selectedAppIndices);
-                          if (isSelected) {
-                            newSet.delete(r.originalIndex ?? -1);
-                            setMatchGroups(prev => prev.map(g => ({
-                              ...g,
-                              appIndices: g.appIndices.filter(aIdx => aIdx !== (r.originalIndex ?? -1))
-                            })).filter(g => g.bankIndices.length > 0 && g.appIndices.length > 0));
-                          } else {
-                            newSet.add(r.originalIndex ?? -1);
-                          }
-                          setSelectedAppIndices(newSet);
-                        }} style={{ 
+                        <tr key={r.originalIndex} data-app-index={r.originalIndex} onClick={() => handleAppClick(r.originalIndex ?? -1)} style={{ 
                           cursor: 'pointer', 
                           background: groupColor ? `${groupColor}22` : (isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent'),
                           borderRight: groupColor ? `4px solid ${groupColor}` : 'none',
