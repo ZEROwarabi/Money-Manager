@@ -25,6 +25,7 @@ const MOCK_CSV_RECORDS: Transaction[] = [
 const SandboxApp = () => {
   const [csvRecords, setCsvRecords] = useState<Transaction[]>(MOCK_CSV_RECORDS);
   const [appRecords, setAppRecords] = useState<Transaction[]>(MOCK_APP_RECORDS);
+  const [showModal, setShowModal] = useState(true);
 
   // fetch をモック化して、実際のDBに書き込まれないようにする
   React.useEffect(() => {
@@ -60,10 +61,11 @@ const SandboxApp = () => {
         onClick={() => {
           setCsvRecords(MOCK_CSV_RECORDS);
           setAppRecords(MOCK_APP_RECORDS);
+          setShowModal(true);
         }}
         style={{ padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '20px' }}
       >
-        🔄 データをリセットする
+        🔄 データをリセットしてモーダルを開く
       </button>
 
       <div style={{ position: 'relative', height: '80vh', border: '2px dashed #475569', borderRadius: '12px', overflow: 'hidden' }}>
@@ -77,11 +79,19 @@ const SandboxApp = () => {
            toggleReconciled: async () => {},
            toggleIgnoredCategory: async () => {},
         } as any}>
-          <CsvReconcileModal 
-            onClose={() => alert('閉じるボタンが押されました（実際のアプリではモーダルが閉じます）')} 
-            csvRecords={csvRecords} 
-            setCsvRecords={setCsvRecords} 
-          />
+          {showModal ? (
+            <CsvReconcileModal 
+              onClose={() => setShowModal(false)} 
+              csvRecords={csvRecords} 
+              setCsvRecords={setCsvRecords} 
+            />
+          ) : (
+            <div style={{ padding: '40px', color: 'white', textAlign: 'center' }}>
+              <h2>モーダルは閉じられました</h2>
+              <p>実際のアプリでは、ここで元のダッシュボード画面に戻ります。</p>
+              <p>再度テストする場合は上のリセットボタンを押してください。</p>
+            </div>
+          )}
         </FinanceDataContext.Provider>
       </div>
     </div>
