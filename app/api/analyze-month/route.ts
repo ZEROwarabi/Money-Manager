@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: Request) {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'GEMINI_API_KEY が設定されていません。' }, { status: 400 });
+    }
+    
     const { month, expenses, budget, freeMoney, totalSpent, isPastMonth } = await req.json();
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const ai = new GoogleGenAI({ apiKey });
 
     let promptText = '';
     
@@ -20,7 +23,7 @@ export async function POST(req: Request) {
 【${month}の家計データ】
 ・全体の変動費予算: $${budget}
 ・実際の変動費支出: $${totalSpent}
-・予算に対する結果: $${freeMoney > 0 ? \`+$$\{freeMoney} (黒字)\` : \`-$$\{Math.abs(freeMoney)} (赤字)\`}
+・予算に対する結果: ${freeMoney > 0 ? `+$${freeMoney} (黒字)` : `-$${Math.abs(freeMoney)} (赤字)`}
 
 【カテゴリ別支出内訳】
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
@@ -49,12 +52,12 @@ ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget ||
 をプロの視点でアドバイスしてください。
 `;
     }
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: promptText,
+    });
 
-    const result = await model.generateContent(promptText);
-    const response = await result.response;
-    const text = response.text();
-
-    return NextResponse.json({ success: true, advice: text });
+    return NextResponse.json({ success: true, advice: response.text });
   } catch (error) {
     console.error('AI Analysis Error:', error);
     return NextResponse.json({ success: false, message: 'AI分析中にエラーが発生しました。' }, { status: 500 });
