@@ -1059,46 +1059,84 @@ ${futureSettings}
       )}
 
       <section className="charts-grid" style={{ marginTop: '2rem' }}>
-        <ExpensePieChart
-          selectedMonth={selectedMonth}
-          currentRealMonth={currentRealMonth}
-          generatedPieData={generatedPieData}
-          visibleExpenseData={visibleExpenseData}
-          uniqueCategories={uniqueCategories}
-          hiddenCategories={hiddenCategories}
-          setHiddenCategories={setHiddenCategories}
-          onDeepAnalyzeClick={handleDeepAnalysis}
-          isDeepAnalyzing={isDeepAnalyzing}
-        />
-
-        {deepAnalysis && (
-          <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: '1px solid #e9d5ff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: '#9333ea', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem' }}>
-                <span>✨</span> 専属プランナーのディープインサイト ({selectedMonth})
-              </h3>
-              <button 
-                onClick={() => setDeepAnalysis('')}
-                style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
-              >×</button>
+        <div style={{ perspective: '1000px' }}>
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            transformStyle: 'preserve-3d',
+            transform: deepAnalysis ? 'rotateY(180deg)' : 'rotateY(0deg)'
+          }}>
+            {/* FRONT FACE: Expense Pie Chart */}
+            <div style={{
+              width: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              pointerEvents: deepAnalysis ? 'none' : 'auto',
+            }}>
+              <ExpensePieChart
+                selectedMonth={selectedMonth}
+                currentRealMonth={currentRealMonth}
+                generatedPieData={generatedPieData}
+                visibleExpenseData={visibleExpenseData}
+                uniqueCategories={uniqueCategories}
+                hiddenCategories={hiddenCategories}
+                setHiddenCategories={setHiddenCategories}
+                onDeepAnalyzeClick={handleDeepAnalysis}
+                isDeepAnalyzing={isDeepAnalyzing}
+              />
             </div>
-            <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)', lineHeight: '1.6', fontSize: '0.95rem' }}>
-              {deepAnalysis.split('\n').map((line, i) => {
-                const parts = line.split(/(\*\*.*?\*\*)/g);
-                return (
-                  <div key={i} style={{ marginBottom: line.trim() === '' ? '0.5rem' : '0' }}>
-                    {parts.map((part, j) => {
-                      if (part.startsWith('**') && part.endsWith('**')) {
-                        return <strong key={j} style={{ color: 'var(--accent-color)' }}>{part.slice(2, -2)}</strong>;
-                      }
-                      return part;
-                    })}
-                  </div>
-                );
-              })}
+
+            {/* BACK FACE: AI Deep Analysis */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              pointerEvents: deepAnalysis ? 'auto' : 'none',
+            }}>
+              <div className="glass-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(255, 255, 255, 0.95)', borderRadius: '12px', border: '1px solid #e9d5ff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0 }}>
+                  <h3 style={{ color: '#9333ea', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.1rem' }}>
+                    <span>✨</span> AIディープインサイト ({selectedMonth})
+                  </h3>
+                  <button 
+                    onClick={() => setDeepAnalysis('')}
+                    style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                  >×</button>
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)', lineHeight: '1.6', fontSize: '0.95rem', overflowY: 'auto', flex: 1, paddingRight: '10px' }}>
+                  {(deepAnalysis || '').split('\n').map((line, i) => {
+                    const parts = line.split(/(\*\*.*?\*\*)/g);
+                    return (
+                      <div key={i} style={{ marginBottom: line.trim() === '' ? '0.5rem' : '0' }}>
+                        {parts.map((part, j) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={j} style={{ color: 'var(--accent-color)' }}>{part.slice(2, -2)}</strong>;
+                          }
+                          return part;
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ textAlign: 'center', marginTop: '1rem', flexShrink: 0 }}>
+                  <button 
+                    className="action-button secondary"
+                    onClick={() => setDeepAnalysis('')}
+                    style={{ fontSize: '0.9rem', padding: '0.5rem 1.5rem' }}
+                  >
+                    🔙 グラフに戻る
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
 
         <MonthlyBarChart  
