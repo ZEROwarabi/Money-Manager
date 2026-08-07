@@ -155,7 +155,7 @@ export async function GET(req: Request) {
 
         if (recordType === 'trip_sandbox') unsettledSandbox += expense;
 
-        const isExcludedExpense = recordType === 'advance_payment' || recordType === 'trip_sandbox' || recordType === 'trip_sandbox_settled';
+        const isExcludedExpense = recordType === 'advance_payment' || recordType === 'trip_sandbox' || recordType === 'trip_sandbox_settled' || ignoredBudgetCategories.includes(category);
         const isExcludedIncome = recordType === 'advance_recovery' || recordType === 'income_special' || recordType === 'trip_reconcile';
 
         if (expense !== 0 && category !== '入金' && !isExcludedExpense) {
