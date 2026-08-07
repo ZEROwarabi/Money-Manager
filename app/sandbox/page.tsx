@@ -5,20 +5,36 @@ import { Transaction } from '../types';
 import { FinanceDataContext } from '../context/FinanceContext';
 import { CsvReconcileModal } from '../components/modals/CsvReconcileModal';
 
+// ========================================
 // ダミーのアプリデータ（データベースに入っていると仮定するデータ）
+// ========================================
 const MOCK_APP_RECORDS: Transaction[] = [
-  { id: '1', date: '2026/08/01', category: '食費', description: 'スーパー', expense: 1500, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: '2', date: '2026/08/02', category: '交通費', description: '電車', expense: 480, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: '3', date: '2026/08/05', category: '交際費', description: '飲み会', expense: 5000, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: '4', date: '2026/08/06', category: '給料', description: '給料', expense: 0, income: 250000, balance: 0, month: '2026-08', recordType: 'income_normal', reconciled: false },
+  // --- 1対2テスト用: アプリ側は個別記録 ($1,500 + $480 = $1,980) ---
+  { id: '1', date: '2026/08/01', category: '食費', description: 'スーパーで買い物', expense: 1500, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  { id: '2', date: '2026/08/01', category: '交通費', description: '電車代', expense: 480, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 1対1テスト用 ---
+  { id: '3', date: '2026/08/03', category: '食費', description: 'コンビニ', expense: 350, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  { id: '4', date: '2026/08/04', category: '生活用品', description: 'ドラッグストア', expense: 1200, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 2対1テスト用: アプリ側は合算記録 ($3,000 + $5,000 = $8,000) ---
+  { id: '5', date: '2026/08/05', category: '交際費', description: '飲み会まとめ', expense: 8000, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 1対1テスト用 ---
+  { id: '6', date: '2026/08/06', category: '給料', description: '給料', expense: 0, income: 250000, balance: 0, month: '2026-08', recordType: 'income_normal', reconciled: false },
 ];
 
+// ========================================
 // ダミーのCSVデータ（銀行からダウンロードしたと仮定するデータ）
+// ========================================
 const MOCK_CSV_RECORDS: Transaction[] = [
-  { id: 'c1', date: '2026/08/01', category: '', description: 'ｲｵﾝ', expense: 1500, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: 'c2', date: '2026/08/02', category: '', description: 'JRﾋｶﾞｼﾆﾎﾝ', expense: 480, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: 'c3', date: '2026/08/05', category: '', description: 'ﾜﾀﾐ', expense: 5000, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
-  { id: 'c4', date: '2026/08/06', category: '', description: 'ｷﾕｳﾖ', expense: 0, income: 250000, balance: 0, month: '2026-08', recordType: 'income_normal', reconciled: false },
+  // --- 1対2テスト用: 銀行側は合算引き落とし ($1,980 = 食費$1,500 + 交通費$480) ---
+  { id: 'c1', date: '2026/08/01', category: '', description: 'ｲｵﾝ ｶｰﾄﾞ ｲｯｶﾂ', expense: 1980, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 1対1テスト用 ---
+  { id: 'c2', date: '2026/08/03', category: '', description: 'ｾﾌﾞﾝｲﾚﾌﾞﾝ', expense: 350, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  { id: 'c3', date: '2026/08/04', category: '', description: 'ﾏﾂﾓﾄｷﾖｼ', expense: 1200, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 2対1テスト用: 銀行側は個別明細 ($3,000 + $5,000 = 交際費$8,000) ---
+  { id: 'c4', date: '2026/08/05', category: '', description: 'ﾜﾀﾐ ｼﾝｼﾞｭｸ', expense: 3000, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  { id: 'c5', date: '2026/08/05', category: '', description: 'ｶﾗｵｹ ﾏﾈｷﾈｺ', expense: 5000, income: 0, balance: 0, month: '2026-08', recordType: 'expense_normal', reconciled: false },
+  // --- 1対1テスト用 ---
+  { id: 'c6', date: '2026/08/06', category: '', description: 'ｷﾕｳﾖ ﾌﾘｺﾐ', expense: 0, income: 250000, balance: 0, month: '2026-08', recordType: 'income_normal', reconciled: false },
 ];
 
 // Contextのフック自体を上書きするコンポーネントラッパー
@@ -53,9 +69,13 @@ const SandboxApp = () => {
 
   return (
     <div style={{ padding: '20px', background: '#0f172a', minHeight: '100vh', color: 'var(--text-primary)' }}>
-      <h1 style={{ color: 'white' }}>🧪 安全なローカル検証用サンドボックス</h1>
-      <p style={{ color: 'white' }}>このページはダミーデータを使用しており、実際のデータベースには一切影響を与えません。</p>
-      <p style={{ color: 'white' }}>「照合確定」を押してもデータは保存されないため、何度でも線の動きや履歴機能をテストできます。</p>
+      <h1 style={{ color: 'white' }}>🧪 照合テスト用サンドボックス</h1>
+      <div style={{ color: '#94a3b8', marginBottom: '20px', fontSize: '0.9rem', lineHeight: 1.7 }}>
+        <p style={{ margin: '0 0 8px 0' }}>📌 <strong style={{ color: '#38bdf8' }}>1対2テスト:</strong> CSV「ｲｵﾝ ｶｰﾄﾞ ｲｯｶﾂ ($1,980)」 ↔ アプリ「食費 ($1,500)」+「交通費 ($480)」</p>
+        <p style={{ margin: '0 0 8px 0' }}>📌 <strong style={{ color: '#fb923c' }}>2対1テスト:</strong> CSV「ﾜﾀﾐ ($3,000)」+「ｶﾗｵｹ ($5,000)」 ↔ アプリ「交際費 ($8,000)」</p>
+        <p style={{ margin: '0 0 8px 0' }}>📌 <strong style={{ color: '#a3e635' }}>1対1テスト:</strong> ｾﾌﾞﾝ ($350)、ﾏﾂﾓﾄｷﾖｼ ($1,200)、ｷﾕｳﾖ ($250,000)</p>
+        <p style={{ margin: 0, color: '#64748b' }}>※ このページのデータは実際のDBに影響しません。何度でもリセットしてお試しください。</p>
+      </div>
       
       <button 
         onClick={() => {
