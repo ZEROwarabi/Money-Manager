@@ -614,9 +614,6 @@ ${futureSettings}
         <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
             <h1 className="header-title" style={{ margin: 0, wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '1.2rem', marginLeft: '10px' }}>
-              {selectedMonth ? `${selectedMonth}${selectedMonth === currentRealMonth ? ' (今月)' : ''}` : '全期間表示'}
-            </span>
           </div>
           <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
             <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
@@ -634,7 +631,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.14</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.17</span>
         </p>
       </header>
 
