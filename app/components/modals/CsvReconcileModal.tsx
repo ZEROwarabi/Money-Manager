@@ -24,6 +24,9 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const [recentlyReconciled, setRecentlyReconciled] = useState<{csv: Transaction[], app: Transaction[]}[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<{ x1: number, y1: number, x2: number, y2: number, color: string }[]>([]);
+  
+  // AIが最初に作ったグループを保持するRef（ユーザー操作で上書きされない）
+  const aiGroupsRef = useRef<MatchGroup[]>([]);
 
   const autoReconcileBtn = React.useCallback(() => {
     if (!data?.records || data.records.length === 0 || csvRecords.length === 0) return;
@@ -33,11 +36,10 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
       .filter((r) => !r.reconciled && (r.expense > 0 || r.income > 0));
       
     const res = autoReconcile(csvRecords, unreconciledAppRecords);
-    // 既存の選択状態を上書きするのではなく、マージするか上書きするか…
-    // マウント時のみ実行されるなら上書きでOK
     setSelectedCsvIndices(res.matchedBankIndices);
     setSelectedAppIndices(res.matchedAppIndices);
     setMatchGroups(res.matchGroups);
+    aiGroupsRef.current = res.matchGroups; // AIグループを保存
   }, [csvRecords, data?.records]);
 
   // マウント時に自動で1回だけ照合エンジンを走らせる
@@ -51,63 +53,50 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
     }
   }, [autoReconcileBtn, data?.records, csvRecords]);
 
-  // --- リアルタイム再照合アルゴリズム ---
-  // 選択が変わるたびに、全選択アイテムに対してフルの照合エンジンを再実行する
-  // これにより 1:1、1:N、N:1 のすべてのパターンに対応できる
-  const recomputeAllGroups = (csvSet: Set<number>, appSet: Set<number>) => {
-    const csvIndices = Array.from(csvSet);
-    const appIndices = Array.from(appSet);
+  // --- 核心のアルゴリズム ---
+  // AIの1:1グループを保持しつつ、ユーザーが手動でチェックしたアイテムを
+  // 1つの「手動グループ」としてまとめる
+  const recomputeGroups = (csvSet: Set<number>, appSet: Set<number>) => {
+    // Step 1: AIグループのうち、両側のメンバーが全員まだ選択されているものだけを残す
+    const validAiGroups = aiGroupsRef.current.filter(g => 
+      g.bankIndices.every(bi => csvSet.has(bi)) && 
+      g.appIndices.every(ai => appSet.has(ai))
+    );
     
-    if (csvIndices.length === 0 || appIndices.length === 0) {
-      setMatchGroups([]);
-      return;
+    // Step 2: どのAIグループにも属していない選択済みアイテムを集める
+    const ungroupedCsv = Array.from(csvSet).filter(
+      i => !validAiGroups.some(g => g.bankIndices.includes(i))
+    );
+    const ungroupedApp = Array.from(appSet).filter(
+      i => !validAiGroups.some(g => g.appIndices.includes(i))
+    );
+    
+    // Step 3: 未グループのアイテムを1つの手動グループにまとめる
+    // → ユーザーが意図的に選んだ2対1、1対2などのグルーピングがここで実現される
+    const newGroups: MatchGroup[] = [...validAiGroups];
+    if (ungroupedCsv.length > 0 && ungroupedApp.length > 0) {
+      newGroups.push({
+        bankIndices: ungroupedCsv,
+        appIndices: ungroupedApp
+      });
     }
-    
-    // 選択されたアイテムだけで照合エンジンを走らせる
-    // originalIndex / index を除去して、autoReconcile内のインデックスを正確にする
-    const csvForMatch: Transaction[] = csvIndices.map(i => {
-      const { originalIndex, index, ...clean } = csvRecords[i] as any;
-      return clean as Transaction;
-    });
-    
-    const appForMatch: Transaction[] = appIndices.map(i => {
-      const { originalIndex, index, ...clean } = ((data?.records || [])[i] || {}) as any;
-      return { ...clean, originalIndex: i } as Transaction;
-    });
-    
-    const result = autoReconcile(csvForMatch, appForMatch);
-    
-    // bankIndices: autoReconcileの結果はcsvForMatch配列のインデックス → 元のCSVインデックスに変換
-    // appIndices: autoReconcileはoriginalIndexを使うので、すでに元のdata.recordsインデックス
-    const newGroups: MatchGroup[] = result.matchGroups.map(g => ({
-      bankIndices: g.bankIndices.map(bi => csvIndices[bi]),
-      appIndices: g.appIndices
-    }));
     
     setMatchGroups(newGroups);
   };
 
-  // --- クリックハンドラ（独立選択 + 即時再照合）---
+  // --- クリックハンドラ（左右独立にチェック/アンチェック → 即座にグループ再計算）---
   const handleCsvClick = (i: number) => {
     const newSet = new Set(selectedCsvIndices);
-    if (newSet.has(i)) {
-      newSet.delete(i);
-    } else {
-      newSet.add(i);
-    }
+    newSet.has(i) ? newSet.delete(i) : newSet.add(i);
     setSelectedCsvIndices(newSet);
-    recomputeAllGroups(newSet, selectedAppIndices);
+    recomputeGroups(newSet, selectedAppIndices);
   };
 
   const handleAppClick = (originalIndex: number) => {
     const newSet = new Set(selectedAppIndices);
-    if (newSet.has(originalIndex)) {
-      newSet.delete(originalIndex);
-    } else {
-      newSet.add(originalIndex);
-    }
+    newSet.has(originalIndex) ? newSet.delete(originalIndex) : newSet.add(originalIndex);
     setSelectedAppIndices(newSet);
-    recomputeAllGroups(selectedCsvIndices, newSet);
+    recomputeGroups(selectedCsvIndices, newSet);
   };
 
   // --- 線の描画（matchGroupsのみ。手動の全対全はやらない）---
