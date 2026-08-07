@@ -8,7 +8,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'GEMINI_API_KEY が設定されていません。' }, { status: 400 });
     }
     
-    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth } = await req.json();
+    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth, historicalDataText } = await req.json();
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -28,6 +28,8 @@ export async function POST(req: Request) {
 【カテゴリ別支出内訳】
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
 
+${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分析用）】\n${historicalDataText}\n\n上記を踏まえ、過去の平均的な支出や季節的な傾向と比較して、この月（${month}）がどうだったかを必ず言及してください。` : ''}
+
 上記を踏まえ、
 1. 支出の主要な要因（どの項目が圧迫しているか、など）
 2. 今後同じような月があった場合に気をつけるべき改善アクション
@@ -45,6 +47,8 @@ ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget ||
 
 【カテゴリ別支出内訳】
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
+
+${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分析用）】\n${historicalDataText}\n\n上記を踏まえ、過去の平均的な支出や傾向と比較して、今月（${month}）のペースがどうなのか（いつもより使いすぎているか等）を必ず言及してください。` : ''}
 
 上記を踏まえ、
 1. 現状のペースに対する評価
