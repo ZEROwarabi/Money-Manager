@@ -5,8 +5,7 @@ import { formatCurrency } from '../../lib/format';
 const COLORS = ['#7dd3fc', '#38bdf8', '#86efac', '#34d399', '#f9a8d4', '#f472b6', '#a78bfa', '#c084fc'];
 
 interface ExpensePieChartProps {
-  pieChartMonth: string;
-  setPieChartMonth: (m: string) => void;
+  selectedMonth: string;
   currentRealMonth: string;
   generatedPieData: any[];
   visibleExpenseData: any[];
@@ -16,8 +15,7 @@ interface ExpensePieChartProps {
 }
 
 export const ExpensePieChart = React.memo(({
-  pieChartMonth,
-  setPieChartMonth,
+  selectedMonth,
   currentRealMonth,
   generatedPieData,
   visibleExpenseData,
@@ -28,15 +26,12 @@ export const ExpensePieChart = React.memo(({
   return (
     <div className="glass-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 className="chart-title" style={{ margin: 0 }}>支出の割合（カテゴリ別）</h2>
-        <select 
-          value={pieChartMonth} 
-          onChange={(e) => setPieChartMonth(e.target.value)}
-          style={{ padding: '0.3rem 0.5rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'white' }}
-        >
-          <option value="current">今月 ({currentRealMonth})</option>
-          <option value="all">全期間</option>
-        </select>
+        <h2 className="chart-title" style={{ margin: 0 }}>
+          支出の割合（カテゴリ別）
+          {selectedMonth && <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
+            ※{selectedMonth === currentRealMonth ? '今月' : selectedMonth}のデータ
+          </span>}
+        </h2>
       </div>
       <div style={{ width: '100%', height: 350 }}>
         {generatedPieData.length > 0 ? (

@@ -67,8 +67,20 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h2 className="chart-title">支出を入力</h2>
+        <h2 className="chart-title">収支を入力</h2>
         <form onSubmit={handleAddExpense} className="form-container">
+          <label>
+            処理タイプ (入金・支出の種類)
+            <select value={expenseForm.recordType} onChange={e => setExpenseForm({...expenseForm, recordType: e.target.value})} required>
+              <option value="expense_normal">通常支出</option>
+              <option value="trip_sandbox">🎒 旅行・イベント一時プール（隔離保留）</option>
+              <option value="advance_payment">🤝 友人の立替（予算から除外）</option>
+              <option value="refund">↩️ 返金・キャンセル（予算復活）</option>
+              <option value="income_allowance">💰 入金（仕送り）</option>
+              <option value="income_special">💰 入金（特別資産・大型送金）</option>
+              <option value="advance_recovery">🤝 入金（立替の回収・清算）</option>
+            </select>
+          </label>
           <label>
             日付
             <input 
@@ -101,18 +113,6 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 <button type="button" onClick={() => setIsNewCategory(false)} className="action-button secondary" style={{ padding: '0.5rem', marginTop: '0.5rem' }}>戻す</button>
               </div>
             )}
-          </label>
-          <label>
-            処理タイプ (スマートエッジケース)
-            <select value={expenseForm.recordType} onChange={e => setExpenseForm({...expenseForm, recordType: e.target.value})} required>
-              <option value="expense_normal">通常支出</option>
-              <option value="trip_sandbox">🎒 旅行・イベント一時プール（隔離保留）</option>
-              <option value="advance_payment">🤝 友人の立替（予算から除外）</option>
-              <option value="refund">↩️ 返金・キャンセル（予算復活）</option>
-              <option value="income_allowance">💰 入金（仕送り）</option>
-              <option value="income_special">💰 入金（特別資産・大型送金）</option>
-              <option value="advance_recovery">🤝 入金（立替の回収・清算）</option>
-            </select>
           </label>
           <label>
             メモ / 品名

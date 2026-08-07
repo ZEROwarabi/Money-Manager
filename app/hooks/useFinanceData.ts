@@ -9,12 +9,12 @@ export const useFinanceData = () => {
   const [localWishlist, setLocalWishlist] = useState<WishlistItem[]>([]);
   const [ignoredBudgetCategories, setIgnoredBudgetCategories] = useState<string[]>([]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (targetMonth?: string) => {
     setLoading(true);
     try {
       const timestamp = new Date().getTime();
       const clientDate = new Date();
-      const clientMonth = `${clientDate.getFullYear()}-${String(clientDate.getMonth() + 1).padStart(2, '0')}`;
+      const clientMonth = targetMonth || `${clientDate.getFullYear()}-${String(clientDate.getMonth() + 1).padStart(2, '0')}`;
       const res = await fetch(`/api/finance?t=${timestamp}&clientMonth=${clientMonth}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('API Request Failed');
       const json = await res.json();

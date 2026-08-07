@@ -129,12 +129,8 @@ function DashboardContent() {
   
   // Monthly Settings State
   const [currentRealMonth, setCurrentRealMonth] = useState(''); // e.g. "2026-07"
-  
-  
-  // Temp state for the fixed expenses modal (editing all months)
-    
-  // Pie Chart Filter State
-  const [pieChartMonth, setPieChartMonth] = useState('current'); // 'current' or 'all'
+  const [selectedMonth, setSelectedMonth] = useState(''); // User selected month for dashboard view
+  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
 
   // Wishlist State
   
@@ -170,7 +166,15 @@ function DashboardContent() {
     if (data?.expenseData && data.expenseData.length > 0 && !expenseForm.category) {
       setExpenseForm(prev => ({ ...prev, category: data.expenseData![0].name }));
     }
-  }, [data?.expenseData, expenseForm.category]);
+
+    if (data?.monthlyData) {
+      const months = data.monthlyData.map((d: any) => d.name);
+      if (currentRealMonth && !months.includes(currentRealMonth)) {
+        months.push(currentRealMonth);
+      }
+      setAvailableMonths(Array.from(new Set(months)).sort().reverse());
+    }
+  }, [data?.expenseData, data?.monthlyData, expenseForm.category, currentRealMonth]);
 ;
 
   useEffect(() => {
@@ -186,9 +190,16 @@ function DashboardContent() {
     
     setExpenseForm(prev => ({ ...prev, date: todayStr }));
     setCurrentRealMonth(monthStr);
+    setSelectedMonth(monthStr);
     
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (mounted && selectedMonth) {
+      fetchData(selectedMonth);
+    }
+  }, [selectedMonth, mounted, fetchData]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -449,7 +460,7 @@ ${futureSettings}
   const formatCurrency = (val: number) => loading ? '---' : `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   // --- Dynamic Pie Chart Data Calculation ---
-  const targetMonth = pieChartMonth === 'current' ? currentRealMonth : null;
+  const targetMonth = selectedMonth;
   const { generatedPieData, uniqueCategories } = React.useMemo(() => {
     const pieExpensesByCategory: Record<string, number> = {};
     if (data?.records) {
@@ -518,8 +529,29 @@ ${futureSettings}
   return (
     <div className="dashboard-container">
       <header style={{ marginBottom: '2rem' }}>
-        <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
-          <h1 className="header-title" style={{ margin: 0, flex: '1 1 auto', wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', minWidth: 0, fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
+        <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
+            <h1 className="header-title" style={{ margin: 0, wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              style={{
+                padding: '0.4rem 1rem',
+                borderRadius: '8px',
+                border: '1px solid var(--accent-color)',
+                background: 'rgba(255,255,255,0.8)',
+                color: 'var(--accent-color)',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="">全期間表示 (All)</option>
+              {availableMonths.map(m => (
+                <option key={m} value={m}>{m} {m === currentRealMonth ? '(今月)' : ''}</option>
+              ))}
+            </select>
+          </div>
           <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
             <button className="action-button" onClick={() => setShowExpenseModal(true)} style={{ padding: '0.5rem 0.8rem', fontSize: '0.85rem', whiteSpace: 'nowrap', background: '#bae6fd', color: '#0369a1', border: '1px solid #7dd3fc' }}>
               ＋ 支出を追加
@@ -534,7 +566,7 @@ ${futureSettings}
         </div>
         <p className="header-subtitle" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
           あなたのお金の動き, もっと直感的に。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.8</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.9</span>
         </p>
       </header>
 
@@ -962,8 +994,7 @@ ${futureSettings}
 
       <section className="charts-grid" style={{ marginTop: '2rem' }}>
         <ExpensePieChart
-          pieChartMonth={pieChartMonth}
-          setPieChartMonth={setPieChartMonth}
+          selectedMonth={selectedMonth}
           currentRealMonth={currentRealMonth}
           generatedPieData={generatedPieData}
           visibleExpenseData={visibleExpenseData}
@@ -1020,7 +1051,7 @@ ${futureSettings}
             onClick={() => setShowAnalysisReport(true)}
             style={{ fontSize: '1rem', padding: '0.6rem 1.5rem', fontWeight: 'bold' }}
           >
-            📊 今月の家計を分析する
+            📊 家計を分析する
           </button>
         </section>
       ) : (
@@ -1028,6 +1059,10 @@ ${futureSettings}
           variableCategories={variableCategories} 
           variableFreeMoney={variableFreeMoney} 
           savingsTotal={savingsAccount?.total || 0}
+          selectedMonth={selectedMonth}
+          currentRealMonth={currentRealMonth}
+          totalVariableBudget={variableCategories.reduce((sum, c) => sum + (c.budget || 0), 0)}
+          totalVariableSpent={variableCategories.reduce((sum, c) => sum + (c.spent || 0), 0)}
           onClose={() => setShowAnalysisReport(false)}
         />
       )}
