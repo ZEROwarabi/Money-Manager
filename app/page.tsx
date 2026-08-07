@@ -374,8 +374,9 @@ function DashboardContent() {
         const monthlyHist: Record<string, Record<string, number>> = {};
         data.records.forEach((r: Transaction) => {
           if (r.month <= selectedMonth && r.expense > 0 && r.category) {
-            // Include normal expenses to understand trends
-            if (r.recordType === 'expense_normal' || r.recordType === 'advance_recovery') {
+            // Exclude ignored categories and fixed/necessary expenses from the variable expense history
+            const isIgnored = ignoredBudgetCategories.includes(r.category) || r.category.includes('固定') || r.category.includes('必要経費');
+            if (!isIgnored && (r.recordType === 'expense_normal' || r.recordType === 'advance_recovery')) {
               if (!monthlyHist[r.month]) monthlyHist[r.month] = {};
               monthlyHist[r.month][r.category] = (monthlyHist[r.month][r.category] || 0) + r.expense;
             }
