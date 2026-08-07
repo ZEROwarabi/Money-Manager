@@ -25,16 +25,31 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
   const containerRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<{ x1: number, y1: number, x2: number, y2: number, color: string }[]>([]);
 
-  const autoReconcileBtn = () => {
-    const unreconciledAppRecords = (data?.records || [])
+  const autoReconcileBtn = React.useCallback(() => {
+    if (!data?.records || data.records.length === 0 || csvRecords.length === 0) return;
+    
+    const unreconciledAppRecords = data.records
       .map((r, i) => ({ ...r, originalIndex: i }))
       .filter((r) => !r.reconciled && (r.expense > 0 || r.income > 0));
       
     const res = autoReconcile(csvRecords, unreconciledAppRecords);
+    // 既存の選択状態を上書きするのではなく、マージするか上書きするか…
+    // マウント時のみ実行されるなら上書きでOK
     setSelectedCsvIndices(res.matchedBankIndices);
     setSelectedAppIndices(res.matchedAppIndices);
     setMatchGroups(res.matchGroups);
-  };
+  }, [csvRecords, data?.records]);
+
+  // マウント時に自動で1回だけ照合エンジンを走らせる
+  React.useEffect(() => {
+    const hasRun = containerRef.current?.getAttribute('data-auto-run');
+    if (!hasRun && data?.records && data.records.length > 0 && csvRecords.length > 0) {
+      autoReconcileBtn();
+      if (containerRef.current) {
+        containerRef.current.setAttribute('data-auto-run', 'true');
+      }
+    }
+  }, [autoReconcileBtn, data?.records, csvRecords]);
 
   const updateLines = () => {
     if (!containerRef.current) return;
@@ -54,8 +69,6 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
           if (!rightRow) return;
           const rightRect = rightRow.getBoundingClientRect();
           
-          // Only draw if both are somewhat visible vertically inside their containers
-          // (Actually it's fine to draw them out of bounds, the SVG container will clip them if needed, or we just let them overflow)
           const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
           const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
           const x1 = leftRect.right - containerRect.left;
@@ -65,6 +78,33 @@ export const CsvReconcileModal: React.FC<CsvReconcileModalProps> = ({ onClose, c
         });
       });
     });
+
+    // 手動で選択されたアイテム（どのmatchGroupにも属していないもの）同士も線で結ぶ
+    const manualBankIndices = Array.from(selectedCsvIndices).filter(i => !matchGroups.some(g => g.bankIndices.includes(i)));
+    const manualAppIndices = Array.from(selectedAppIndices).filter(i => !matchGroups.some(g => g.appIndices.includes(i)));
+    
+    if (manualBankIndices.length > 0 && manualAppIndices.length > 0) {
+      const color = '#6366f1'; // インディゴ（手動選択のデフォルト色）
+      manualBankIndices.forEach(bIdx => {
+        const leftRow = containerRef.current?.querySelector(`tr[data-csv-index="${bIdx}"]`);
+        if (!leftRow) return;
+        const leftRect = leftRow.getBoundingClientRect();
+        
+        manualAppIndices.forEach(aIdx => {
+          const rightRow = containerRef.current?.querySelector(`tr[data-app-index="${aIdx}"]`);
+          if (!rightRow) return;
+          const rightRect = rightRow.getBoundingClientRect();
+          
+          const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
+          const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
+          const x1 = leftRect.right - containerRect.left;
+          const x2 = rightRect.left - containerRect.left;
+          
+          newLines.push({ x1, y1, x2, y2, color });
+        });
+      });
+    }
+
     setLines(newLines);
   };
 
