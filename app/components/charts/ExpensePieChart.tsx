@@ -81,23 +81,23 @@ export const ExpensePieChart = React.memo(({
             style={{ 
               fontSize: '0.95rem', 
               padding: '0.6rem 1.5rem', 
-              background: '#fdf4ff', 
-              border: '1px solid #fbcfe8', 
-              color: '#db2777', 
+              background: '#faf5ff', 
+              border: '1px solid #e9d5ff', 
+              color: '#9333ea', 
               borderRadius: '25px', 
               cursor: 'pointer', 
               fontWeight: 'bold', 
               display: 'inline-flex', 
               alignItems: 'center', 
               gap: '8px',
-              boxShadow: '0 2px 4px rgba(244, 114, 182, 0.1)',
+              boxShadow: '0 2px 4px rgba(168, 85, 247, 0.1)',
               transition: 'all 0.2s ease'
             }}
             onMouseOver={(e) => {
-              if (!isDeepAnalyzing) e.currentTarget.style.background = '#fce7f3';
+              if (!isDeepAnalyzing) e.currentTarget.style.background = '#f3e8ff';
             }}
             onMouseOut={(e) => {
-              if (!isDeepAnalyzing) e.currentTarget.style.background = '#fdf4ff';
+              if (!isDeepAnalyzing) e.currentTarget.style.background = '#faf5ff';
             }}
           >
             <span>✨</span>

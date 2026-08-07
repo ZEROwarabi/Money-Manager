@@ -1060,9 +1060,9 @@ ${futureSettings}
 
       {deepAnalysis && (
         <section style={{ marginBottom: '1.5rem', animation: 'fadeIn 0.3s ease' }}>
-          <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: '1px solid #fbcfe8', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+          <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.9)', borderRadius: '12px', border: '1px solid #e9d5ff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: '#ec4899', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem' }}>
+              <h3 style={{ color: '#9333ea', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem' }}>
                 <span>✨</span> 専属プランナーのディープインサイト ({selectedMonth})
               </h3>
               <button 
