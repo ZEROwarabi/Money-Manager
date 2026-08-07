@@ -197,11 +197,7 @@ function DashboardContent() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (mounted && selectedMonth) {
-      fetchData(selectedMonth);
-    }
-  }, [selectedMonth, mounted, fetchData]);
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -345,8 +341,32 @@ function DashboardContent() {
     setIsDeepAnalyzing(true);
     try {
       const isPastMonth = selectedMonth < currentRealMonth;
-      const totalVarBudget = categoryBudgets.filter(c => !(c.name||'').includes('固定')).reduce((acc, c) => acc + (c.budget || 0), 0);
-      const totalVarSpent = categoryBudgets.filter(c => !(c.name||'').includes('固定')).reduce((acc, c) => acc + (c.spent || 0), 0);
+      const targetSettings = data?.monthlySettings?.[selectedMonth] || { fixedExpenses: [] };
+      
+      const aiExpenses = targetSettings.fixedExpenses
+        .filter((f: any) => !ignoredBudgetCategories.includes(f.name) && !f.name.includes('固定') && !f.name.includes('必要経費'))
+        .map((f: any) => {
+          const pieCat = generatedPieData.find((p: any) => p.name === f.name);
+          return {
+            category: f.name,
+            spent: pieCat ? pieCat.value : 0,
+            budget: parseFloat(String(f.amount)) || 0
+          };
+        });
+
+      generatedPieData.forEach((p: any) => {
+        if (!aiExpenses.find((e: any) => e.category === p.name) && !ignoredBudgetCategories.includes(p.name) && !p.name.includes('固定') && !p.name.includes('必要経費')) {
+          aiExpenses.push({
+            category: p.name,
+            spent: p.value,
+            budget: 0
+          });
+        }
+      });
+
+      const aiTotalVarBudget = aiExpenses.reduce((acc: number, c: any) => acc + c.budget, 0);
+      const aiTotalVarSpent = aiExpenses.reduce((acc: number, c: any) => acc + c.spent, 0);
+      const aiFreeMoney = aiTotalVarBudget - aiTotalVarSpent;
       
       // Generate historical data text for the AI
       let historicalDataText = '';
@@ -378,10 +398,10 @@ function DashboardContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           month: selectedMonth,
-          expenses: variableCategories.map((c: any) => ({ category: c.name || c.category, spent: c.spent || 0, budget: c.budget || 0 })),
-          budget: totalVarBudget,
-          freeMoney: variableFreeMoney,
-          totalSpent: totalVarSpent,
+          expenses: aiExpenses,
+          budget: aiTotalVarBudget,
+          freeMoney: aiFreeMoney,
+          totalSpent: aiTotalVarSpent,
           isPastMonth,
           historicalDataText
         })
@@ -571,7 +591,7 @@ ${futureSettings}
   const variableCategories = categoryBudgets.filter((c: CategoryBudget) => !(c.name || '').includes('必要経費') && !(c.name || '').includes('固定費'));
   const variableFreeMoney = variableCategories.reduce((sum: number, c: CategoryBudget) => sum + (c.remaining || 0), 0);
 
-  // Calculate Last Month's Data
+  // Calculate Target Review Month Data
   const todayForLastMonth = new Date();
   let lastM = todayForLastMonth.getMonth(); // 0-11
   let lastY = todayForLastMonth.getFullYear();
@@ -580,10 +600,13 @@ ${futureSettings}
     lastY -= 1;
   }
   const lastMonthStr = `${lastY}-${String(lastM).padStart(2, '0')}`;
-  const lastMonthData = monthlyData?.find((d: MonthlyData) => d.name === lastMonthStr);
-  const lastMonthSpent = lastMonthData ? (lastMonthData['支出'] || 0) : 0;
-  const lastMonthSettings = data?.monthlySettings?.[lastMonthStr] || { fixedExpenses: [] };
-  const lastMonthBudget = lastMonthSettings.fixedExpenses?.reduce((sum: number, f: FixedExpense) => sum + (parseFloat(String(f.amount)) || 0), 0) || 0;
+  
+  const targetReviewMonth = (selectedMonth && selectedMonth !== currentRealMonth) ? selectedMonth : lastMonthStr;
+  
+  const targetReviewData = monthlyData?.find((d: MonthlyData) => d.name === targetReviewMonth);
+  const targetReviewSpent = targetReviewData ? (targetReviewData['支出'] || 0) : 0;
+  const targetReviewSettings = data?.monthlySettings?.[targetReviewMonth] || { fixedExpenses: [] };
+  const targetReviewBudget = targetReviewSettings.fixedExpenses?.reduce((sum: number, f: FixedExpense) => sum + (parseFloat(String(f.amount)) || 0), 0) || 0;
 
   return (
     <div className="dashboard-container">
@@ -1085,16 +1108,16 @@ ${futureSettings}
           onMonthClick={(month) => setSelectedMonth(month)}
         />
       <div className="glass-card">
-        <h2 className="chart-title">先月の振り返り ({lastMonthStr})</h2>
+        <h2 className="chart-title">{targetReviewMonth === lastMonthStr ? '先月の振り返り' : `${targetReviewMonth} の振り返り`} ({targetReviewMonth})</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-secondary)' }}>設定した全体予算</span>
-            <span style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{formatCurrency(lastMonthBudget)}</span>
+            <span style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{formatCurrency(targetReviewBudget)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--text-secondary)' }}>実際の支出</span>
-            <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
-              {formatCurrency(lastMonthSpent)}
+            <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: targetReviewSpent > targetReviewBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
+              {formatCurrency(targetReviewSpent)}
             </span>
           </div>
           
@@ -1102,19 +1125,19 @@ ${futureSettings}
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 'bold' }}>予算達成状況</span>
-              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: lastMonthSpent > lastMonthBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
-                {lastMonthSpent > lastMonthBudget 
-                  ? `-$${(lastMonthSpent - lastMonthBudget).toFixed(2)} (オーバー)` 
-                  : `+$${(lastMonthBudget - lastMonthSpent).toFixed(2)} (黒字)`}
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: targetReviewSpent > targetReviewBudget ? 'var(--warning-color)' : 'var(--success-color)' }}>
+                {targetReviewSpent > targetReviewBudget 
+                  ? `-$${(targetReviewSpent - targetReviewBudget).toFixed(2)} (オーバー)` 
+                  : `+$${(targetReviewBudget - targetReviewSpent).toFixed(2)} (黒字)`}
               </span>
             </div>
             
             <div style={{ marginTop: '10px', fontSize: '0.95rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.4)', padding: '15px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
-              {lastMonthSpent === 0 
-                ? "先月のデータがまだありません。支出を記録しましょう！"
-                : lastMonthSpent > lastMonthBudget 
+              {targetReviewSpent === 0 
+                ? `${targetReviewMonth}のデータがまだありません。支出を記録しましょう！`
+                : targetReviewSpent > targetReviewBudget 
                   ? "予算をオーバーしてしまいました。今月は少し節約を意識して、予算内に収まるよう頑張りましょう！" 
-                  : "素晴らしい！予算内にしっかり収まりました。この調子で今月も計画的に管理していきましょう！✨"}
+                  : "素晴らしい！予算内にしっかり収まりました。この調子で計画的に管理していきましょう！✨"}
             </div>
           </div>
         </div>
