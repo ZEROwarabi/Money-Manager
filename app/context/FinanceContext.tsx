@@ -5,7 +5,7 @@ import { useFinanceData } from '../hooks/useFinanceData';
 
 type FinanceDataContextType = ReturnType<typeof useFinanceData>;
 
-const FinanceDataContext = createContext<FinanceDataContextType | undefined>(undefined);
+export const FinanceDataContext = createContext<FinanceDataContextType | undefined>(undefined);
 
 export function FinanceDataProvider({ children }: { children: ReactNode }) {
   const financeData = useFinanceData();
