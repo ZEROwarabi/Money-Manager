@@ -721,7 +721,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.40</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.41</span>
         </p>
       </header>
 
@@ -851,7 +851,8 @@ ${futureSettings}
             const wishProgress = isBudgetActive && cat.budget > 0 ? (wishlistForCat / cat.budget) * 100 : 0;
             
             const barColor = isBudgetActive ? (usedProgress > 100 ? '#ef4444' : usedProgress > 80 ? '#f59e0b' : 'var(--success-color)') : '#cbd5e1';
-            const totalSimulatedProgress = usedProgress + wishProgress;
+            const coverProgress = isBudgetActive && cat.budget > 0 && cat.name === '娯楽費' ? (entertainmentCovered / cat.budget) * 100 : 0;
+            const totalSimulatedProgress = usedProgress + wishProgress + coverProgress;
             
             return (
               <div key={cat.name} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
@@ -907,6 +908,15 @@ ${futureSettings}
                       background: wishlistForCat > realRemaining ? '#fbcfe8' : '#fcd34d',
                       opacity: 0.9,
                       width: `${Math.min(wishProgress, 100 - Math.min(usedProgress, 100))}%`,
+                      transition: 'width 0.3s ease'
+                    }}></div>
+                  )}
+                  {coverProgress > 0 && (
+                    <div style={{
+                      height: '100%',
+                      background: '#fdba74',
+                      opacity: 0.9,
+                      width: `${Math.min(coverProgress, 100 - Math.min(usedProgress + wishProgress, 100))}%`,
                       transition: 'width 0.3s ease'
                     }}></div>
                   )}
