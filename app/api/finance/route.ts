@@ -303,7 +303,11 @@ export async function GET(req: Request) {
                  currentRollover = remaining;
               }
            } else {
-              currentRollover = rule.isRolloverEnabled ? remaining : 0;
+              if (month <= '2026-07') {
+                 currentRollover = 0; // Ignore deficits for July and earlier
+              } else {
+                 currentRollover = rule.isRolloverEnabled ? remaining : 0;
+              }
            }
         }
       });
