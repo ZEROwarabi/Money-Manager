@@ -33,12 +33,20 @@ export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, monthlySe
 
   return (
     <div className="glass-card">
-      <h2 className="chart-title">
-        月別推移 
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
-          ※グラフをクリックして月を切り替え
-        </span>
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 className="chart-title" style={{ margin: 0 }}>
+          月別推移 
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
+            ※グラフをクリックして月を切り替え
+          </span>
+        </h2>
+        <button 
+          onClick={() => setHiddenBars({ '収入': true, 'ホームステイ等、必要経費': true })}
+          style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8fafc', cursor: 'pointer', color: 'var(--text-secondary)', fontWeight: 600 }}
+        >
+          🔄 デフォルト表示に戻す
+        </button>
+      </div>
       <div style={{ width: '100%', height: 400 }}>
         <ResponsiveContainer>
           <ComposedChart 
@@ -87,7 +95,7 @@ export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, monthlySe
             />
             <YAxis tick={{ fill: 'var(--text-secondary)' }} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
             <Tooltip formatter={(value: any, name: any) => [formatCurrency(value || 0), name === 'budgetLimit' ? '表示項目の合計予算' : name]} />
-            <Legend onClick={(e: any) => setHiddenBars(p => ({...p, [e.dataKey]: !p[e.dataKey]}))} wrapperStyle={{ cursor: 'pointer' }} verticalAlign="top" />
+            <Legend onClick={(e: any) => setHiddenBars(p => ({...p, [e.dataKey]: !p[e.dataKey]}))} wrapperStyle={{ cursor: 'pointer', paddingTop: '20px' }} verticalAlign="bottom" />
             <Bar dataKey="収入" hide={hiddenBars['収入']} fill="var(--success-color)" radius={[6, 6, 0, 0]} maxBarSize={50} />
             {expenseData.map((cat: any, i: number) => (
               <Bar 
