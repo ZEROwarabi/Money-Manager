@@ -300,47 +300,45 @@ body {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
   }
-  /* Header layout: Vertical (title top, buttons bottom) on mobile */
+  /* Header layout: side-by-side with small vertical buttons on mobile */
   .main-header {
     margin: -0.75rem -0.75rem 1rem -0.75rem;
     padding: 1rem 0.75rem 0.75rem 0.75rem;
   }
   .main-header.scrolled {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
     padding: 0.5rem 0.75rem;
+    pointer-events: none;
+  }
+  .main-header.scrolled * {
+    pointer-events: auto;
   }
   .header-row {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 12px !important;
-  }
-  .header-title {
-    font-size: 2.2rem;
-    text-align: center;
-  }
-  .header-buttons {
-    width: 100% !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
     gap: 8px !important;
   }
+  .header-title {
+    font-size: 1.8rem !important;
+    text-align: left !important;
+    line-height: 1.1 !important;
+    margin-top: 0.2rem !important;
+  }
+  .header-buttons {
+    width: auto !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 6px !important;
+  }
   .header-buttons .action-button {
-    padding: 0.5rem 0.6rem !important;
-    font-size: 0.85rem !important;
-  }
-  
-  /* When scrolled, buttons align horizontally across the top */
-  .main-header.scrolled .header-buttons {
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    gap: 4px !important;
-  }
-  .main-header.scrolled .header-buttons .action-button {
-    flex: 1;
-    padding: 0.4rem 0.2rem !important;
-    font-size: 0.7rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   /* Table: compact on mobile */
   .recent-table, .fixed-table {
