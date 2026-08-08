@@ -294,7 +294,7 @@ export async function GET(req: Request) {
         } else {
            let remaining = pool - spentAmount;
            if (remaining > 0) {
-              if (month <= '2026-07') {
+              if (month <= '2026-06') {
                  currentRollover = 0;
               } else if (!rule.isRolloverEnabled) {
                  if (rule.overflowAction === 'TRANSFER_TO_EVENT_FUND') {
@@ -305,8 +305,8 @@ export async function GET(req: Request) {
                  currentRollover = remaining;
               }
            } else {
-              if (month <= '2026-07') {
-                 currentRollover = 0; // Ignore deficits for July and earlier
+              if (month <= '2026-06') {
+                 currentRollover = 0; // Ignore deficits for June and earlier
               } else {
                  currentRollover = rule.isRolloverEnabled ? remaining : 0;
               }

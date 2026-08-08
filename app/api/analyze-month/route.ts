@@ -34,7 +34,6 @@ export async function POST(req: Request) {
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
 
 ${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分析用）】\n${historicalDataText}\n\n上記を踏まえ、過去の平均的な支出や季節的な傾向と比較して、この月（${month}）がどうだったかを必ず言及してください。` : ''}
-${wishlistText}
 
 上記を踏まえ、
 1. 支出の主要な要因（どの項目が圧迫しているか、など）
