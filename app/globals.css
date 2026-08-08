@@ -265,16 +265,22 @@ body {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
   }
-  /* Header layout: stack vertically on mobile */
+  /* Header layout: side-by-side with small vertical buttons on mobile */
   .header-row {
-    flex-direction: column !important;
-    align-items: flex-start !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 8px !important;
   }
   .header-buttons {
-    width: 100%;
+    width: auto !important;
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: flex-end !important;
+    gap: 4px !important;
+  }
+  .header-buttons .action-button {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.7rem !important;
   }
   /* Table: compact on mobile */
   .recent-table, .fixed-table {
