@@ -86,6 +86,26 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
     setTempSettings(clone);
   };
 
+  const addPrevMonthToTemp = () => {
+    const months = Object.keys(tempSettings).sort();
+    const earliestMonth = months[0] || currentRealMonth;
+    const parts = earliestMonth.split('-');
+    let year = parseInt(parts[0]);
+    let month = parseInt(parts[1]);
+    month -= 1;
+    if (month < 1) {
+      month = 12;
+      year -= 1;
+    }
+    const prevMonthStr = `${year}-${String(month).padStart(2, '0')}`;
+    
+    const clone = { ...tempSettings };
+    // Use current month's settings as default for past months, as requested
+    const referenceSettings = clone[currentRealMonth] || clone[earliestMonth];
+    clone[prevMonthStr] = JSON.parse(JSON.stringify(referenceSettings));
+    setTempSettings(clone);
+  };
+
   const handleSaveAllMonthlySettings = async () => {
     try {
       for (const month of Object.keys(tempSettings)) {
@@ -223,7 +243,8 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
         </div>
         
         <div style={{ marginTop: '1rem', display: 'flex', gap: '10px' }}>
-          <button type="button" className="action-button secondary" onClick={addNextMonthToTemp} style={{ flex: 1 }}>+ 次の月を追加設定する</button>
+          <button type="button" className="action-button secondary" onClick={addPrevMonthToTemp} style={{ flex: 1 }}>- 過去の月を追加する</button>
+          <button type="button" className="action-button secondary" onClick={addNextMonthToTemp} style={{ flex: 1 }}>+ 次の月を追加する</button>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '2rem' }}>
