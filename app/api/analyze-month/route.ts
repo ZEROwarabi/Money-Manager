@@ -8,12 +8,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'GEMINI_API_KEY が設定されていません。' }, { status: 400 });
     }
     
-    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth, historicalDataText, daysPassed, totalDays, activeWishlist } = await req.json();
+    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth, historicalDataText, daysPassed, totalDays, activeWishlist, detailedRecords } = await req.json();
 
     const ai = new GoogleGenAI({ apiKey });
 
     const wishlistText = activeWishlist && activeWishlist.length > 0
       ? `\n【現在購入を検討しているアイテム（使用検討中）】\n${activeWishlist.map((w: any) => `- ${w.name}: $${w.amount} (${w.category})`).join('\n')}\n\n※ユーザーは上記のアイテムを購入するか迷っています。全体の余裕資金や、これまでの支出ペースを踏まえて、「今月これらを買っても問題ないか、あるいは見送るべきか（または来月に回すべきか）」の客観的でプロフェッショナルな判断・アドバイスを必ず含めてください。`
+      : '';
+
+    const detailedRecordsText = detailedRecords && detailedRecords.length > 0
+      ? `\n【対象月の具体的な購入明細（トランザクション）】\n${detailedRecords.map((r: any) => `- ${r.date} [${r.category}] ${r.description}: $${r.expense}`).join('\n')}\n\n※上記の明細を見て、「どの具体的な購入品が支出を圧迫している要因か」「見直すべき無駄遣いはないか」などを具体的に分析に含めてください。`
       : '';
 
     let promptText = '';
@@ -32,6 +36,7 @@ export async function POST(req: Request) {
 
 【カテゴリ別支出内訳】
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
+${detailedRecordsText}
 
 ${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分析用）】\n${historicalDataText}\n\n上記を踏まえ、過去の平均的な支出や季節的な傾向と比較して、この月（${month}）がどうだったかを必ず言及してください。` : ''}
 
@@ -53,6 +58,7 @@ ${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分�
 
 【カテゴリ別支出内訳】
 ${expenses.map((e: any) => `- ${e.category}: $${e.spent} (予算: $${e.budget || 0})`).join('\n')}
+${detailedRecordsText}
 
 ${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分析用）】\n${historicalDataText}\n\n上記を踏まえ、過去の平均的な支出や傾向と比較して、今月（${month}）のペースがどうなのか（いつもより使いすぎているか等）を必ず言及してください。` : ''}
 ${wishlistText}

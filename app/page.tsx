@@ -408,6 +408,19 @@ function DashboardContent() {
 
       const activeWishlist = localWishlist.filter(w => w.isApplied);
 
+      const detailedRecords = data?.records?.filter((r: Transaction) => 
+        r.month === selectedMonth && 
+        r.expense > 0 && 
+        !ignoredBudgetCategories.includes(r.category) && 
+        !r.category.includes('固定') && 
+        !r.category.includes('必要経費')
+      ).map((r: Transaction) => ({
+        date: r.date,
+        category: r.category,
+        description: r.description,
+        expense: r.expense
+      })) || [];
+
       const res = await fetch('/api/analyze-month', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -421,7 +434,8 @@ function DashboardContent() {
           historicalDataText,
           daysPassed,
           totalDays,
-          activeWishlist
+          activeWishlist,
+          detailedRecords
         })
       });
       const resData = await res.json();
@@ -674,7 +688,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.34</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.35</span>
         </p>
       </header>
 
