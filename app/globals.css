@@ -323,8 +323,11 @@ body {
     justify-content: space-between !important;
     gap: 8px !important;
   }
+  .header-subtitle {
+    display: none !important;
+  }
   .header-title {
-    font-size: 1.8rem !important;
+    font-size: 1.6rem !important;
     text-align: left !important;
     line-height: 1.1 !important;
     margin-top: 0.2rem !important;
@@ -332,7 +335,7 @@ body {
   .header-buttons {
     width: auto !important;
     flex-direction: column !important;
-    align-items: flex-end !important;
+    align-items: stretch !important;
     gap: 6px !important;
   }
   .header-buttons .action-button {
