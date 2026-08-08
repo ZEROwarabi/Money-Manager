@@ -619,7 +619,7 @@ ${futureSettings}
         backdropFilter: 'blur(12px)', 
         WebkitBackdropFilter: 'blur(12px)',
         margin: '-2rem -2rem 2rem -2rem',
-        padding: '1.5rem 2rem 1rem 2rem',
+        padding: '2rem 2rem 1rem 2rem',
         borderBottom: '1px solid rgba(255,255,255,0.3)',
         boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
       }}>
