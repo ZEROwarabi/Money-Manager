@@ -603,6 +603,20 @@ ${futureSettings}
   const eventWishlistDeductions = localWishlist.filter(w => w.isApplied && w.category === 'イベント準備金').reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
   const variableWishlistDeductions = localWishlist.filter(w => w.isApplied && w.category !== 'イベント準備金').reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
   
+  let wishlistOverflowAmount = 0;
+  categoryBudgets.forEach((cat: CategoryBudget) => {
+    if (cat.name === '特別体験・イベント費') return;
+    const wishlistForCat = localWishlist.filter(w => w.isApplied && w.category === cat.name).reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
+    const realRemaining = cat.remaining || 0;
+    if (wishlistForCat > 0) {
+      if (realRemaining >= 0 && wishlistForCat > realRemaining) {
+        wishlistOverflowAmount += (wishlistForCat - realRemaining);
+      } else if (realRemaining < 0) {
+        wishlistOverflowAmount += wishlistForCat;
+      }
+    }
+  });
+  
   const savingsAccount = accountBalances?.find((a: AccountBalance) => a.id === 'savings');
   const mainAccount = accountBalances?.find((a: AccountBalance) => a.id === 'main');
 
@@ -660,7 +674,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.33</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.34</span>
         </p>
       </header>
 
@@ -731,6 +745,15 @@ ${futureSettings}
                     イベント準備検討額: {formatCurrency(eventWishlistDeductions)}
                     <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
                       （検討額を引いた実質残り: {formatCurrency(totalBucket - eventWishlistDeductions)}）
+                    </div>
+                  </div>
+                )}
+
+                {wishlistOverflowAmount > 0 && (
+                  <div style={{ fontSize: '0.9rem', color: '#ec4899', marginTop: '10px', fontWeight: 'bold' }}>
+                    カテゴリ予算オーバー補填予測: -{formatCurrency(wishlistOverflowAmount)}
+                    <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
+                      （補填後の最終実質残り: {formatCurrency(totalBucket - eventWishlistDeductions - wishlistOverflowAmount)}）
                     </div>
                   </div>
                 )}
