@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ReferenceLine, Bar } from 'recharts';
+import React, { useState, useMemo } from 'react';
+import { ResponsiveContainer, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, Line } from 'recharts';
 import { formatCurrency } from '../../lib/format';
 
 const COLORS = ['#7dd3fc', '#38bdf8', '#86efac', '#34d399', '#f9a8d4', '#f472b6', '#a78bfa', '#c084fc'];
@@ -7,11 +7,29 @@ const COLORS = ['#7dd3fc', '#38bdf8', '#86efac', '#34d399', '#f9a8d4', '#f472b6'
 interface MonthlyBarChartProps {
   monthlyData: any[];
   expenseData: any[];
+  monthlySettings?: Record<string, any>;
   onMonthClick?: (month: string) => void;
 }
 
-export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, onMonthClick }: MonthlyBarChartProps) => {
+export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, monthlySettings, onMonthClick }: MonthlyBarChartProps) => {
   const [hiddenBars, setHiddenBars] = useState<Record<string, boolean>>({ '収入': true, 'ホームステイ等、必要経費': true });
+
+  const chartData = useMemo(() => {
+    return monthlyData.map(d => {
+      let budgetLimit = 0;
+      if (monthlySettings && monthlySettings[d.name]) {
+        monthlySettings[d.name].fixedExpenses.forEach((f: any) => {
+          if (!hiddenBars[f.name]) {
+            budgetLimit += (parseFloat(String(f.amount)) || 0);
+          }
+        });
+      }
+      return {
+        ...d,
+        budgetLimit: budgetLimit > 0 ? budgetLimit : null
+      };
+    });
+  }, [monthlyData, monthlySettings, hiddenBars]);
 
   return (
     <div className="glass-card">
@@ -23,10 +41,10 @@ export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, onMonthCl
       </h2>
       <div style={{ width: '100%', height: 400 }}>
         <ResponsiveContainer>
-          <BarChart 
-            data={monthlyData} 
+          <ComposedChart 
+            data={chartData} 
             margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
-            onClick={(e) => {
+            onClick={(e: any) => {
               if (e && e.activeLabel && onMonthClick) {
                 onMonthClick(String(e.activeLabel));
               }
@@ -68,9 +86,8 @@ export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, onMonthCl
               }}
             />
             <YAxis tick={{ fill: 'var(--text-secondary)' }} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-            <Tooltip formatter={(value: any) => formatCurrency(value || 0)} />
+            <Tooltip formatter={(value: any, name: any) => [formatCurrency(value || 0), name === 'budgetLimit' ? '表示項目の合計予算' : name]} />
             <Legend onClick={(e: any) => setHiddenBars(p => ({...p, [e.dataKey]: !p[e.dataKey]}))} wrapperStyle={{ cursor: 'pointer' }} verticalAlign="top" />
-            <ReferenceLine y={2000} stroke="#f97316" strokeDasharray="3 3" opacity={0.5} label={{ position: 'insideTopLeft', value: '全体予算 ($2000)', fill: '#f97316', fontSize: 12, opacity: 0.8 }} />
             <Bar dataKey="収入" hide={hiddenBars['収入']} fill="var(--success-color)" radius={[6, 6, 0, 0]} maxBarSize={50} />
             {expenseData.map((cat: any, i: number) => (
               <Bar 
@@ -82,7 +99,8 @@ export const MonthlyBarChart = React.memo(({ monthlyData, expenseData, onMonthCl
                 maxBarSize={50}
               />
             ))}
-          </BarChart>
+            <Line type="monotone" dataKey="budgetLimit" name="表示項目の合計予算" stroke="#f97316" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>
