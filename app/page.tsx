@@ -660,7 +660,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.29</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.30</span>
         </p>
       </header>
 
@@ -709,6 +709,15 @@ ${futureSettings}
                 <div className="stat-value" style={{ color: '#d97706' }}>{formatCurrency(totalBucket)}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '5px' }}>
                   ※目標積立 ＋ 節約トレードオフ報酬 ＋ 仕送り余白（余剰金）の全合流プール
+                  <br />
+                  <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                    （予算設定の最終月である <strong>{
+                      (() => {
+                        const configuredMonths = Object.keys(data?.monthlySettings || {}).sort();
+                        return configuredMonths.length > 0 ? configuredMonths[configuredMonths.length - 1] : currentRealMonth;
+                      })()
+                    }</strong> までに積み立つ予定の総額）
+                  </span>
                 </div>
                 
                 {eventBonus > 0 && (
