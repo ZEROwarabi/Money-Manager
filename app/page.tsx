@@ -623,8 +623,11 @@ ${futureSettings}
   const variableWishlistDeductions = localWishlist.filter(w => w.isApplied && w.category !== 'イベント準備金').reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
   
   let wishlistOverflowAmount = 0;
+  let entertainmentRemainingForCover = 0;
+  
   categoryBudgets.forEach((cat: CategoryBudget) => {
     if (cat.name === '特別体験・イベント費') return;
+    if (cat.name === '娯楽費') return; // Handled separately
     const wishlistForCat = localWishlist.filter(w => w.isApplied && w.category === cat.name).reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
     const realRemaining = cat.remaining || 0;
     if (wishlistForCat > 0) {
@@ -635,6 +638,31 @@ ${futureSettings}
       }
     }
   });
+
+  const entCat = categoryBudgets.find((c: CategoryBudget) => c.name === '娯楽費');
+  if (entCat) {
+    const entWishlist = localWishlist.filter(w => w.isApplied && w.category === '娯楽費').reduce((sum, w) => sum + parseFloat(String(w.amount || 0)), 0);
+    const entRealRemaining = entCat.remaining || 0;
+    
+    if (entWishlist > 0 && entRealRemaining >= 0 && entWishlist > entRealRemaining) {
+      wishlistOverflowAmount += (entWishlist - entRealRemaining);
+    } else if (entWishlist > 0 && entRealRemaining < 0) {
+      wishlistOverflowAmount += entWishlist;
+    } else {
+      entertainmentRemainingForCover = Math.max(0, entRealRemaining - entWishlist);
+    }
+  }
+
+  let entertainmentCovered = 0;
+  let eventFundCovered = 0;
+  if (wishlistOverflowAmount > 0) {
+    if (entertainmentRemainingForCover >= wishlistOverflowAmount) {
+      entertainmentCovered = wishlistOverflowAmount;
+    } else {
+      entertainmentCovered = entertainmentRemainingForCover;
+      eventFundCovered = wishlistOverflowAmount - entertainmentCovered;
+    }
+  }
   
   const savingsAccount = accountBalances?.find((a: AccountBalance) => a.id === 'savings');
   const mainAccount = accountBalances?.find((a: AccountBalance) => a.id === 'main');
@@ -693,7 +721,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.39</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.40</span>
         </p>
       </header>
 
@@ -768,11 +796,11 @@ ${futureSettings}
                   </div>
                 )}
 
-                {wishlistOverflowAmount > 0 && (
+                {eventFundCovered > 0 && (
                   <div style={{ fontSize: '0.9rem', color: '#ec4899', marginTop: '10px', fontWeight: 'bold' }}>
-                    カテゴリ予算オーバー補填予測: -{formatCurrency(wishlistOverflowAmount)}
+                    カテゴリ予算オーバー補填予測: -{formatCurrency(eventFundCovered)}
                     <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
-                      （補填後の最終実質残り: {formatCurrency(totalBucket - eventWishlistDeductions - wishlistOverflowAmount)}）
+                      （補填後の最終実質残り: {formatCurrency(totalBucket - eventWishlistDeductions - eventFundCovered)}）
                     </div>
                   </div>
                 )}
@@ -886,6 +914,14 @@ ${futureSettings}
                 {cat.futureReserved > 0 && (
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'right' }}>
                     ※来月以降のためのキープ額: {formatCurrency(cat.futureReserved)}
+                  </div>
+                )}
+                {cat.name === '娯楽費' && entertainmentCovered > 0 && (
+                  <div style={{ fontSize: '0.9rem', color: '#f97316', marginTop: '10px', fontWeight: 'bold' }}>
+                    他カテゴリの予算オーバー補填予測: -{formatCurrency(entertainmentCovered)}
+                    <div style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>
+                      （補填後の最終実質残り: {formatCurrency(Math.max(0, realRemaining - wishlistForCat - entertainmentCovered))}）
+                    </div>
                   </div>
                 )}
                 {cat.isCapped && cat.name === '環境・自己投資' && (

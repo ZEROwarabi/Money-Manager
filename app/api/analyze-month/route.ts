@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const ai = new GoogleGenAI({ apiKey });
 
     const wishlistText = activeWishlist && activeWishlist.length > 0
-      ? `\n【現在購入を検討しているアイテム（使用検討中）】\n${activeWishlist.map((w: any) => `- ${w.name}: $${w.amount} (${w.category})`).join('\n')}\n\n※ユーザーは上記のアイテムを購入するか迷っています。全体の余裕資金や、これまでの支出ペースを踏まえて、「今月これらを買っても問題ないか、あるいは見送るべきか（または来月に回すべきか）」の客観的でプロフェッショナルな判断・アドバイスを必ず含めてください。`
+      ? `\n【現在購入を検討しているアイテム（使用検討中）】\n${activeWishlist.map((w: any) => `- ${w.name}: $${w.amount} (${w.category})`).join('\n')}\n\n※ユーザーは上記のアイテムを購入するか迷っています。全体の余裕資金やこれまでの支出ペースを踏まえ、「今月これらを買っても問題ないか、見送るべきか」をアドバイスしてください。その際、以下のルールを前提としてください：\n・他カテゴリが予算オーバーしても、「娯楽費」の黒字で吸収できているうちは問題ありません。\n・ただし、娯楽費で吸収しきれず「特別体験・イベント準備金（将来の大きな体験のための貯金）」を取り崩すシミュレーションになっている場合は、その購入に対して警告や見直しの提案を行ってください。`
       : '';
 
     const detailedRecordsText = detailedRecords && detailedRecords.length > 0
