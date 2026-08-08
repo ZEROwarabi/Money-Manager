@@ -294,7 +294,9 @@ export async function GET(req: Request) {
         } else {
            let remaining = pool - spentAmount;
            if (remaining > 0) {
-              if (!rule.isRolloverEnabled) {
+              if (month <= '2026-07') {
+                 currentRollover = 0;
+              } else if (!rule.isRolloverEnabled) {
                  if (rule.overflowAction === 'TRANSFER_TO_EVENT_FUND') {
                     totalTransferredToEventFund += remaining;
                  }
