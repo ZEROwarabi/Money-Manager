@@ -300,7 +300,7 @@ body {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
   }
-  /* Header layout: side-by-side with small vertical buttons on mobile */
+  /* Header layout: Vertical (title top, buttons bottom) on mobile */
   .main-header {
     margin: -0.75rem -0.75rem 1rem -0.75rem;
     padding: 1rem 0.75rem 0.75rem 0.75rem;
@@ -309,20 +309,38 @@ body {
     padding: 0.5rem 0.75rem;
   }
   .header-row {
-    flex-direction: row !important;
+    flex-direction: column !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
+    gap: 12px !important;
+  }
+  .header-title {
+    font-size: 2.2rem;
+    text-align: center;
   }
   .header-buttons {
-    width: auto !important;
+    width: 100% !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 4px !important;
+    gap: 8px !important;
   }
   .header-buttons .action-button {
-    padding: 0.3rem 0.6rem !important;
+    padding: 0.5rem 0.6rem !important;
+    font-size: 0.85rem !important;
+  }
+  
+  /* When scrolled, buttons align horizontally across the top */
+  .main-header.scrolled .header-buttons {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+  }
+  .main-header.scrolled .header-buttons .action-button {
+    flex: 1;
+    padding: 0.4rem 0.2rem !important;
     font-size: 0.7rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   /* Table: compact on mobile */
   .recent-table, .fixed-table {
