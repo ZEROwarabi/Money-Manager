@@ -273,7 +273,8 @@ body {
   }
   .header-buttons {
     width: 100%;
-    justify-content: flex-start !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
   /* Table: compact on mobile */
   .recent-table, .fixed-table {
