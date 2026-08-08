@@ -162,6 +162,8 @@ function DashboardContent() {
   const [csvRecords, setCsvRecords] = useState<Transaction[]>([]);
   const [showCsvModal, setShowCsvModal] = useState(false);
       
+  const [isScrolled, setIsScrolled] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -195,6 +197,12 @@ function DashboardContent() {
     setSelectedMonth(monthStr);
     
     fetchData();
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 30);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -689,9 +697,9 @@ ${futureSettings}
 
   return (
     <div className="dashboard-container">
-      <header className="main-header">
+      <header className={`main-header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
+          <div className="header-title-container" style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: '1 1 auto', minWidth: 0 }}>
             <h1 className="header-title" style={{ margin: 0, wordBreak: 'break-word', lineHeight: 1.3, paddingBottom: '0.2em', fontFamily: 'var(--font-dancing-script), cursive', fontSize: '3rem', fontWeight: 700, letterSpacing: '1px' }}>Smart Money Manager</h1>
           </div>
           <div className="header-buttons" style={{ display: 'flex', gap: '6px', flexWrap: 'nowrap', flexShrink: 0 }}>
@@ -710,7 +718,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.45</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.46</span>
         </p>
       </header>
 

@@ -48,6 +48,28 @@ body {
   padding: 2rem 2rem 1rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: padding 0.3s ease, background 0.3s ease;
+}
+
+.main-header.scrolled {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background: rgba(224, 242, 254, 0.95);
+}
+
+.header-title-container, .header-subtitle {
+  transition: all 0.3s ease;
+  max-height: 200px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.main-header.scrolled .header-title-container,
+.main-header.scrolled .header-subtitle {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .glass-card {
@@ -282,6 +304,9 @@ body {
   .main-header {
     margin: -0.75rem -0.75rem 1rem -0.75rem;
     padding: 1rem 0.75rem 0.75rem 0.75rem;
+  }
+  .main-header.scrolled {
+    padding: 0.5rem 0.75rem;
   }
   .header-row {
     flex-direction: row !important;
