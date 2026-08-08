@@ -394,6 +394,18 @@ function DashboardContent() {
         }).join('\n\n');
       }
 
+      let daysPassed = 0;
+      let totalDays = 30;
+      try {
+        const [y, m] = selectedMonth.split('-').map(Number);
+        totalDays = new Date(y, m, 0).getDate();
+        if (isPastMonth) {
+          daysPassed = totalDays;
+        } else if (selectedMonth === currentRealMonth) {
+          daysPassed = new Date().getDate();
+        }
+      } catch (e) {}
+
       const res = await fetch('/api/analyze-month', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -404,7 +416,9 @@ function DashboardContent() {
           freeMoney: aiFreeMoney,
           totalSpent: aiTotalVarSpent,
           isPastMonth,
-          historicalDataText
+          historicalDataText,
+          daysPassed,
+          totalDays
         })
       });
       const resData = await res.json();

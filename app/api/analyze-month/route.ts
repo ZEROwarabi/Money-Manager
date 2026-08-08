@@ -8,7 +8,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'GEMINI_API_KEY が設定されていません。' }, { status: 400 });
     }
     
-    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth, historicalDataText } = await req.json();
+    const { month, expenses, budget, freeMoney, totalSpent, isPastMonth, historicalDataText, daysPassed, totalDays } = await req.json();
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
 今回は「なぜ支出が高くなったのか（あるいは抑えられたのか）」の要因分析と、次月以降への改善アクションに焦点を当ててください。
 
 【${month}の家計データ】
+・月の経過日数: ${daysPassed || 30}日 / ${totalDays || 30}日 (完了)
 ・全体の変動費予算: $${budget}
 ・実際の変動費支出: $${totalSpent}
 ・予算に対する結果: ${freeMoney > 0 ? `+$${freeMoney} (黒字)` : `-$${Math.abs(freeMoney)} (赤字)`}
@@ -41,6 +42,7 @@ ${historicalDataText ? `【全期間の過去支出履歴（比較・傾向分�
 今月（${month}）のここまでの家計簿データを分析し、以下の点について具体的なアドバイスを300〜500文字程度で提供してください。
 
 【今月の家計データ】
+・月の経過日数: ${daysPassed || 1}日 / ${totalDays || 30}日 (${Math.round(((daysPassed || 1) / (totalDays || 30)) * 100)}%経過)
 ・全体の変動費予算: $${budget}
 ・現在の変動費支出: $${totalSpent}
 ・現在の余裕資金: $${freeMoney}
