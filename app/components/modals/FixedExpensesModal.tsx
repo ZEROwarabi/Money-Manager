@@ -11,6 +11,7 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
     const { data, ignoredBudgetCategories, toggleIgnoredBudgetCategory: handleToggleIgnoredBudgetCategory, monthlySettings, fetchData } = useFinanceContext();
   const [tempSettings, setTempSettings] = useState<Record<string, MonthlySettings>>({});
   const [showCategorySettings, setShowCategorySettings] = useState(false);
+  const [showPastMonths, setShowPastMonths] = useState(false);
 
   useEffect(() => {
     if (!data?.monthlySettings) return;
@@ -134,7 +135,15 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
       <div className="modal-content large" onClick={e => e.stopPropagation()}>
         <h2 className="chart-title">今後の予算・固定費設定/予定</h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>月ごとの予算（固定費・変動費とイベント準備金の目標積立）を表形式で一括設定できます。</p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '1rem' }}>
+          <button 
+            type="button" 
+            className="action-button secondary" 
+            onClick={() => setShowPastMonths(!showPastMonths)}
+            style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+          >
+            {showPastMonths ? '🔼 過去の月を隠す' : '🔽 過去の月を表示'}
+          </button>
           <button 
             type="button" 
             className="action-button secondary" 
@@ -180,6 +189,8 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
                 const isPast = monthStr < currentRealMonth;
                 const allCategories = data?.expenseData ? data.expenseData.map((d: ExpenseData) => d.name).filter((n: string) => n !== '入金' && !ignoredBudgetCategories.includes(n)) : [];
                 
+                if (isPast && !showPastMonths) return null;
+
                 return (
                   <tr key={monthStr} style={{ opacity: isPast ? 0.6 : 1, background: monthStr === currentRealMonth ? '#f0f9ff' : 'transparent' }}>
                     <td style={{ fontWeight: monthStr === currentRealMonth ? 'bold' : 'normal' }}>
