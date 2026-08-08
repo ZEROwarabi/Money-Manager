@@ -49,6 +49,30 @@ export const FixedExpensesModal: React.FC<FixedExpensesModalProps> = ({
          }
       });
     }
+
+    // Fill any gaps between earliest and latest months
+    const existingMonths = Object.keys(clone).sort();
+    if (existingMonths.length >= 2) {
+      const earliest = existingMonths[0];
+      const latest = existingMonths[existingMonths.length - 1];
+      let curr = earliest;
+      while (curr < latest) {
+        const parts = curr.split('-');
+        let year = parseInt(parts[0]);
+        let month = parseInt(parts[1]);
+        month += 1;
+        if (month > 12) {
+          month = 1;
+          year += 1;
+        }
+        const nextMonthStr = `${year}-${String(month).padStart(2, '0')}`;
+        if (!clone[nextMonthStr]) {
+          clone[nextMonthStr] = JSON.parse(JSON.stringify(clone[curr]));
+        }
+        curr = nextMonthStr;
+      }
+    }
+
     setTempSettings(clone);
   }, [data, currentRealMonth]);
 
