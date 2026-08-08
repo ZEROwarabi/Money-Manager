@@ -251,6 +251,10 @@ body {
   margin: 0 4px;
 }
 
+.mobile-break {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .category-header {
     flex-direction: column;
@@ -326,11 +330,14 @@ body {
   .header-subtitle {
     display: none !important;
   }
+  .mobile-break {
+    display: block;
+  }
   .header-title {
-    font-size: 1.6rem !important;
+    font-size: 2.2rem !important;
     text-align: left !important;
-    line-height: 1.1 !important;
-    margin-top: 0.2rem !important;
+    line-height: 1.2 !important;
+    margin-top: 0 !important;
   }
   .header-buttons {
     width: auto !important;
