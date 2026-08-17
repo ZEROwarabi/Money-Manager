@@ -720,7 +720,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.51</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.52</span>
         </p>
       </header>
 
@@ -948,7 +948,7 @@ ${futureSettings}
                       className="action-button primary"
                       style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem', width: 'auto' }}
                     >
-                      🚗 スマートに自動補填する (食費・娯楽費から)
+                      🚗 スマートに自動補填する (娯楽費・イベント費から)
                     </button>
                   </div>
                 )}

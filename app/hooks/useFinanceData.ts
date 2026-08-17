@@ -114,29 +114,29 @@ export const useFinanceData = () => {
   };
 
   const autoCoverTransportation = async (neededAmount: number, currentRealMonth: string) => {
-    const foodCat = data?.categoryBudgets?.find(c => c.category === '食費' || c.name === '食費');
-    const entertainmentCat = data?.categoryBudgets?.find(c => c.category === '娯楽・リフレッシュ費' || c.name === '娯楽・リフレッシュ費');
+    const entertainmentCat = data?.categoryBudgets?.find(c => c.category === '娯楽費' || c.name === '娯楽費');
+    const eventCat = data?.categoryBudgets?.find(c => c.category === '特別体験・イベント費' || c.name === '特別体験・イベント費');
     
     let remainingNeeded = neededAmount;
     const transfersToMake = [];
     
-    if (foodCat && (foodCat.remaining || 0) > 0) {
-      const amount = Math.min(remainingNeeded, (foodCat.remaining || 0));
-      transfersToMake.push({ from: '食費', to: 'ガソリン交通費', amount });
+    if (entertainmentCat && (entertainmentCat.remaining || 0) > 0) {
+      const amount = Math.min(remainingNeeded, (entertainmentCat.remaining || 0));
+      transfersToMake.push({ from: '娯楽費', to: 'ガソリン交通費', amount });
       remainingNeeded -= amount;
     }
     
-    if (remainingNeeded > 0 && entertainmentCat && (entertainmentCat.remaining || 0) > 0) {
-      const amount = Math.min(remainingNeeded, (entertainmentCat.remaining || 0));
-      transfersToMake.push({ from: '娯楽・リフレッシュ費', to: 'ガソリン交通費', amount });
+    if (remainingNeeded > 0 && eventCat && (eventCat.remaining || 0) > 0) {
+      const amount = Math.min(remainingNeeded, (eventCat.remaining || 0));
+      transfersToMake.push({ from: '特別体験・イベント費', to: 'ガソリン交通費', amount });
       remainingNeeded -= amount;
     }
     
     if (transfersToMake.length === 0) {
-      throw new Error('補填できる「食費」または「娯楽・リフレッシュ費」の予算がありません。');
+      throw new Error('補填できる「娯楽費」または「特別体験・イベント費」の予算がありません。');
     }
 
-    if (!window.confirm(`自動補填を実行しますか？\n\n${transfersToMake.map(t => `・${t.from} から $${t.amount}`).join('\n')}`)) {
+    if (!window.confirm(`自動補填を実行しますか？\n\n${transfersToMake.map(t => `・${t.from} から $${t.amount.toFixed(2)}`).join('\n')}`)) {
       return [];
     }
     
