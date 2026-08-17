@@ -136,9 +136,7 @@ export const useFinanceData = () => {
       throw new Error('補填できる「娯楽費」または「特別体験・イベント費」の予算がありません。');
     }
 
-    if (!window.confirm(`自動補填を実行しますか？\n\n${transfersToMake.map(t => `・${t.from} から $${t.amount.toFixed(2)}`).join('\n')}`)) {
-      return [];
-    }
+
     
     for (const t of transfersToMake) {
       await fetch('/api/finance', {

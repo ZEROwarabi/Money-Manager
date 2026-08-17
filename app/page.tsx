@@ -492,7 +492,10 @@ function DashboardContent() {
   const handleAutoCoverTransportation = async (neededAmount: number) => {
     try {
       const transfers = await autoCoverTransportation(neededAmount, currentRealMonth);
-      if (transfers.length > 0) showAlert('交通費の自動補填が完了しました！');
+      if (transfers.length > 0) {
+        const details = transfers.map((t: any) => `${t.from}から$${t.amount.toFixed(2)}`).join('、 ');
+        showAlert(`交通費の自動補填が完了しました！(${details})`);
+      }
     } catch (e: any) {
       showAlert(e.message || 'エラーが発生しました。');
     }
@@ -720,7 +723,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.52</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.53</span>
         </p>
       </header>
 
