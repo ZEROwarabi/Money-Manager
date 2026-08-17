@@ -113,7 +113,7 @@ export const useFinanceData = () => {
     await fetchData();
   };
 
-  const autoCoverTransportation = async (neededAmount: number, currentRealMonth: string) => {
+  const calculateAutoCover = (neededAmount: number, toCategoryName: string = 'ガソリン交通費') => {
     const entertainmentCat = data?.categoryBudgets?.find(c => c.category === '娯楽費' || c.name === '娯楽費');
     const eventCat = data?.categoryBudgets?.find(c => c.category === '特別体験・イベント費' || c.name === '特別体験・イベント費');
     
@@ -122,13 +122,13 @@ export const useFinanceData = () => {
     
     if (entertainmentCat && (entertainmentCat.remaining || 0) > 0) {
       const amount = Math.min(remainingNeeded, (entertainmentCat.remaining || 0));
-      transfersToMake.push({ from: '娯楽費', to: 'ガソリン交通費', amount });
+      transfersToMake.push({ from: '娯楽費', to: toCategoryName, amount });
       remainingNeeded -= amount;
     }
     
     if (remainingNeeded > 0 && eventCat && (eventCat.remaining || 0) > 0) {
       const amount = Math.min(remainingNeeded, (eventCat.remaining || 0));
-      transfersToMake.push({ from: '特別体験・イベント費', to: 'ガソリン交通費', amount });
+      transfersToMake.push({ from: '特別体験・イベント費', to: toCategoryName, amount });
       remainingNeeded -= amount;
     }
     
@@ -136,8 +136,10 @@ export const useFinanceData = () => {
       throw new Error('補填できる「娯楽費」または「特別体験・イベント費」の予算がありません。');
     }
 
+    return transfersToMake;
+  };
 
-    
+  const executeAutoCover = async (transfersToMake: any[], currentRealMonth: string) => {
     for (const t of transfersToMake) {
       await fetch('/api/finance', {
         method: 'POST',
@@ -218,7 +220,8 @@ export const useFinanceData = () => {
     toggleIgnoredBudgetCategory,
     editRecord,
     deleteRecord,
-    autoCoverTransportation,
+    calculateAutoCover,
+    executeAutoCover,
     exportData,
     importData
   };

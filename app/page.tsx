@@ -105,7 +105,7 @@ export default function Page() {
 }
 
 function DashboardContent() {
-  const { data, loading, error, monthlySettings, localWishlist, setLocalWishlist, ignoredBudgetCategories, fetchData, addWishlist, toggleWishlist, deleteWishlist, updateWishlist, toggleIgnoredBudgetCategory, editRecord, deleteRecord, autoCoverTransportation, exportData, importData } = useFinanceContext();
+  const { data, loading, error, monthlySettings, localWishlist, setLocalWishlist, ignoredBudgetCategories, fetchData, addWishlist, toggleWishlist, deleteWishlist, updateWishlist, toggleIgnoredBudgetCategory, editRecord, deleteRecord, calculateAutoCover, executeAutoCover, exportData, importData } = useFinanceContext();
   const [mounted, setMounted] = useState(false);
   
   
@@ -116,10 +116,10 @@ function DashboardContent() {
   // Modals
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string; title?: string }>({ isOpen: false, message: '' });
-  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; message: string; title?: string; onConfirm: () => void; onCancel?: () => void }>({ isOpen: false, message: '', onConfirm: () => {} });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; message: string; title?: string; onConfirm: () => void; onCancel?: () => void; confirmText?: string; confirmColor?: string }>({ isOpen: false, message: '', onConfirm: () => {} });
 
   const showAlert = (message: string, title: string = 'お知らせ') => setAlertModal({ isOpen: true, message, title });
-  const showConfirm = (message: string, onConfirm: () => void, title: string = '確認') => setConfirmModal({ isOpen: true, message, title, onConfirm });
+  const showConfirm = (message: string, onConfirm: () => void, title: string = '確認', confirmText: string = '実行', confirmColor: string = '#ef4444') => setConfirmModal({ isOpen: true, message, title, onConfirm, confirmText, confirmColor });
   const [showFixedModal, setShowFixedModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   // Forms
@@ -491,11 +491,23 @@ function DashboardContent() {
 
   const handleAutoCoverTransportation = async (neededAmount: number) => {
     try {
-      const transfers = await autoCoverTransportation(neededAmount, currentRealMonth);
-      if (transfers.length > 0) {
-        const details = transfers.map((t: any) => `${t.from}から$${t.amount.toFixed(2)}`).join('、 ');
-        showAlert(`交通費の自動補填が完了しました！(${details})`);
-      }
+      const transfers = calculateAutoCover(neededAmount, 'ガソリン交通費');
+      const details = transfers.map((t: any) => `・${t.from} から $${t.amount.toFixed(2)}`).join('\n');
+      
+      showConfirm(
+        `交通費の自動補填を実行しますか？\n\n${details}`,
+        async () => {
+          try {
+            await executeAutoCover(transfers, currentRealMonth);
+            showAlert('交通費の自動補填が完了しました！');
+          } catch (e: any) {
+            showAlert(e.message || 'エラーが発生しました。');
+          }
+        },
+        '自動補填の確認',
+        '補填する',
+        'var(--accent-color)'
+      );
     } catch (e: any) {
       showAlert(e.message || 'エラーが発生しました。');
     }
@@ -723,7 +735,7 @@ ${futureSettings}
           <span style={{ fontStyle: 'italic', color: 'var(--accent-color)', fontWeight: 600 }}>Design your wealth, guided by AI.</span>
           <span style={{ margin: '0 8px', color: '#cbd5e1' }}>|</span>
           過去から学び、未来の体験を創り出す。
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.53</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '10px' }}>v1.0.54</span>
         </p>
       </header>
 
@@ -1409,8 +1421,8 @@ ${futureSettings}
               <button className="action-button secondary" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} style={{ flex: 1, padding: '0.8rem', fontSize: '1rem' }}>
                 キャンセル
               </button>
-              <button className="action-button primary" onClick={() => { confirmModal.onConfirm(); setConfirmModal({ ...confirmModal, isOpen: false }); }} style={{ flex: 1, padding: '0.8rem', fontSize: '1rem', background: '#ef4444', borderColor: '#ef4444' }}>
-                実行
+              <button className="action-button primary" onClick={() => { confirmModal.onConfirm(); setConfirmModal({ ...confirmModal, isOpen: false }); }} style={{ flex: 1, padding: '0.8rem', fontSize: '1rem', background: confirmModal.confirmColor || '#ef4444', borderColor: confirmModal.confirmColor || '#ef4444' }}>
+                {confirmModal.confirmText || '実行'}
               </button>
             </div>
           </div>
