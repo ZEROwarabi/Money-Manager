@@ -1,0 +1,1 @@
+const fs = require('fs'); const content = fs.readFileSync('app/icon.svg', 'utf-8'); const match = content.match(/href="data:image\/jpeg;base64,(.*?)"/); if (match) { fs.writeFileSync('public/icon.jpg', Buffer.from(match[1], 'base64')); console.log('Saved to public/icon.jpg'); }

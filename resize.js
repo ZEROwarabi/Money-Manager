@@ -1,0 +1,1 @@
+const Jimp = require('jimp'); Jimp.read('public/icon.jpg').then(image => { return image.resize(64, 64).writeAsync('app/icon.png'); }).then(() => { console.log('Successfully created app/icon.png'); }).catch(err => { console.error(err); });
